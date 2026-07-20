@@ -1,646 +1,232 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Storefront | Topin</title>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0FA986">
+    <meta name="theme-color" content="#FFFFFF">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css?v=3.2">
+    <link rel="stylesheet" href="/css/topin.css?v=4.1">
+    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
     <style>
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-        }
-        .store-banner-container {
-            width: 100%;
-            height: 280px;
-            background: linear-gradient(135deg, #1b262c, #0f4c75);
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .store-banner-container.blurred-fallback::before {
-            content: '';
-            position: absolute;
-            top: -30px; left: -30px; right: -30px; bottom: -30px;
-            background-image: inherit;
-            background-size: cover;
-            background-position: center;
-            filter: blur(25px) brightness(0.55);
-            z-index: 0;
-        }
-        .store-banner-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.85));
-            z-index: 1;
-        }
-        .store-header-content {
-            max-width: 900px;
-            margin: -80px auto 0 auto;
-            position: relative;
-            padding: 0 20px;
+        .store-sticky-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 250;
+            padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
             display: flex;
-            flex-direction: column;
-            gap: 20px;
-            z-index: 2;
+            gap: 10px;
+            pointer-events: none;
         }
-        .store-identity {
-            display: flex;
-            align-items: flex-start;
-            gap: 20px;
-        }
-        .store-logo-box {
-            width: 130px;
-            height: 130px;
-            background: var(--surface);
-            border-radius: 20px;
-            border: 4px solid var(--bg);
-            box-shadow: var(--shadow);
+        .store-sticky-bar > * { pointer-events: auto; }
+        .store-sticky-tg {
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--tg);
+            color: #fff;
             flex-shrink: 0;
-        }
-        .store-logo-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .store-title-block {
-            grid-column: 1 / -1;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 16px;
-            margin-bottom: 4px;
-        }
-        .store-name {
-            font-size: 32px;
-            font-weight: 800;
-            margin: 0 0 6px 0;
-            color: var(--text);
-        }
-        .store-tagline {
-            font-size: 15px;
-            color: var(--text2);
-            margin: 0;
-        }
-        .store-details-grid {
-            background: var(--surface);
-            border-radius: 20px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-        }
-        .store-info-col {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .store-hours-col {
-            border-left: 1px solid var(--border);
-            padding-left: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .store-info-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            color: var(--text2);
-        }
-        .store-info-row svg, .store-info-row img {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-        }
-        .store-info-row a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .store-info-row a:hover {
-            text-decoration: underline;
-        }
-        .tab-nav-container {
-            max-width: 900px;
-            margin: 20px auto 0 auto;
-            padding: 0 20px;
-            border-bottom: 1px solid var(--border);
-        }
-        .tab-btn {
-            background: none;
-            border: none;
-            color: var(--text3);
-            font-size: 16px;
-            font-weight: 600;
-            padding: 12px 20px;
-            cursor: pointer;
-            position: relative;
-            transition: color 0.2s;
-        }
-        .tab-btn.active {
-            color: var(--accent);
-        }
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background-color: var(--accent);
-            border-radius: 3px 3px 0 0;
-        }
-        .tab-content {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-        /* Product catalog inside storefront */
-        .filter-sidebar-layout {
-            display: grid;
-            grid-template-columns: 240px 1fr;
-            gap: 24px;
-        }
-        .filter-panel {
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            height: fit-content;
-        }
-        .filter-section {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .filter-label {
-            font-weight: 700;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text2);
-        }
-        .filter-control {
-            background: var(--surface2);
-            border: 1px solid var(--border2);
-            border-radius: 8px;
-            padding: 10px;
-            color: var(--text);
-            font-size: 16px;
-            outline: none;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .filter-checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: var(--text2);
-            cursor: pointer;
-        }
-        .filter-checkbox-label input {
-            cursor: pointer;
-        }
-        .product-grid-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .catalog-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .catalog-count {
-            font-size: 16px;
-            font-weight: 600;
-        }
-        .catalog-sort {
-            width: 180px;
-        }
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        .product-card {
-            background: var(--surface);
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-            position: relative;
-            text-decoration: none;
-            color: var(--text);
-        }
-        .product-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent);
             box-shadow: var(--shadow);
         }
-        .product-card-img-box {
-            width: 100%;
-            height: 200px;
-            background: var(--surface2);
-            position: relative;
-            overflow: hidden;
-        }
-        .product-card-img-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .ar-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(15, 169, 134, 0.9);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
+        .store-sticky-phone {
             display: flex;
             align-items: center;
-            gap: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-        .product-card-info {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .product-card-title {
+            justify-content: center;
+            gap: 10px;
+            height: 52px;
+            flex: 1;
+            border-radius: 50px;
+            background: var(--dark);
+            color: var(--dark-text);
             font-size: 15px;
-            font-weight: 700;
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .product-card-desc {
-            font-size: 13px;
-            color: var(--text3);
-            margin: 0;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            height: 36px;
-        }
-        .product-card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 4px;
-        }
-        .product-card-price {
-            font-weight: 700;
-            font-size: 15px;
-            color: var(--accent);
-        }
-        .product-card-sale-price {
-            font-weight: 700;
-            font-size: 15px;
-            color: var(--red);
-        }
-        .original-price-strike {
-            font-size: 12px;
-            color: var(--text3);
-            text-decoration: line-through;
-            margin-left: 6px;
-        }
-        .stock-badge {
-            font-size: 11px;
             font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
+            box-shadow: var(--shadow);
         }
-        .stock-in { background: rgba(15, 169, 134, 0.15); color: var(--accent); }
-        .stock-out { background: rgba(255, 84, 62, 0.15); color: var(--red); }
-        .stock-preorder { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
-
-        @media (max-width: 768px) {
-            .store-banner-container {
-                height: 180px;
-            }
-            .store-identity {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-            .store-title-block {
-                text-align: center;
-                margin-top: 0;
-            }
-            .store-logo-box {
-                width: 100px;
-                height: 100px;
-                border-radius: 16px;
-            }
-            .store-details-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-            .store-hours-col {
-                border-left: none;
-                padding-left: 0;
-                border-top: 1px solid var(--border);
-                padding-top: 16px;
-            }
-            .filter-sidebar-layout {
-                grid-template-columns: 1fr;
-            }
-            .product-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (max-width: 480px) {
-            .product-grid {
-                grid-template-columns: 1fr;
-            }
+        @media (min-width: 768px) {
+            .store-sticky-bar { display: none !important; }
         }
     </style>
-    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
 <body>
 
-    <!-- Header -->
-    <header class="site-header">
-        <div class="header-inner" style="padding: 0 16px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-                <a href="/" class="back-btn" aria-label="Go back">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                </a>
-                <a href="/" class="home-logo">
-                    <span class="logo-text-top">TOP</span><span class="logo-text-in">IN</span>
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <!-- Banner -->
-    <div class="store-banner-container" id="storeBanner">
-        <div class="store-banner-overlay"></div>
-    </div>
-
-    <!-- Store Profile Identity Info -->
-    <div class="store-header-content">
-        <div class="store-identity">
-            <div class="store-logo-box" id="storeLogo">🏪</div>
+    <!-- Header: back + store name + share -->
+    <main class="store-page">
+        <div class="shops-title-row">
+            <a href="/" class="back-btn" id="backBtn" aria-label="Go back">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </a>
+            <h1 class="page-title" id="storeName">–</h1>
+            <button class="header-icon-btn" id="storeShareBtn" aria-label="Share">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 6 12 2 8 6"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                </svg>
+            </button>
         </div>
 
-        <div class="store-details-grid">
-            <div class="store-title-block">
-                <h1 class="store-name" id="storeName">–</h1>
-                <div id="storeRatingContainer" style="margin-bottom: 8px;"></div>
-                <p class="store-tagline" id="storeTagline">–</p>
+        <!-- Hero card -->
+        <div class="store-hero-card" style="margin-top: 8px;">
+            <div class="store-hero-logo" id="storeLogo">🏪</div>
+            <div class="store-hero-name-row">
+                <span class="store-hero-name" id="storeHeroName">–</span>
+                <span class="store-hero-chip" id="storeCategoryChip" style="display:none;"></span>
             </div>
-            <div class="store-info-col">
-                <div id="storeContacts" style="display: flex; flex-direction: column; gap: 16px;">
-                    <!-- Filled dynamically -->
-                </div>
-                <!-- Little Map container -->
-                <div id="storeMapContainer" style="width: 100%; height: 160px; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); display: none; margin-top: 16px;">
-                    <iframe id="storeMapIframe" src="" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                </div>
-            </div>
-            <div class="store-hours-col" id="storeHours">
-                <h3 style="margin: 0 0 10px 0; font-size:15px;" id="hoursTitle">Рабочие часы</h3>
-                <!-- Filled dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Navigation tabs -->
-    <div class="tab-nav-container">
-        <button class="tab-btn active" id="tabProducts" onclick="switchTab('products')">Товары</button>
-        <button class="tab-btn" id="tabAbout" onclick="switchTab('about')">О компании</button>
-        <button class="tab-btn" id="tabReviews" onclick="switchTab('reviews')">Отзывы</button>
-    </div>
-
-    <!-- Main Content Area -->
-    <div class="tab-content">
-        <!-- Tab 1: Products Listing with Sidebar Filters -->
-        <div id="productsView" class="filter-sidebar-layout">
-            <div class="filter-panel">
-                <div class="filter-section">
-                    <label class="filter-label" id="lblSearch">Поиск по магазину</label>
-                    <input type="text" id="prodSearch" class="filter-control" placeholder="Поиск товара...">
-                </div>
-
-                <div class="filter-section">
-                    <label class="filter-label" id="lblCategory">Категория</label>
-                    <select id="prodCategory" class="filter-control">
-                        <option value="all">Все</option>
-                    </select>
-                </div>
-
-                <div class="filter-section">
-                    <label class="filter-label" id="lblStock">Наличие</label>
-                    <label class="filter-checkbox-label">
-                        <input type="checkbox" id="chkInStock"> <span id="lblInStockOnly">Только в наличии</span>
-                    </label>
-                </div>
-
-                <div class="filter-section">
-                    <label class="filter-label">AR / 3D</label>
-                    <label class="filter-checkbox-label">
-                        <input type="checkbox" id="chkAR"> <span id="lblAROnly">Только с 3D моделью</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="product-grid-container">
-                <div class="catalog-header">
-                    <div class="catalog-count" id="productCount">0 товаров</div>
-                    <select id="catalogSort" class="filter-control catalog-sort">
-                        <option value="newest">Новинки</option>
-                        <option value="price-asc">Цена: дешевые</option>
-                        <option value="price-desc">Цена: дорогие</option>
-                        <option value="rating-desc">По рейтингу</option>
-                    </select>
-                </div>
-
-                <div class="product-grid" id="productGrid">
-                    <!-- Skeletons loaded initially -->
-                </div>
-            </div>
+            <p class="store-hero-desc" id="storeTagline"></p>
         </div>
 
-        <!-- Tab 2: About View -->
-        <div id="aboutView" style="display: none; background:var(--surface); padding:30px; border-radius:20px; border:1px solid var(--border);">
-            <h2 id="aboutTitle" style="margin-top:0;">О компании</h2>
-            <div id="aboutContent" style="line-height:1.6; color:var(--text2);">
-                <!-- Dynamic rich text description -->
-            </div>
+        <!-- Product count -->
+        <div class="store-count-row" id="productCount"></div>
+
+        <!-- Products grid -->
+        <div class="products-grid" id="productGrid">
+            <!-- Skeletons loaded initially -->
         </div>
 
-        <!-- Tab 3: Reviews View -->
-        <div id="reviewsView" style="display: none; background:var(--surface); padding:30px; border-radius:20px; border:1px solid var(--border);">
-            <div class="reviews-section" style="margin-top:0; border-top:none; padding-top:0;">
-                <h3 class="reviews-title" id="lblReviewsTitle">Отзывы и оценки</h3>
-                <div class="reviews-list" id="reviewsList">
-                    <!-- Loaded dynamically -->
-                </div>
+        <!-- Reviews -->
+        <div class="reviews-section" id="storeReviewsSection">
+            <h3 class="reviews-title" id="lblReviewsTitle">Fikrlar va baholar</h3>
+            <div class="reviews-list" id="reviewsList"></div>
 
-                <!-- Write a review form -->
-                <div class="review-form-container">
-                    <div class="review-form-header" id="btnToggleReviewForm" onclick="toggleReviewForm()" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                        <h4 class="review-form-title" id="lblWriteReview" style="margin: 0;">Оставить отзыв</h4>
-                        <span class="toggle-icon" id="reviewToggleIcon" style="font-size: 18px; transition: transform 0.2s; color: var(--accent);">➕</span>
+            <div class="review-form-container">
+                <div class="review-form-header" id="btnToggleReviewForm" onclick="toggleReviewForm()" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                    <h4 class="review-form-title" id="lblWriteReview" style="margin: 0;">Fikr qoldirish</h4>
+                    <span class="toggle-icon" id="reviewToggleIcon" style="font-size: 18px; color: var(--blue);">➕</span>
+                </div>
+                <form class="review-form" id="reviewForm" onsubmit="submitReview(event)" style="display: none; margin-top: 16px;">
+                    <div class="form-group">
+                        <label for="reviewAuthor" id="lblYourName">Sizning ismingiz</label>
+                        <input type="text" id="reviewAuthor" class="form-input" placeholder="Ismingizni kiriting..." required>
                     </div>
-                    <form class="review-form" id="reviewForm" onsubmit="submitReview(event)" style="display: none; margin-top: 16px;">
-                        <div class="form-group">
-                            <label for="reviewAuthor" id="lblYourName">Ваше имя</label>
-                            <input type="text" id="reviewAuthor" class="form-input" placeholder="Введите имя..." required>
+                    <div class="form-group">
+                        <label id="lblYourRating">Sizning bahoingiz</label>
+                        <div class="star-rating-selector" id="starSelector">
+                            <span data-val="1">☆</span>
+                            <span data-val="2">☆</span>
+                            <span data-val="3">☆</span>
+                            <span data-val="4">☆</span>
+                            <span data-val="5">☆</span>
                         </div>
-                        <div class="form-group">
-                            <label id="lblYourRating">Ваша оценка</label>
-                            <div class="star-rating-selector" id="starSelector">
-                                <span data-val="1">☆</span>
-                                <span data-val="2">☆</span>
-                                <span data-val="3">☆</span>
-                                <span data-val="4">☆</span>
-                                <span data-val="5">☆</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="reviewComment" id="lblYourComment">Комментарий</label>
-                            <textarea id="reviewComment" class="form-textarea" placeholder="Напишите ваш отзыв..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn-submit-review" id="btnSubmitReview">Отправить отзыв</button>
-                    </form>
-                </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reviewComment" id="lblYourComment">Fikr-mulohaza</label>
+                        <textarea id="reviewComment" class="form-textarea" placeholder="Fikringizni yozing..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit-review" id="btnSubmitReview">Yuborish</button>
+                </form>
             </div>
         </div>
+    </main>
+
+    <!-- Mobile sticky contact bar -->
+    <div class="store-sticky-bar" id="storeStickyBar" style="display:none;">
+        <a class="store-sticky-tg" id="stickyTgBtn" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 4.1 2.9 11.3c-1 .4-1 1.3-.2 1.6l4.7 1.5 1.8 5.5c.2.6.4.8.9.8.4 0 .6-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.2-15c.3-1.2-.4-1.8-1.5-1.6zM7.9 14.1l10.4-6.6c.5-.3 1-.1.6.2l-8.9 8-.3 3.3-1.8-4.9z"/></svg>
+        </a>
+        <a class="store-sticky-phone" id="stickyPhoneBtn" href="#" style="display:none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <span id="stickyPhoneText"></span>
+        </a>
     </div>
+
+    <!-- Floating footer controls (desktop) -->
+    <footer class="site-footer hide-mobile">
+        <div class="footer-controls">
+            <div class="lang-wrap" id="langWrap">
+                <button class="lang-switch-btn" id="langBtn" aria-label="Change Language">
+                    <span class="lang-text">UZ</span>
+                    <svg class="lang-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="lang-dropdown" id="langDropdown">
+                    <div class="lang-option" data-lang="uz">
+                        O'zbek
+                        <svg class="lang-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="lang-option" data-lang="ru">
+                        Русский
+                        <svg class="lang-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                </div>
+            </div>
+
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle theme">
+                <span class="theme-icon theme-icon-sun">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+                </span>
+                <span class="theme-icon theme-icon-moon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </span>
+            </button>
+        </div>
+    </footer>
 
     <!-- Toast UI element -->
     <div class="toast" id="toast"></div>
 
-    <script src="../js/config.js?v=3.2"></script>
-    <script src="../js/utils.js?v=3.2"></script>
+    <script src="/js/config.js?v=4.1"></script>
+    <script src="/js/utils.js?v=4.1"></script>
     <script>
         let shop = null;
-        let currentTab = 'products';
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
         const storeSlug = pathSegments[pathSegments.indexOf('stores') + 1];
-                function renderStorefrontDetails() {
+
+        function renderStorefrontDetails() {
             if (!shop) return;
-            // Sync Header UI elements
             document.title = `${shop.name} | Topin`;
             document.getElementById('storeName').textContent = shop.name;
-            document.getElementById('storeRatingContainer').innerHTML = renderRatingStarsHtml(shop.rating, shop.reviewsCount);
-            document.getElementById('storeTagline').textContent = getLocalizedText(shop, 'description_ru', 'description').substring(0, 250);
-            
-            if (shop.bannerUrl) {
-                document.getElementById('storeBanner').style.backgroundImage = `url('${shop.bannerUrl}')`;
-            } else if (shop.logoUrl) {
-                const bannerEl = document.getElementById('storeBanner');
-                bannerEl.style.backgroundImage = `url('${shop.logoUrl}')`;
-                bannerEl.classList.add('blurred-fallback');
+            document.getElementById('storeHeroName').textContent = shop.name;
+
+            const tagline = getLocalizedText(shop, 'description_ru', 'description');
+            const taglineEl = document.getElementById('storeTagline');
+            taglineEl.textContent = tagline;
+            taglineEl.style.display = tagline ? 'block' : 'none';
+
+            // Category chip
+            const chip = document.getElementById('storeCategoryChip');
+            let catName = '';
+            if (shop.Category) {
+                const translated = shop.Category.slug ? getCatName(shop.Category.slug) : '';
+                catName = (translated && translated !== shop.Category.slug)
+                    ? translated
+                    : (currentLang === 'ru' ? shop.Category.name_ru || shop.Category.name : shop.Category.name || shop.Category.name_ru);
             }
+            if (catName) {
+                chip.textContent = catName;
+                chip.style.display = 'inline-flex';
+            } else {
+                chip.style.display = 'none';
+            }
+
             if (shop.logoUrl) {
                 document.getElementById('storeLogo').innerHTML = `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shop.name)}">`;
             }
 
-            // Build Contacts & Social Links
-            const contactsEl = document.getElementById('storeContacts');
-            let contactHtml = '';
-            if (shop.location) {
-                contactHtml += `<div class="store-info-row">
-                    <img src="../img/icons/Location icon.svg" alt="Адрес">
-                    <a href="${shop.locationLink || `https://maps.google.com/?q=${encodeURIComponent(shop.location)}`}" target="_blank" rel="noopener noreferrer">${escHtml(shop.location)}</a>
-                </div>`;
-            }
-            if (shop.phone) {
-                contactHtml += `<div class="store-info-row">
-                    <img src="../img/icons/phone%20icon.svg" alt="Телефон">
-                    <a href="tel:${escHtml(shop.phone)}">${escHtml(shop.phone)}</a>
-                </div>`;
-            }
-            if (shop.telegram) {
-                const handle = shop.telegram.split('/').pop();
-                contactHtml += `<div class="store-info-row">
-                    <img src="../img/icons/Telegram%20.svg" alt="TG">
-                    <a href="${escHtml(shop.telegram)}" target="_blank" rel="noopener noreferrer">@${escHtml(handle)}</a>
-                </div>`;
-            }
-            if (shop.instagram) {
-                const handle = shop.instagram.split('/').pop().replace('?','');
-                contactHtml += `<div class="store-info-row">
-                    <img src="../img/icons/instgram%20.svg" alt="IG">
-                    <a href="${escHtml(shop.instagram)}" target="_blank" rel="noopener noreferrer">@${escHtml(handle)}</a>
-                </div>`;
-            }
-            if (shop.website) {
-                const host = new URL(shop.website).hostname.replace('www.','');
-                contactHtml += `<div class="store-info-row">
-                    <img src="../img/icons/WebsitegoArrow%20Icon.svg" alt="Web">
-                    <a href="${escHtml(shop.website)}" target="_blank" rel="noopener noreferrer">${escHtml(host)}</a>
-                </div>`;
-            }
-            contactsEl.innerHTML = contactHtml;
-
-            // Load Dynamic Map
-            const mapContainer = document.getElementById('storeMapContainer');
-            const mapIframe = document.getElementById('storeMapIframe');
-            if (mapContainer && mapIframe) {
-                if (shop.location) {
-                    mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(shop.location)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-                    mapContainer.style.display = 'block';
-                } else {
-                    mapIframe.src = '';
-                    mapContainer.style.display = 'none';
+            // Mobile sticky contact bar
+            const bar = document.getElementById('storeStickyBar');
+            const tgBtn = document.getElementById('stickyTgBtn');
+            const phoneBtn = document.getElementById('stickyPhoneBtn');
+            if (shop.telegram || shop.phone) {
+                bar.style.display = 'flex';
+                if (shop.telegram) {
+                    tgBtn.style.display = 'flex';
+                    tgBtn.href = shop.telegram.startsWith('http') ? shop.telegram : `https://t.me/${shop.telegram.replace('@', '')}`;
                 }
-            }
-
-            // Load Working Hours
-            const hoursEl = document.getElementById('storeHours');
-            if (shop.workingHours) {
-                try {
-                    const hours = JSON.parse(shop.workingHours);
-                    let hHtml = `<h3 style="margin: 0 0 10px 0; font-size:15px;" id="hoursTitle">${t('workingHoursTitle')}</h3>`;
-                    const days = t('daysAbbrev');
-                    
-                    const weekKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                    weekKeys.forEach((dayKey, idx) => {
-                        const status = hours[dayKey]?.isActive ? `${hours[dayKey].from} - ${hours[dayKey].to}` : t('closedDay');
-                        hHtml += `<div style="display:flex; justify-content:space-between; font-size:13px; color:var(--text3); margin-bottom:4px;">
-                            <span>${days[idx]}</span>
-                            <span>${status}</span>
-                        </div>`;
-                    });
-                    hoursEl.innerHTML = hHtml;
-                } catch(e) { hoursEl.style.display = 'none'; }
+                if (shop.phone) {
+                    phoneBtn.style.display = 'flex';
+                    phoneBtn.href = `tel:${escHtml(shop.phone)}`;
+                    document.getElementById('stickyPhoneText').textContent = shop.phone;
+                }
             } else {
-                hoursEl.style.display = 'none';
-            }
-
-            // Tab About updates
-            if (currentTab === 'about') {
-                const content = getLocalizedText(shop, 'description_ru', 'description');
-                document.getElementById('aboutContent').innerHTML = content.replace(/\n/g, '<br>');
+                bar.style.display = 'none';
             }
         }
 
@@ -648,15 +234,31 @@
             // Set dynamic back button href
             const urlParams = new URLSearchParams(window.location.search);
             const fromCat = urlParams.get('fromCategory');
-            const backBtn = document.querySelector('.back-btn');
+            const backBtn = document.getElementById('backBtn');
             if (backBtn) {
                 if (fromCat && fromCat !== 'all') {
-                    backBtn.href = `/shops.html?category=${encodeURIComponent(fromCat)}`;
-                } else if (document.referrer && document.referrer.includes('/shops.html')) {
-                    backBtn.href = document.referrer;
+                    backBtn.href = `/shops?category=${encodeURIComponent(fromCat)}`;
+                } else if (document.referrer && (document.referrer.includes('/shops') || document.referrer.includes(window.location.host))) {
+                    backBtn.href = 'javascript:history.back()';
                 } else {
                     backBtn.href = '/';
                 }
+            }
+
+            // Share button
+            const shareBtn = document.getElementById('storeShareBtn');
+            if (shareBtn) {
+                shareBtn.addEventListener('click', async () => {
+                    const shareUrl = window.location.href;
+                    if (navigator.share) {
+                        try { await navigator.share({ title: shop ? shop.name : 'Topin', url: shareUrl }); } catch (e) {}
+                    } else if (navigator.clipboard) {
+                        try {
+                            await navigator.clipboard.writeText(shareUrl);
+                            showToast(t('linkCopied'), 'success');
+                        } catch (e) {}
+                    }
+                });
             }
 
             // Load Store profile
@@ -666,28 +268,17 @@
                 const json = await res.json();
                 shop = json.data;
             } catch (err) {
-                document.body.innerHTML = `<div style="text-align:center; padding:100px 20px;">
+                document.body.innerHTML = `<div style="text-align:center; padding:100px 20px; font-family: inherit;">
                     <h2>${t('pageNotFound')}</h2>
-                    <p>Проверьте корректность ссылки или вернитесь на <a href="/" style="color:var(--accent)">главную</a>.</p>
+                    <p style="margin-top: 8px;"><a href="/" style="color:var(--blue)">Topin</a></p>
                 </div>`;
                 return;
             }
 
             renderStorefrontDetails();
             setupStarSelector();
-
-            // Load Store-specific Custom Categories & Products
-            await Promise.all([
-                loadStoreSubCategories(),
-                fetchStoreProducts()
-            ]);
-
-            // Bind Event Listeners for Filters
-            document.getElementById('prodSearch').addEventListener('input', debounce(fetchStoreProducts, 300));
-            document.getElementById('prodCategory').addEventListener('change', fetchStoreProducts);
-            document.getElementById('chkInStock').addEventListener('change', fetchStoreProducts);
-            document.getElementById('chkAR').addEventListener('change', fetchStoreProducts);
-            document.getElementById('catalogSort').addEventListener('change', fetchStoreProducts);
+            await fetchStoreProducts();
+            loadReviews();
 
             // Send tracking page_view event
             fetch('/api/analytics/track', {
@@ -702,69 +293,23 @@
             }).catch(e => {});
         }
 
-        async function loadStoreSubCategories() {
-            const select = document.getElementById('prodCategory');
-            const currentValue = select.value;
-            select.innerHTML = `<option value="all">${t('hammasi')}</option>`;
-            try {
-                // Fetch subcategories for the main Category this shop belongs to
-                const res = await fetch(`/api/subcategories?category=${shop.CategoryId}`);
-                const json = await res.json();
-                shopCategories = json.data || [];
-                
-                shopCategories.forEach(sc => {
-                    const option = document.createElement('option');
-                    option.value = sc.id;
-                    option.textContent = currentLang === 'ru' ? sc.name_ru || sc.name : sc.name || sc.name_ru;
-                    select.appendChild(option);
-                });
-                select.value = currentValue;
-            } catch(e) {}
-        }
-
         async function fetchStoreProducts() {
             const grid = document.getElementById('productGrid');
-            const search = document.getElementById('prodSearch').value;
-            const subcat = document.getElementById('prodCategory').value;
-            const inStock = document.getElementById('chkInStock').checked;
-            const hasAr = document.getElementById('chkAR').checked;
-            const sort = document.getElementById('catalogSort').value;
 
             // Display skeletons
-            grid.innerHTML = Array(6).fill().map(() => `
-                <div class="skeleton-card" style="height: 320px;">
-                    <div class="skeleton-logo" style="width:100%; height:180px; border-radius:0;"></div>
-                    <div class="skeleton-info">
-                        <div class="skeleton-line"></div>
-                        <div class="skeleton-line short"></div>
-                    </div>
-                </div>
+            grid.innerHTML = Array(8).fill().map(() => `
+                <div class="skeleton-card" style="height: 280px; border-radius: 22px;"></div>
             `).join('');
 
             try {
-                const params = new URLSearchParams();
-                if (subcat && subcat !== 'all') params.append('subcategory', subcat);
-                if (search) params.append('search', search);
-                if (inStock) params.append('inStock', 'true');
-                if (hasAr) params.append('hasAr', 'true');
-                params.append('limit', '100'); // fetch all store products for simplicity
-
-                const res = await fetch(`/api/shops/${shop.id}/products?${params.toString()}`);
+                const res = await fetch(`/api/shops/${shop.id}/products?limit=100`);
                 const json = await res.json();
-                let products = json.data || [];
+                const products = json.data || [];
 
-                // Sort client side based on selection
-                if (sort === 'price-asc') {
-                    products.sort((a,b) => parseFloat(a.price || 0) - parseFloat(b.price || 0));
-                } else if (sort === 'price-desc') {
-                    products.sort((a,b) => parseFloat(b.price || 0) - parseFloat(a.price || 0));
-                } else if (sort === 'rating-desc') {
-                    products.sort((a,b) => parseFloat(b.rating || 0) - parseFloat(a.rating || 0));
-                } else if (sort === 'name-asc') {
-                    products.sort((a,b) => (a.name || '').localeCompare(b.name || '', currentLang === 'ru' ? 'ru' : 'uz'));
-                }
-
-                document.getElementById('productCount').textContent = t('productsCountText').replace('{count}', products.length);
+                const countEl = document.getElementById('productCount');
+                countEl.innerHTML = currentLang === 'ru'
+                    ? `${t('productLabel')} <b>${products.length}</b>`
+                    : `${t('productLabel')} <b>${products.length} ta</b>`;
 
                 if (products.length === 0) {
                     grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text3);">
@@ -775,35 +320,26 @@
 
                 grid.innerHTML = products.map(prod => {
                     const hasModel = prod.glbUrl || prod.usdzUrl;
-                    const arBadgeHtml = hasModel ? `<div class="ar-badge">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                        3D / AR
-                    </div>` : '';
+                    const arBadgeHtml = `
+                        <div class="product-card-ar-badge">${hasModel ? '3D' : ''}
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        </div>`;
 
-                    const stockText = prod.stockStatus === 'In Stock' ? t('inStockStatus')
-                                    : prod.stockStatus === 'Out of Stock' ? t('outOfStockStatus')
-                                    : t('preorderStatus');
-                    const stockClass = prod.stockStatus === 'In Stock' ? 'stock-in'
-                                     : prod.stockStatus === 'Out of Stock' ? 'stock-out'
-                                     : 'stock-preorder';
-
-                    const priceStr = prod.price 
-                        ? `${parseFloat(prod.price).toLocaleString()} ${shop.currency || 'UZS'}`
+                    const priceStr = prod.price
+                        ? `${parseFloat(prod.price).toLocaleString()} ${shop.currency === 'UZS' || !shop.currency ? "so'm" : shop.currency}`
                         : t('priceOnRequest');
 
                     return `
                         <a href="/stores/${shop.slug}/products/${prod.slug}" class="product-card">
-                            <div class="product-card-img-box">
-                                <img src="${prod.imageUrl || '../img/placeholder.png'}" alt="${escHtml(prod.name)}" loading="lazy">
+                            <div class="product-card-img-wrap">
+                                <img src="${cloudinaryOptimize(prod.imageUrl || '/img/placeholder.png')}" alt="${escHtml(prod.name)}" class="product-card-img" loading="lazy">
                                 ${arBadgeHtml}
                             </div>
-                            <div class="product-card-info">
-                                <h3 class="product-card-title">${escHtml(prod.name)}</h3>
-                                ${renderRatingStarsHtml(prod.rating, prod.reviewsCount)}
-                                <p class="product-card-desc">${escHtml(prod.shortDescription || '')}</p>
-                                <div class="product-card-footer">
+                            <div class="product-card-content">
+                                <span class="product-card-shop">${escHtml(shop.name)}</span>
+                                <h3 class="product-card-name">${escHtml(prod.name)}</h3>
+                                <div class="product-card-price-row">
                                     <span class="product-card-price">${priceStr}</span>
-                                    <span class="stock-badge ${stockClass}">${stockText}</span>
                                 </div>
                             </div>
                         </a>
@@ -814,24 +350,6 @@
                 grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--red);">
                     <p>${t('uploadError')}</p>
                 </div>`;
-            }
-        }
-
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('tabProducts').classList.toggle('active', tab === 'products');
-            document.getElementById('tabAbout').classList.toggle('active', tab === 'about');
-            document.getElementById('tabReviews').classList.toggle('active', tab === 'reviews');
-
-            document.getElementById('productsView').style.display = tab === 'products' ? 'grid' : 'none';
-            document.getElementById('aboutView').style.display = tab === 'about' ? 'block' : 'none';
-            document.getElementById('reviewsView').style.display = tab === 'reviews' ? 'block' : 'none';
-
-            if (tab === 'about') {
-                const content = getLocalizedText(shop, 'description_ru', 'description');
-                document.getElementById('aboutContent').innerHTML = content.replace(/\n/g, '<br>');
-            } else if (tab === 'reviews') {
-                loadReviews();
             }
         }
 
@@ -854,7 +372,6 @@
                 });
             }
 
-            // Default
             updateStarsVisuals(selectedRating);
 
             stars.forEach(star => {
@@ -865,11 +382,9 @@
                         s.classList.toggle('hovered', val <= hoverVal);
                     });
                 });
-
                 star.addEventListener('mouseout', () => {
                     stars.forEach(s => s.classList.remove('hovered'));
                 });
-
                 star.addEventListener('click', () => {
                     selectedRating = parseInt(star.dataset.val);
                     updateStarsVisuals(selectedRating);
@@ -881,7 +396,10 @@
             const listEl = document.getElementById('reviewsList');
             if (!listEl || !shop) return;
 
-            listEl.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text3);">${currentLang === 'ru' ? '⏳ Загрузка отзывов...' : '⏳ Fikrlar yuklanmoqda...'}</div>`;
+            document.getElementById('lblReviewsTitle').textContent = t('reviewsTitle');
+            document.getElementById('lblWriteReview').textContent = t('writeReview');
+
+            listEl.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text3);">⏳</div>`;
 
             try {
                 const res = await fetch(`/api/shops/${shop.id}/reviews`);
@@ -896,16 +414,10 @@
 
                 listEl.innerHTML = reviews.map(r => {
                     const dateStr = new Date(r.createdAt).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'uz-UZ', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
+                        year: 'numeric', month: 'long', day: 'numeric'
                     });
-                    
                     let starsHtml = '';
-                    for (let i = 1; i <= 5; i++) {
-                        starsHtml += i <= r.rating ? '★' : '☆';
-                    }
-
+                    for (let i = 1; i <= 5; i++) starsHtml += i <= r.rating ? '★' : '☆';
                     return `
                         <div class="review-item">
                             <div class="review-header">
@@ -918,7 +430,7 @@
                     `;
                 }).join('');
             } catch (err) {
-                listEl.innerHTML = `<div style="color:var(--red); text-align:center;">${currentLang === 'ru' ? 'Ошибка загрузки отзывов.' : 'Fikrlar yuklashda xatolik.'}</div>`;
+                listEl.innerHTML = `<div class="empty-reviews">${t('noReviewsYet')}</div>`;
             }
         }
 
@@ -940,45 +452,28 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        authorName: authorInput.value.trim() || 'Гость',
+                        authorName: authorInput.value.trim() || 'Mehmon',
                         comment: commentInput.value.trim(),
                         rating: selectedRating
                     })
                 });
 
                 if (!res.ok) throw new Error();
-                
-                // Clear form
+
                 authorInput.value = '';
                 commentInput.value = '';
                 selectedRating = 5;
-                const starSelector = document.getElementById('starSelector');
-                if (starSelector) {
-                    const stars = starSelector.querySelectorAll('span');
-                    stars.forEach(s => {
-                        s.textContent = parseInt(s.dataset.val) <= 5 ? '★' : '☆';
-                        s.classList.add('selected');
-                    });
-                }
 
                 showToast(t('reviewSuccess'), 'success');
 
-                // Collapse the form on success
                 const form = document.getElementById('reviewForm');
                 const icon = document.getElementById('reviewToggleIcon');
                 if (form) form.style.display = 'none';
                 if (icon) icon.textContent = '➕';
 
-                // Reload shop info (to update average rating) & reviews list
-                const shopRes = await fetch(`/api/shops/by-slug/${encodeURIComponent(storeSlug)}`);
-                if (shopRes.ok) {
-                    shop = (await shopRes.json()).data;
-                    renderStorefrontDetails();
-                }
-                
                 await loadReviews();
             } catch (err) {
-                showToast('Ошибка при отправке отзыва', 'error');
+                showToast(t('copyError'), 'error');
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = t('submitReviewBtn');
@@ -997,58 +492,13 @@
             }
         }
 
-        function debounce(func, wait) {
-            let timeout;
-            return function(...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), wait);
-            };
-        }
-
         document.addEventListener('DOMContentLoaded', initStorefront);
 
         window.addEventListener('langchange', () => {
             renderStorefrontDetails();
-            loadStoreSubCategories();
             fetchStoreProducts();
+            loadReviews();
         });
     </script>
-    
-    <!-- Footer -->
-    <footer class="site-footer" style="margin-top: 40px; padding: 20px; text-align: center; border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 16px;">
-        <div class="footer-controls" style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-            <!-- Language Switcher -->
-            <div class="lang-wrap" id="langWrap" style="margin: 0; position: relative;">
-                <button class="lang-switch-btn" id="langBtn" aria-label="Change Language">
-                    <svg class="lang-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path
-                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                        </path>
-                    </svg>
-                    <span class="lang-text">UZ</span>
-                    <svg class="lang-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </button>
-                <div class="lang-dropdown" id="langDropdown" style="bottom: 100%; top: auto; margin-bottom: 8px; margin-top: 0;">
-                    <div class="lang-option" data-lang="uz">O'zbek</div>
-                    <div class="lang-option selected" data-lang="ru">Русский</div>
-                </div>
-            </div>
-
-            <!-- Theme Toggle -->
-            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle theme">
-                <span class="theme-icon theme-icon-sun">☀️</span>
-                <span class="theme-icon theme-icon-moon">🌙</span>
-            </button>
-        </div>
-        <div style="font-size: 13px; color: var(--text3);">
-            © 2026 Topin · Toshkent, O'zbekiston
-        </div>
-    </footer>
 </body>
 </html>

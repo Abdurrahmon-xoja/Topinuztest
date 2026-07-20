@@ -123,9 +123,42 @@ function openShopModal(shopId) {
     }
 
     const desc = currentLang === 'ru' ? shop.description_ru : shop.description;
-    document.getElementById('modalDescFull').textContent = desc || t('descPlaceholder');
+    const descEl = document.getElementById('modalDescFull');
+    if (descEl) {
+      if (desc && desc.trim()) {
+        descEl.textContent = desc;
+        descEl.style.display = 'block';
+      } else {
+        descEl.textContent = '';
+        descEl.style.display = 'none';
+      }
+    }
 
     document.getElementById('modalLocText').textContent = shop.location || t('locPlaceholder');
+
+    // Localized labels for the redesigned modal
+    const locTitleEl = document.getElementById('modalLocTitle');
+    if (locTitleEl) locTitleEl.textContent = t('locationTitle');
+    const tgLabelEl = document.getElementById('modalTgLabel');
+    if (tgLabelEl) tgLabelEl.textContent = t('contactTelegram');
+    const productsTitleEl = document.getElementById('modalProductsTitle');
+    if (productsTitleEl) productsTitleEl.textContent = t('productsTitle');
+    const allBtnEl = document.getElementById('modalAllBtn');
+    if (allBtnEl && shop.slug) allBtnEl.href = `/stores/${shop.slug}`;
+    const allBtnTextEl = document.getElementById('modalAllBtnText');
+    if (allBtnTextEl) allBtnTextEl.textContent = t('hammasi');
+
+    // Directions icon: open map link explicitly
+    const directionsEl = document.getElementById('modalDirectionsBtn');
+    if (directionsEl) {
+      const mapUrl = shop.locationLink || (shop.location ? `https://maps.google.com/?q=${encodeURIComponent(shop.location)}` : null);
+      directionsEl.style.display = mapUrl ? 'flex' : 'none';
+      directionsEl.onclick = (e) => {
+        if (!mapUrl) return;
+        e.stopPropagation();
+        goExternal(mapUrl);
+      };
+    }
 
     // Make location clickable if a map link exists
     const locEl = document.getElementById('modalLoc');
@@ -158,23 +191,35 @@ function openShopModal(shopId) {
       }
     }
 
-    // Store button
-    const storeBtn = document.getElementById('modalStoreBtn');
-    const storeBtnText = document.getElementById('modalStoreBtnText');
-    if (storeBtn && shop.slug) {
-      let storeUrl = `/stores/${shop.slug}`;
-      const params = new URLSearchParams(window.location.search);
-      const catParam = params.get('category') || (typeof _activeMainCategory !== 'undefined' ? _activeMainCategory : null);
-      if (catParam && catParam !== 'all') {
-        storeUrl += `?fromCategory=${encodeURIComponent(catParam)}`;
+    // Sticky Bottom Actions setup
+    const tgAction = document.getElementById('modalTgActionBtn');
+    const phoneAction = document.getElementById('modalPhoneActionBtn');
+    const phoneActionText = document.getElementById('modalPhoneActionText');
+    const stickyActions = document.getElementById('modalStickyActions');
+    
+    if (stickyActions) {
+      if (shop.telegram || shop.phone) {
+        stickyActions.style.display = 'flex';
+        if (tgAction) {
+          if (shop.telegram) {
+            tgAction.style.display = 'flex';
+            tgAction.href = shop.telegram.startsWith('http') ? shop.telegram : `https://t.me/${shop.telegram.replace('@', '')}`;
+          } else {
+            tgAction.style.display = 'none';
+          }
+        }
+        if (phoneAction) {
+          if (shop.phone) {
+            phoneAction.style.display = 'flex';
+            phoneAction.href = `tel:${shop.phone}`;
+            if (phoneActionText) phoneActionText.textContent = shop.phone;
+          } else {
+            phoneAction.style.display = 'none';
+          }
+        }
+      } else {
+        stickyActions.style.display = 'none';
       }
-      storeBtn.href = storeUrl;
-      storeBtn.style.display = 'flex';
-      if (storeBtnText) {
-        storeBtnText.textContent = t('goToStore');
-      }
-    } else if (storeBtn) {
-      storeBtn.style.display = 'none';
     }
 
     // Rows
@@ -340,7 +385,7 @@ async function _loadModalProducts(shopId, shopSlug, shopName, shopCurrency) {
     container.style.display = 'block';
     // Render placeholders
     grid.innerHTML = Array(4).fill().map(() => `
-        <div class="skeleton-card" style="height: 220px; border-radius: var(--radius); background: var(--surface2); animation: pulse 1.5s infinite; opacity: 0.6;"></div>
+        <div class="skeleton-card" style="height: 250px; width: 168px; flex-shrink: 0; opacity: 0.6;"></div>
     `).join('');
 
     try {
@@ -357,17 +402,12 @@ async function _loadModalProducts(shopId, shopSlug, shopName, shopCurrency) {
         grid.innerHTML = products.map(prod => {
             const hasAr = prod.glbUrl || prod.usdzUrl;
             const arBadge = hasAr ? `
-                <div class="product-card-ar-badge">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                        <polyline points="2 17 12 22 22 17"></polyline>
-                        <polyline points="2 12 17 12 22 12"></polyline>
-                    </svg>
-                    3D / AR
+                <div class="product-card-ar-badge">3D
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                 </div>
             ` : '';
 
-            const currency = shopCurrency || 'UZS';
+            const currency = (!shopCurrency || shopCurrency === 'UZS') ? "so'm" : shopCurrency;
             const priceStr = prod.price 
                 ? `${parseFloat(prod.price).toLocaleString()} ${currency}`
                 : (currentLang === 'ru' ? 'Цена по запросу' : 'Narx soʻrov boʻyicha');
@@ -383,16 +423,16 @@ async function _loadModalProducts(shopId, shopSlug, shopName, shopCurrency) {
             const imageUrl = prod.imageUrl || 'img/placeholder.png';
 
             return `
-                <a href="/stores/${shopSlug}/products/${prod.slug}" class="product-card" style="margin: 0;">
+                <a href="/stores/${shopSlug}/products/${prod.slug}" class="product-card">
                     <div class="product-card-img-wrap">
                         <img src="${cloudinaryOptimize(imageUrl)}" alt="${escHtml(prod.name)}" class="product-card-img" loading="lazy">
                         ${arBadge}
                     </div>
                     <div class="product-card-content">
                         <span class="product-card-shop">${escHtml(shopName)}</span>
-                        <h3 class="product-card-name" style="font-size: 13px; height: 34px; line-height: 1.3;">${escHtml(prod.name)}</h3>
+                        <h3 class="product-card-name">${escHtml(prod.name)}</h3>
                         <div class="product-card-price-row">
-                            <span class="product-card-price" style="font-size: 13px; ${prod.salePrice ? 'color: var(--red);' : ''}">${displayPriceStr}</span>
+                            <span class="product-card-price" ${prod.salePrice ? 'style="color: var(--red);"' : ''}>${displayPriceStr}</span>
                             ${oldPriceHtml}
                         </div>
                     </div>

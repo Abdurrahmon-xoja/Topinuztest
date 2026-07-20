@@ -1,417 +1,200 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Product Details | Topin</title>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0FA986">
+    <meta name="theme-color" content="#FFFFFF">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css?v=3.2">
-    <style>
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-        }
-        .product-detail-container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 40px;
-        }
-        .product-media-column {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .primary-image-box {
-            width: 100%;
-            height: 450px;
-            background: var(--surface);
-            border-radius: 24px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            cursor: zoom-in;
-        }
-        .primary-image-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            transition: transform 0.3s ease;
-        }
-        .thumbnail-gallery {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-        }
-        .thumb-item {
-            width: 70px;
-            height: 70px;
-            border-radius: 12px;
-            border: 2px solid var(--border);
-            background: var(--surface);
-            cursor: pointer;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: border-color 0.2s;
-        }
-        .thumb-item.active {
-            border-color: var(--accent);
-        }
-        .thumb-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        .thumb-item.ar-thumb-btn {
-            background: rgba(15, 169, 134, 0.1);
-            color: var(--accent);
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .product-info-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-        .breadcrumb {
-            font-size: 13px;
-            color: var(--text3);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .breadcrumb a {
-            color: var(--text3);
-            text-decoration: none;
-        }
-        .breadcrumb a:hover {
-            color: var(--accent);
-        }
-        .product-title {
-            font-size: 30px;
-            font-weight: 800;
-            margin: 0;
-            line-height: 1.2;
-        }
-        .price-row {
-            display: flex;
-            align-items: baseline;
-            gap: 12px;
-        }
-        .product-price {
-            font-size: 26px;
-            font-weight: 800;
-            color: var(--accent);
-        }
-        .product-sale-price {
-            font-size: 26px;
-            font-weight: 800;
-            color: var(--red);
-        }
-        .original-price-strikethrough {
-            font-size: 16px;
-            color: var(--text3);
-            text-decoration: line-through;
-        }
-        .stock-badge-large {
-            display: inline-block;
-            font-size: 13px;
-            font-weight: 700;
-            padding: 6px 14px;
-            border-radius: 8px;
-            width: fit-content;
-        }
-        .stock-in { background: rgba(15, 169, 134, 0.15); color: var(--accent); }
-        .stock-out { background: rgba(255, 84, 62, 0.15); color: var(--red); }
-        .stock-preorder { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
-
-        .btn-action-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .btn-primary-ar {
-            background: linear-gradient(135deg, #0FA986, #0b8a6d);
-            color: #fff;
-            border: none;
-            border-radius: 14px;
-            padding: 16px 24px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(15,169,134,0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-decoration: none;
-        }
-        .btn-primary-ar:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(15,169,134,0.4);
-        }
-        .btn-secondary-contact {
-            background: var(--surface);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 16px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: background 0.2s;
-            text-decoration: none;
-        }
-        .btn-secondary-contact:hover {
-            background: var(--surface2);
-        }
-        .section-title {
-            font-size: 16px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text2);
-            margin: 0 0 10px 0;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 8px;
-        }
-        .product-desc-block {
-            font-size: 15px;
-            line-height: 1.6;
-            color: var(--text2);
-        }
-        .attribution-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            text-decoration: none;
-            color: var(--text);
-        }
-        .attribution-logo {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            overflow: hidden;
-            background: var(--surface2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-        .attribution-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        /* model-viewer container */
-        .viewer-container-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .viewer-modal-content {
-            background: var(--surface);
-            border-radius: 24px;
-            width: 90%;
-            max-width: 600px;
-            height: 550px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid var(--border);
-        }
-        .viewer-modal-header {
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-        }
-        .viewer-close-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 22px;
-            cursor: pointer;
-        }
-        model-viewer {
-            width: 100%;
-            height: 100%;
-            background-color: var(--surface2);
-        }
-        
-        @media (max-width: 768px) {
-            .product-detail-container {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-            .primary-image-box {
-                height: 320px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/topin.css?v=4.1">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
 <body>
 
-    <!-- Header -->
-    <header class="site-header">
-        <div class="header-inner" style="padding: 0 16px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-                <a href="javascript:history.back()" class="back-btn" id="btnBack" aria-label="Go back">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                </a>
-                <a href="/" class="home-logo">
-                    <span class="logo-text-top">TOP</span><span class="logo-text-in">IN</span>
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <main class="product-detail-container">
-        <!-- Left: Image Box & Gallery -->
-        <div class="product-media-column">
-            <div class="primary-image-box" id="primaryImageBox" onclick="triggerARFlow()">
-                <img src="" alt="Product" id="primaryImage">
-            </div>
-            
-            <!-- AR Trigger Button -->
-            <button class="btn-primary-ar" id="btnAR" style="display:none;" onclick="triggerARFlow()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 17 12 22 12"></polyline></svg>
-                <span id="lblViewAR">Посмотреть у себя в комнате</span>
-            </button>
-
-            <div class="thumbnail-gallery" id="thumbnailGallery">
-                <!-- Clickable thumbs loaded via JS -->
-            </div>
-        </div>
-
-        <!-- Right: Specs & Action Button -->
-        <div class="product-info-column">
-            <div class="breadcrumb" id="productBreadcrumb">
-                <!-- Breadcrumbs -->
-            </div>
-
-            <div>
-                <h1 class="product-title" id="productTitle">–</h1>
-                <p style="color:var(--text3); margin:8px 0 0 0;" id="productCategoryName"></p>
-                <div id="productRatingContainer" style="margin-top: 8px;"></div>
-            </div>
-
-            <div class="price-row" id="priceRow">
-                <span class="product-price" id="productPrice">–</span>
-            </div>
-
-            <span class="stock-badge-large" id="productStockBadge">–</span>
-
-            <div class="btn-action-container">
-                <!-- Contact Seller Buttons -->
-                <a href="" class="btn-secondary-contact" id="btnContactTelegram" target="_blank" rel="noopener noreferrer">
-                    <img src="/img/icons/Telegram%20.svg" alt="TG" style="width:20px; height:20px;">
-                    <span id="lblContactTG">Связаться в Telegram</span>
-                </a>
-                <a href="" class="btn-secondary-contact" id="btnContactPhone">
-                    <img src="/img/icons/phone%20icon.svg" alt="Phone" style="width:18px; height:18px;">
-                    <span id="lblContactPhone">Позвонить</span>
-                </a>
-            </div>
-
-            <!-- Shop Attribution Box -->
-            <a href="" class="attribution-box" id="shopAttribution">
-                <div class="attribution-logo" id="shopLogo">🏪</div>
-                <div>
-                    <h4 style="margin:0 0 4px 0; font-size:14px; font-weight:700;" id="shopAttributionName">–</h4>
-                    <p style="margin:0; font-size:12px; color:var(--text3);" id="lblVisitStore">Перейти в магазин</p>
-                </div>
+    <main class="pd-page">
+        <!-- Header: back + Ortga + share -->
+        <div class="shops-title-row">
+            <a href="javascript:history.back()" class="back-btn" id="btnBack" aria-label="Go back">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
             </a>
+            <h1 class="page-title" id="lblBack">Ortga</h1>
+            <button class="header-icon-btn" id="productShareBtn" aria-label="Share">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 6 12 2 8 6"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                </svg>
+            </button>
+        </div>
 
-            <!-- Collapsible description -->
-            <div>
-                <h3 class="section-title" id="lblDescription">Описание</h3>
-                <div class="product-desc-block" id="productDesc">
-                    <!-- Text description -->
+        <!-- Breadcrumb (desktop) -->
+        <div class="breadcrumb" id="productBreadcrumb"></div>
+
+        <div class="pd-layout">
+            <!-- Left: Image & Gallery -->
+            <div class="pd-media">
+                <div class="pd-image-box" id="primaryImageBox">
+                    <img src="" alt="Product" id="primaryImage">
+                    <span class="pd-3d-badge" id="pd3dBadge">3D
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    </span>
+                </div>
+                <div class="thumbnail-gallery" id="thumbnailGallery"></div>
+            </div>
+
+            <!-- Right: Info -->
+            <div class="pd-info">
+                <div class="pd-chips">
+                    <span class="chip" id="productCategoryName" style="display: none;"></span>
+                    <span class="chip chip-green" id="productStockBadge">–</span>
+                </div>
+
+                <h1 class="pd-title" id="productTitle">–</h1>
+
+                <div class="pd-price" id="priceRow">
+                    <span id="productPrice">–</span>
+                </div>
+
+                <!-- Shop Attribution Card -->
+                <a href="" class="pd-store-card" id="shopAttribution">
+                    <div class="pd-store-logo" id="shopLogo">🏪</div>
+                    <div class="pd-store-info">
+                        <div class="pd-store-name" id="shopAttributionName">–</div>
+                        <div class="pd-store-desc" id="shopAttributionDesc"></div>
+                    </div>
+                    <span class="pd-store-chevron">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </span>
+                </a>
+
+                <div class="pd-actions">
+                    <!-- Mobile: full-width Telegram + phone buttons (matches Figma) -->
+                    <a href="" class="btn-tg-full" id="btnContactTelegramFull" target="_blank" rel="noopener noreferrer">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 4.1 2.9 11.3c-1 .4-1 1.3-.2 1.6l4.7 1.5 1.8 5.5c.2.6.4.8.9.8.4 0 .6-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.2-15c.3-1.2-.4-1.8-1.5-1.6zM7.9 14.1l10.4-6.6c.5-.3 1-.1.6.2l-8.9 8-.3 3.3-1.8-4.9z"/></svg>
+                        <span id="lblTelegramConnect">Telegramda bog'lanish</span>
+                    </a>
+
+                    <a href="" class="btn-phone-outline" id="btnContactPhone">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <span id="lblContactPhone">–</span>
+                    </a>
+
+                    <!-- Desktop only: TG circle + AR download pill -->
+                    <div class="pd-cta-row hide-mobile">
+                        <a href="" class="btn-tg-circle" id="btnContactTelegram" target="_blank" rel="noopener noreferrer">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="#ffffff"><path d="M21.6 4.1 2.9 11.3c-1 .4-1 1.3-.2 1.6l4.7 1.5 1.8 5.5c.2.6.4.8.9.8.4 0 .6-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.2-15c.3-1.2-.4-1.8-1.5-1.6zM7.9 14.1l10.4-6.6c.5-.3 1-.1.6.2l-8.9 8-.3 3.3-1.8-4.9z"/></svg>
+                        </a>
+                        <button class="btn-dark-pill" id="btnDownload3D" onclick="triggerARFlow()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            <span id="lblDownload3DText">3D modelni yuklab olish</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Reviews Section -->
-            <section class="reviews-section">
-                <h3 class="section-title" id="lblReviewsTitle">Отзывы и оценки</h3>
-                <div class="reviews-list" id="reviewsList">
-                    <!-- Loaded dynamically -->
+            <!-- Full-width: Tavsif + Reviews -->
+            <div style="grid-column: 1 / -1; width: 100%;">
+                <div class="pd-desc-card" id="descCard">
+                    <div class="pd-desc-head" onclick="toggleDescCard()">
+                        <h3 class="pd-desc-title" id="lblDescription">Tavsif</h3>
+                        <span class="pd-desc-toggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                        </span>
+                    </div>
+                    <div class="pd-desc-body" id="productDesc"></div>
                 </div>
 
-                <!-- Write a review form -->
-                <div class="review-form-container">
-                    <div class="review-form-header" id="btnToggleReviewForm" onclick="toggleReviewForm()" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                        <h4 class="review-form-title" id="lblWriteReview" style="margin: 0;">Оставить отзыв</h4>
-                        <span class="toggle-icon" id="reviewToggleIcon" style="font-size: 18px; transition: transform 0.2s; color: var(--accent);">➕</span>
-                    </div>
-                    <form class="review-form" id="reviewForm" onsubmit="submitReview(event)" style="display: none; margin-top: 16px;">
-                        <div class="form-group">
-                            <label for="reviewAuthor" id="lblYourName">Ваше имя</label>
-                            <input type="text" id="reviewAuthor" class="form-input" placeholder="Введите имя..." required>
+                <!-- Reviews Section -->
+                <section class="reviews-section">
+                    <h3 class="reviews-title" id="lblReviewsTitle">Fikrlar va baholar</h3>
+                    <div class="reviews-list" id="reviewsList"></div>
+
+                    <div class="review-form-container">
+                        <div class="review-form-header" id="btnToggleReviewForm" onclick="toggleReviewForm()" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                            <h4 class="review-form-title" id="lblWriteReview" style="margin: 0;">Fikr qoldirish</h4>
+                            <span class="toggle-icon" id="reviewToggleIcon" style="font-size: 18px; color: var(--blue);">➕</span>
                         </div>
-                        <div class="form-group">
-                            <label id="lblYourRating">Ваша оценка</label>
-                            <div class="star-rating-selector" id="starSelector">
-                                <span data-val="1">☆</span>
-                                <span data-val="2">☆</span>
-                                <span data-val="3">☆</span>
-                                <span data-val="4">☆</span>
-                                <span data-val="5">☆</span>
+                        <form class="review-form" id="reviewForm" onsubmit="submitReview(event)" style="display: none; margin-top: 16px;">
+                            <div class="form-group">
+                                <label for="reviewAuthor" id="lblYourName">Sizning ismingiz</label>
+                                <input type="text" id="reviewAuthor" class="form-input" placeholder="Ismingizni kiriting..." required>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="reviewComment" id="lblYourComment">Комментарий</label>
-                            <textarea id="reviewComment" class="form-textarea" placeholder="Напишите ваш отзыв..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn-submit-review" id="btnSubmitReview">Отправить отзыв</button>
-                    </form>
-                </div>
-            </section>
+                            <div class="form-group">
+                                <label id="lblYourRating">Sizning bahoingiz</label>
+                                <div class="star-rating-selector" id="starSelector">
+                                    <span data-val="1">☆</span>
+                                    <span data-val="2">☆</span>
+                                    <span data-val="3">☆</span>
+                                    <span data-val="4">☆</span>
+                                    <span data-val="5">☆</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewComment" id="lblYourComment">Fikr-mulohaza</label>
+                                <textarea id="reviewComment" class="form-textarea" placeholder="Fikringizni yozing..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn-submit-review" id="btnSubmitReview">Yuborish</button>
+                        </form>
+                    </div>
+                </section>
+            </div>
         </div>
     </main>
+
+    <!-- Mobile sticky AR bar -->
+    <div class="pd-sticky-bar" id="pdStickyBar" style="display:none;">
+        <button class="pd-sticky-download" id="btnStickyDownload" aria-label="Download 3D" onclick="openDownloadModal()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        </button>
+        <button class="btn-dark-pill" id="btnARSticky" onclick="triggerARFlow()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            <span id="lblViewAR">AR ko'rish</span>
+        </button>
+    </div>
+
+    <!-- Floating footer controls (desktop) -->
+    <footer class="site-footer hide-mobile">
+        <div class="footer-controls">
+            <div class="lang-wrap" id="langWrap">
+                <button class="lang-switch-btn" id="langBtn" aria-label="Change Language">
+                    <span class="lang-text">UZ</span>
+                    <svg class="lang-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="lang-dropdown" id="langDropdown">
+                    <div class="lang-option" data-lang="uz">
+                        O'zbek
+                        <svg class="lang-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="lang-option" data-lang="ru">
+                        Русский
+                        <svg class="lang-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                </div>
+            </div>
+
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle theme">
+                <span class="theme-icon theme-icon-sun">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+                </span>
+                <span class="theme-icon theme-icon-moon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </span>
+            </button>
+        </div>
+    </footer>
 
     <!-- Embedded model-viewer Fallback Overlay -->
     <div class="viewer-container-overlay" id="viewerOverlay">
         <div class="viewer-modal-content">
             <div class="viewer-modal-header">
-                <h3 style="margin:0; font-size:16px;" id="lblModalTitle">Просмотр 3D модели</h3>
+                <h3 id="lblModalTitle">3D modelni ko'rish</h3>
                 <button class="viewer-close-btn" onclick="close3DViewer()">✕</button>
             </div>
-            <div id="modelViewerWrapper" style="width:100%; height:100%;">
-                <!-- model-viewer injected dynamically here -->
-            </div>
+            <div id="modelViewerWrapper" style="width:100%; height:100%;"></div>
         </div>
     </div>
 
@@ -419,20 +202,18 @@
     <div class="viewer-container-overlay" id="downloadOverlay" style="display: none;">
         <div class="viewer-modal-content" style="max-height: 480px; height: auto;">
             <div class="viewer-modal-header">
-                <h3 style="margin:0; font-size:16px;" id="lblDownloadTitle">Скачать 3D модель</h3>
+                <h3 id="lblDownloadTitle">3D modelni yuklab olish</h3>
                 <button class="viewer-close-btn" onclick="closeDownloadModal()">✕</button>
             </div>
-            <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px;" id="downloadLinksContainer">
-                <!-- Links injected dynamically -->
-            </div>
+            <div style="padding: 0 20px 24px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto;" id="downloadLinksContainer"></div>
         </div>
     </div>
 
     <!-- Toast elements -->
     <div class="toast" id="toast"></div>
 
-    <script src="/js/config.js?v=3.2"></script>
-    <script src="/js/utils.js?v=3.2"></script>
+    <script src="/js/config.js?v=4.1"></script>
+    <script src="/js/utils.js?v=4.1"></script>
     <script>
         let product = null;
         let shop = null;
@@ -449,74 +230,100 @@
 
         function removeImageCrop(url) {
             if (!url) return '';
-            // Replace fit=crop with fit=max for CDN/Unsplash URLs to prevent CDN-side cropping
             return url.replace(/([?&])fit=crop/g, '$1fit=max');
+        }
+
+        function formatPrice(val, currency) {
+            const cur = (currency === 'UZS' || !currency) ? "so'm" : currency;
+            return `${parseFloat(val).toLocaleString()} ${cur}`;
         }
 
         function renderProductDetails() {
             if (!product || !shop) return;
-            // Sync product info
             document.title = `${product.name} | Topin`;
+            document.getElementById('lblBack').textContent = t('back');
             document.getElementById('productTitle').textContent = product.name;
-            document.getElementById('productCategoryName').textContent = currentLang === 'ru' 
-                ? product.Category?.name_ru || product.Category?.name 
+
+            const catEl = document.getElementById('productCategoryName');
+            const catName = currentLang === 'ru'
+                ? product.Category?.name_ru || product.Category?.name
                 : product.Category?.name || product.Category?.name_ru;
-            
-            // Render Rating stars
-            document.getElementById('productRatingContainer').innerHTML = renderRatingStarsHtml(product.rating, product.reviewsCount);
-
-            // Description rendering
-            document.getElementById('productDesc').textContent = product.description || product.shortDescription || '';
-
-            // Setup pricing
-            const priceRow = document.getElementById('priceRow');
-            const currency = shop.currency || 'UZS';
-            if (product.salePrice) {
-                priceRow.innerHTML = `
-                    <span class="product-sale-price">${parseFloat(product.salePrice).toLocaleString()} ${currency}</span>
-                    <span class="original-price-strikethrough">${parseFloat(product.price).toLocaleString()} ${currency}</span>
-                `;
-            } else if (product.price) {
-                priceRow.innerHTML = `<span class="product-price">${parseFloat(product.price).toLocaleString()} ${currency}</span>`;
+            let mainCatName = '';
+            if (shop.Category) {
+                const translated = shop.Category.slug ? getCatName(shop.Category.slug) : '';
+                mainCatName = (translated && translated !== shop.Category.slug)
+                    ? translated
+                    : (currentLang === 'ru' ? shop.Category.name_ru || shop.Category.name : shop.Category.name || shop.Category.name_ru);
+            }
+            const chipName = catName || mainCatName;
+            if (chipName) {
+                catEl.textContent = chipName;
+                catEl.style.display = 'inline-flex';
             } else {
-                priceRow.innerHTML = `<span class="product-price">${t('priceOnRequest')}</span>`;
+                catEl.style.display = 'none';
             }
 
-            // Setup stock status badge
+            // Description
+            const desc = product.description || product.shortDescription || '';
+            document.getElementById('productDesc').textContent = desc;
+            document.getElementById('lblDescription').textContent = t('descriptionTitle');
+            document.getElementById('descCard').style.display = desc ? 'block' : 'none';
+
+            // Pricing
+            const priceRow = document.getElementById('priceRow');
+            if (product.salePrice) {
+                priceRow.innerHTML = `
+                    <span style="color: var(--red); font-weight: 600;">${formatPrice(product.salePrice, shop.currency)}</span>
+                    <span class="original-price-strikethrough">${formatPrice(product.price, shop.currency)}</span>
+                `;
+            } else if (product.price) {
+                priceRow.innerHTML = `<span>${formatPrice(product.price, shop.currency)}</span>`;
+            } else {
+                priceRow.innerHTML = `<span>${t('priceOnRequest')}</span>`;
+            }
+
+            // Stock chip
             const stockBadge = document.getElementById('productStockBadge');
             const stockText = product.stockStatus === 'In Stock' ? t('inStockStatus')
                             : product.stockStatus === 'Out of Stock' ? t('outOfStockStatus')
                             : t('preorderStatus');
-            const stockClass = product.stockStatus === 'In Stock' ? 'stock-in'
-                             : product.stockStatus === 'Out of Stock' ? 'stock-out'
-                             : 'stock-preorder';
+            const stockClass = product.stockStatus === 'In Stock' ? 'chip-green'
+                             : product.stockStatus === 'Out of Stock' ? 'chip-red'
+                             : 'chip-amber';
             stockBadge.textContent = stockText;
-            stockBadge.className = `stock-badge-large ${stockClass}`;
+            stockBadge.className = `chip ${stockClass}`;
 
-            // Attribution details
+            // Store attribution
             document.getElementById('shopAttribution').href = `/stores/${shop.slug}`;
             document.getElementById('shopAttributionName').textContent = shop.name;
+            document.getElementById('shopAttributionDesc').textContent = getLocalizedText(shop, 'description_ru', 'description');
             if (shop.logoUrl) {
                 document.getElementById('shopLogo').innerHTML = `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shop.name)}">`;
             }
 
-            // Contacts links
+            // Contacts
             const phoneBtn = document.getElementById('btnContactPhone');
             const tgBtn = document.getElementById('btnContactTelegram');
+            const tgBtnFull = document.getElementById('btnContactTelegramFull');
             if (shop.phone) {
                 phoneBtn.style.display = 'flex';
                 phoneBtn.href = `tel:${shop.phone}`;
+                document.getElementById('lblContactPhone').textContent = shop.phone;
             } else {
                 phoneBtn.style.display = 'none';
             }
             if (shop.telegram) {
+                const tgHref = shop.telegram.startsWith('http') ? shop.telegram : `https://t.me/${shop.telegram.replace('@', '')}`;
                 tgBtn.style.display = 'flex';
-                tgBtn.href = shop.telegram;
+                tgBtn.href = tgHref;
+                tgBtnFull.style.display = 'flex';
+                tgBtnFull.href = tgHref;
             } else {
                 tgBtn.style.display = 'none';
+                tgBtnFull.style.display = 'none';
             }
 
-            // Sync Gallery & Primary image
+            // Primary image + gallery
             if (product.imageUrl) {
                 document.getElementById('primaryImage').src = removeImageCrop(product.imageUrl);
             }
@@ -530,58 +337,79 @@
                 imagesList = [product.imageUrl];
             }
 
-            let thumbHtml = imagesList.map((url, i) => `
+            thumbsEl.innerHTML = imagesList.map((url, i) => `
                 <div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="selectImage('${url}', this)">
                     <img src="${removeImageCrop(cloudinaryOptimize(url))}" alt="Thumb ${i+1}">
                 </div>
             `).join('');
+            thumbsEl.style.display = imagesList.length > 1 ? 'flex' : 'none';
 
-            // If product has 3D models, enable the AR trigger button
+            // 3D badge + buttons
             const has3D = product.glbUrl || product.usdzUrl || product.zipUrl;
-            if (has3D) {
-                document.getElementById('btnAR').style.display = 'flex';
-                // If on desktop, change label to "Download 3D"
-                if (!isIOS && !isAndroid) {
-                    const lblViewAR = document.getElementById('lblViewAR');
-                    if (lblViewAR) {
-                        lblViewAR.textContent = currentLang === 'ru' ? 'Скачать 3D модель' : '3D modelni yuklab olish';
-                    }
-                    const svgIcon = document.querySelector('#btnAR svg');
-                    if (svgIcon) {
-                        svgIcon.innerHTML = `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></line>`;
-                    }
-                }
-            } else {
-                document.getElementById('btnAR').style.display = 'none';
-            }
-            thumbsEl.innerHTML = thumbHtml;
+            document.getElementById('pd3dBadge').classList.toggle('visible', !!has3D);
 
-            // Breadcrumbs mapping
+            const btnDownload3D = document.getElementById('btnDownload3D');
+            const stickyBar = document.getElementById('pdStickyBar');
+            if (has3D) {
+                btnDownload3D.style.display = 'flex';
+                stickyBar.style.display = 'flex';
+                document.getElementById('lblDownload3DText').textContent = t('download3d');
+                document.getElementById('lblViewAR').textContent = t('viewInRoom');
+                document.body.style.paddingBottom = window.innerWidth < 768 ? '90px' : '';
+            } else {
+                btnDownload3D.style.display = 'none';
+                stickyBar.style.display = 'none';
+                document.body.style.paddingBottom = '';
+            }
+
+            // Telegram button label (always translate)
+            document.getElementById('lblTelegramConnect').textContent = t('telegramConnect');
+
+            // Breadcrumb (desktop)
             const breadcrumb = document.getElementById('productBreadcrumb');
             breadcrumb.innerHTML = `
-                <a href="/">${currentLang === 'ru' ? 'Главная' : 'Bosh sahifa'}</a>
+                <a href="/">${t('homeCrumb')}</a>
                 <span>/</span>
+                ${mainCatName && shop.Category?.slug ? `<a href="/shops?category=${encodeURIComponent(shop.Category.slug)}">${escHtml(mainCatName)}</a><span>/</span>` : ''}
                 <a href="/stores/${shop.slug}">${escHtml(shop.name)}</a>
                 <span>/</span>
                 <span>${escHtml(product.name)}</span>
             `;
         }
 
+        function toggleDescCard() {
+            document.getElementById('descCard').classList.toggle('collapsed');
+        }
+
         async function initProductPage() {
+            // Share button
+            const shareBtn = document.getElementById('productShareBtn');
+            if (shareBtn) {
+                shareBtn.addEventListener('click', async () => {
+                    const shareUrl = window.location.href;
+                    if (navigator.share) {
+                        try { await navigator.share({ title: product ? product.name : 'Topin', url: shareUrl }); } catch (e) {}
+                    } else if (navigator.clipboard) {
+                        try {
+                            await navigator.clipboard.writeText(shareUrl);
+                            showToast(t('linkCopied'), 'success');
+                        } catch (e) {}
+                    }
+                });
+            }
+
             try {
-                // Fetch storefront info first
                 const shopRes = await fetch(`/api/shops/by-slug/${encodeURIComponent(storeSlug)}`);
                 if (!shopRes.ok) throw new Error('Shop not found');
                 shop = (await shopRes.json()).data;
 
-                // Fetch product details
                 const prodRes = await fetch(`/api/products/by-shop/${shop.id}/by-slug/${encodeURIComponent(productSlug)}`);
                 if (!prodRes.ok) throw new Error('Product not found');
                 product = (await prodRes.json()).data;
             } catch (err) {
                 document.body.innerHTML = `<div style="text-align:center; padding:100px 20px;">
-                    <h2>Товар не найден</h2>
-                    <p>Проверьте ссылку или вернитесь на <a href="/" style="color:var(--accent)">главную</a>.</p>
+                    <h2>${t('pageNotFound')}</h2>
+                    <p style="margin-top: 8px;"><a href="/" style="color:var(--blue)">Topin</a></p>
                 </div>`;
                 return;
             }
@@ -590,7 +418,6 @@
             setupStarSelector();
             await loadReviews();
 
-            // Send tracking product_view event
             fetch('/api/analytics/track', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -621,7 +448,6 @@
                 });
             }
 
-            // Default
             updateStarsVisuals(selectedRating);
 
             stars.forEach(star => {
@@ -632,11 +458,9 @@
                         s.classList.toggle('hovered', val <= hoverVal);
                     });
                 });
-
                 star.addEventListener('mouseout', () => {
                     stars.forEach(s => s.classList.remove('hovered'));
                 });
-
                 star.addEventListener('click', () => {
                     selectedRating = parseInt(star.dataset.val);
                     updateStarsVisuals(selectedRating);
@@ -648,7 +472,10 @@
             const listEl = document.getElementById('reviewsList');
             if (!listEl || !product) return;
 
-            listEl.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text3);">${currentLang === 'ru' ? '⏳ Загрузка отзывов...' : '⏳ Fikrlar yuklanmoqda...'}</div>`;
+            document.getElementById('lblReviewsTitle').textContent = t('reviewsTitle');
+            document.getElementById('lblWriteReview').textContent = t('writeReview');
+
+            listEl.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text3);">⏳</div>`;
 
             try {
                 const res = await fetch(`/api/products/${product.id}/reviews`);
@@ -663,16 +490,10 @@
 
                 listEl.innerHTML = reviews.map(r => {
                     const dateStr = new Date(r.createdAt).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'uz-UZ', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
+                        year: 'numeric', month: 'long', day: 'numeric'
                     });
-                    
                     let starsHtml = '';
-                    for (let i = 1; i <= 5; i++) {
-                        starsHtml += i <= r.rating ? '★' : '☆';
-                    }
-
+                    for (let i = 1; i <= 5; i++) starsHtml += i <= r.rating ? '★' : '☆';
                     return `
                         <div class="review-item">
                             <div class="review-header">
@@ -685,7 +506,7 @@
                     `;
                 }).join('');
             } catch (err) {
-                listEl.innerHTML = `<div style="color:var(--red); text-align:center;">${currentLang === 'ru' ? 'Ошибка загрузки отзывов.' : 'Fikrlar yuklashda xatolik.'}</div>`;
+                listEl.innerHTML = `<div class="empty-reviews">${t('noReviewsYet')}</div>`;
             }
         }
 
@@ -707,45 +528,28 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        authorName: authorInput.value.trim() || 'Гость',
+                        authorName: authorInput.value.trim() || 'Mehmon',
                         comment: commentInput.value.trim(),
                         rating: selectedRating
                     })
                 });
 
                 if (!res.ok) throw new Error();
-                
-                // Clear form
+
                 authorInput.value = '';
                 commentInput.value = '';
                 selectedRating = 5;
-                const starSelector = document.getElementById('starSelector');
-                if (starSelector) {
-                    const stars = starSelector.querySelectorAll('span');
-                    stars.forEach(s => {
-                        s.textContent = parseInt(s.dataset.val) <= 5 ? '★' : '☆';
-                        s.classList.add('selected');
-                    });
-                }
 
                 showToast(t('reviewSuccess'), 'success');
 
-                // Collapse the form on success
                 const form = document.getElementById('reviewForm');
                 const icon = document.getElementById('reviewToggleIcon');
                 if (form) form.style.display = 'none';
                 if (icon) icon.textContent = '➕';
 
-                // Reload product info (to update average rating) & reviews list
-                const prodRes = await fetch(`/api/products/by-shop/${shop.id}/by-slug/${encodeURIComponent(productSlug)}`);
-                if (prodRes.ok) {
-                    product = (await prodRes.json()).data;
-                    renderProductDetails();
-                }
-                
                 await loadReviews();
             } catch (err) {
-                showToast('Ошибка при отправке отзыва', 'error');
+                showToast(t('copyError'), 'error');
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = t('submitReviewBtn');
@@ -775,9 +579,7 @@
 
             const hasGlb = !!product.glbUrl;
             const hasUsdz = !!product.usdzUrl;
-            const hasZip = !!product.zipUrl;
 
-            // Send tracking ar_load event
             fetch('/api/analytics/track', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -790,37 +592,29 @@
                 })
             }).catch(e => {});
 
-            // iOS / Quick Look handling
             if (isIOS) {
                 if (hasUsdz) {
                     const anchor = document.createElement('a');
                     anchor.setAttribute('rel', 'ar');
                     anchor.setAttribute('href', product.usdzUrl);
-                    
                     const img = document.createElement('img');
                     img.src = product.imageUrl;
                     anchor.appendChild(img);
-                    
                     anchor.click();
                 } else if (hasGlb) {
-                    // Fallback to web model-viewer
                     open3DViewer();
                 } else {
-                    showToast('3D модель недоступна для этого устройства', 'error');
+                    showToast(currentLang === 'ru' ? '3D модель недоступна' : '3D model mavjud emas', 'error');
                 }
-            }
-            // Android / Scene Viewer handling
-            else if (isAndroid) {
+            } else if (isAndroid) {
                 if (hasGlb) {
                     const fallbackUrl = window.location.href;
                     const intentUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(product.glbUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`;
                     window.location.href = intentUrl;
                 } else {
-                    showToast('3D модель недоступна для этого устройства', 'error');
+                    showToast(currentLang === 'ru' ? '3D модель недоступна' : '3D model mavjud emas', 'error');
                 }
-            }
-            // Desktop / Fallback handling
-            else {
+            } else {
                 openDownloadModal();
             }
         }
@@ -829,11 +623,9 @@
             if (!product) return;
             const container = document.getElementById('downloadLinksContainer');
             container.innerHTML = '';
-            
+
             const titleEl = document.getElementById('lblDownloadTitle');
-            if (titleEl) {
-                titleEl.textContent = currentLang === 'ru' ? 'Скачать 3D модель' : '3D modelni yuklab olish';
-            }
+            if (titleEl) titleEl.textContent = t('download3d');
 
             let hasAny = false;
             const files = [
@@ -865,27 +657,27 @@
                 const url = product[f.key];
                 if (url) {
                     hasAny = true;
-                    
+
                     let previewBtn = '';
                     if (f.previewable) {
                         previewBtn = `
-                            <button onclick="closeDownloadModal(); open3DViewer();" class="btn-secondary-contact" style="padding:8px 12px; font-size:13px; border-radius:8px; margin-top:6px; width:100%; display:flex; align-items:center; justify-content:center; gap:6px;">
-                                👁️ ${currentLang === 'ru' ? 'Просмотр в 3D' : '3D-da ko\'rish'}
+                            <button onclick="closeDownloadModal(); open3DViewer();" class="btn-secondary-contact" style="width:100%;">
+                                ${currentLang === 'ru' ? 'Просмотр в 3D' : '3D-da ko\'rish'}
                             </button>
                         `;
                     }
 
                     container.innerHTML += `
-                        <div style="padding:16px; border-radius:16px; border:1px solid var(--border); background:var(--surface2); display:flex; flex-direction:column; gap:12px;">
+                        <div class="download-file-card">
                             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
-                                <div style="display:flex; align-items:center; gap:12px;">
-                                    <div style="font-size:24px; background:var(--surface); width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--border);">${f.icon}</div>
-                                    <div>
+                                <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                                    <div style="font-size:22px; background:var(--white-box); width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:12px; flex-shrink:0;">${f.icon}</div>
+                                    <div style="min-width:0;">
                                         <div style="font-weight:700; color:var(--text); font-size:14px;">${f.label}</div>
-                                        <div style="font-size:12px; color:var(--text3);">${f.desc}</div>
+                                        <div style="font-size:12px; color:var(--text2);">${f.desc}</div>
                                     </div>
                                 </div>
-                                <a href="${url}" target="_blank" download="${product.slug || 'product'}.${f.ext.toLowerCase()}" class="btn-primary-ar" style="padding:8px 16px; font-size:13px; border-radius:8px; box-shadow:none; text-decoration:none; white-space:nowrap; height:fit-content;">
+                                <a href="${url}" target="_blank" download="${product.slug || 'product'}.${f.ext.toLowerCase()}" class="btn-primary-ar" style="text-decoration:none; white-space:nowrap;">
                                     ${currentLang === 'ru' ? 'Скачать' : 'Yuklab olish'}
                                 </a>
                             </div>
@@ -896,7 +688,7 @@
             });
 
             if (!hasAny) {
-                container.innerHTML = `<div style="text-align:center; color:var(--text3); padding:20px;">${currentLang === 'ru' ? 'Файлы недоступны для скачивания' : 'Yuklab olish uchun fayllar mavjud emas'}</div>`;
+                container.innerHTML = `<div style="text-align:center; color:var(--text3); padding:20px;">${currentLang === 'ru' ? 'Файлы недоступны' : 'Fayllar mavjud emas'}</div>`;
             }
 
             document.getElementById('downloadOverlay').style.display = 'flex';
@@ -909,7 +701,6 @@
         function open3DViewer() {
             if (!product.glbUrl) return;
 
-            // Load model-viewer script dynamically if not loaded
             if (!window.customElements.get('model-viewer')) {
                 const script = document.createElement('script');
                 script.type = 'module';
@@ -919,11 +710,11 @@
 
             const wrapper = document.getElementById('modelViewerWrapper');
             wrapper.innerHTML = `
-                <model-viewer src="${product.glbUrl}" 
-                              alt="${escHtml(product.name)}" 
-                              ar 
-                              camera-controls 
-                              auto-rotate 
+                <model-viewer src="${product.glbUrl}"
+                              alt="${escHtml(product.name)}"
+                              ar
+                              camera-controls
+                              auto-rotate
                               style="width: 100%; height: 100%;">
                 </model-viewer>
             `;
@@ -943,42 +734,5 @@
             loadReviews();
         });
     </script>
-    
-    <!-- Footer -->
-    <footer class="site-footer" style="margin-top: 40px; padding: 20px; text-align: center; border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 16px;">
-        <div class="footer-controls" style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-            <!-- Language Switcher -->
-            <div class="lang-wrap" id="langWrap" style="margin: 0; position: relative;">
-                <button class="lang-switch-btn" id="langBtn" aria-label="Change Language">
-                    <svg class="lang-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path
-                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                        </path>
-                    </svg>
-                    <span class="lang-text">UZ</span>
-                    <svg class="lang-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </button>
-                <div class="lang-dropdown" id="langDropdown" style="bottom: 100%; top: auto; margin-bottom: 8px; margin-top: 0;">
-                    <div class="lang-option" data-lang="uz">O'zbek</div>
-                    <div class="lang-option selected" data-lang="ru">Русский</div>
-                </div>
-            </div>
-
-            <!-- Theme Toggle -->
-            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle theme">
-                <span class="theme-icon theme-icon-sun">☀️</span>
-                <span class="theme-icon theme-icon-moon">🌙</span>
-            </button>
-        </div>
-        <div style="font-size: 13px; color: var(--text3);">
-            © 2026 Topin · Toshkent, O'zbekiston
-        </div>
-    </footer>
 </body>
 </html>

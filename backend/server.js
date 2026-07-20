@@ -127,14 +127,11 @@ app.get('/stores/:storeSlug', async (req, res, next) => {
 
         if (!shop) return next();
 
-        if (!_storeHtml) {
-            const filePath = path.join(__dirname, '../frontend/store.html');
-            if (fs.existsSync(filePath)) {
-                _storeHtml = fs.readFileSync(filePath, 'utf-8');
-            } else {
-                return res.status(404).send('Storefront template not found');
-            }
+        const filePath = path.join(__dirname, '../frontend/store.html');
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).send('Storefront template not found');
         }
+        const _storeHtml = fs.readFileSync(filePath, 'utf-8');
         let html = _storeHtml;
 
         const catName = shop.Category ? (shop.Category.name_ru || shop.Category.name) : '';
@@ -217,14 +214,11 @@ app.get('/stores/:storeSlug/products/:productSlug', async (req, res, next) => {
         });
         if (!product) return next();
 
-        if (!_productHtml) {
-            const filePath = path.join(__dirname, '../frontend/product.html');
-            if (fs.existsSync(filePath)) {
-                _productHtml = fs.readFileSync(filePath, 'utf-8');
-            } else {
-                return res.status(404).send('Product template not found');
-            }
+        const filePath = path.join(__dirname, '../frontend/product.html');
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).send('Product template not found');
         }
+        const _productHtml = fs.readFileSync(filePath, 'utf-8');
         let html = _productHtml;
 
         const titleStr = `${product.name} - ${shop.name}`;

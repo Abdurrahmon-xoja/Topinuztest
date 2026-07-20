@@ -1,161 +1,92 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uz">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description"
-        content="Topin — Mebel do'konlari ro'yxati. Kategoriya bo'yicha filtrlash va do'kon ma'lumotlarini ko'rish.">
+        content="Topin — Do'konlar ro'yxati. Kategoriya bo'yicha filtrlash va do'kon ma'lumotlarini ko'rish.">
     <title>Topin</title>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0FA986">
+    <meta name="theme-color" content="#FFFFFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/style.css?v=3.1">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="css/topin.css?v=4.1">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
-    <style>
-        @media (max-width: 600px) {
-            .site-header .home-logo {
-                display: none !important;
-            }
-            .header-inner {
-                gap: 8px !important;
-            }
-        }
-    </style>
 </head>
 
 <body>
 
-    <!-- Header -->
-    <header class="site-header">
-        <div class="header-inner" style="padding: 0 16px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-                <a href="/" class="back-btn" aria-label="Go back">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                </a>
-                <a href="/" class="home-logo">
-                    <span class="logo-text-top">TOP</span><span class="logo-text-in">IN</span>
-                </a>
-            </div>
-
-            <!-- Header Search Bar -->
-            <div class="search-wrap">
-                <span class="search-icon">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                </span>
-                <input type="text" id="headerSearchInput" placeholder="Поиск магазинов..." aria-label="Search">
-            </div>
+    <main class="shops-page">
+        <!-- Title row: back + category title + layout toggle -->
+        <div class="shops-title-row">
+            <a href="/" class="back-btn" aria-label="Go back">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </a>
+            <h1 class="page-title" id="pageTitle">–</h1>
+            <button class="header-icon-btn" id="toggleLayoutBtn" onclick="toggleLayoutMode()" aria-label="Toggle layout mode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="layoutToggleIcon">
+                    <rect x="4" y="4" width="6" height="16" rx="1"></rect>
+                    <rect x="14" y="4" width="6" height="16" rx="1"></rect>
+                </svg>
+            </button>
         </div>
-    </header>
 
-    <main class="page-wrapper" style="max-width: 900px; margin: 0 auto;">
-        <!-- Main Category View -->
         <div id="homeView">
-            <!-- Category tags -->
-            <div class="markets-categories-wrap">
+            <!-- Subcategory chips -->
+            <div class="cat-tabs-scroll">
                 <div class="markets-categories" id="catTabs">
                     <!-- Injected via JS -->
                 </div>
             </div>
 
-            <!-- Toolbar -->
-            <div class="markets-toolbar" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <div class="markets-count" id="shopCount" style="font-weight: 500;">0</div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button class="btn-outline-small" id="btnNearMe" onclick="toggleNearMeFilter()" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px; font-weight: 600; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; transition: all 0.2s;">
-                        📍 <span id="lblNearMeBtn">Near Me</span>
-                    </button>
-                    <select id="shopSort" class="filter-control" onchange="handleShopSortChange()" style="display: none; padding: 6px 10px; font-size: 13px; font-weight: 600; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); outline: none; cursor: pointer; transition: all 0.2s;">
-                        <option value="default">Default</option>
-                    </select>
-                    <div class="view-toggle-group" style="display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface2);">
-                        <button class="view-toggle-btn active" id="btnListView" onclick="switchViewMode('list')" style="padding: 6px 12px; border: none; background: var(--accent); color: #fff; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;">List</button>
-                        <button class="view-toggle-btn" id="btnMapView" onclick="switchViewMode('map')" style="padding: 6px 12px; border: none; background: transparent; color: var(--text2); cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;">Map</button>
-                    </div>
-                </div>
-            </div>
+            <!-- Found count -->
+            <div class="found-count" id="shopCount"></div>
 
             <!-- Shops Grid -->
             <div class="shops-wrap">
-                <div id="shopsMap" style="display: none; height: 480px; width: 100%; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); z-index: 1; margin-bottom: 20px;"></div>
                 <div class="shops-grid" id="shopsGrid">
                     <div class="loader" id="shopLoader"></div>
                 </div>
             </div>
         </div>
-
-        <!-- Search Results View -->
-        <div id="searchView" style="display: none; padding: 0 16px;">
-            <div class="search-results-header">
-                <h2 class="search-results-title">Результаты поиска для "<span id="searchQueryVal"></span>"</h2>
-                <button class="close-search-btn" id="closeSearchBtn">✕ Закрыть поиск</button>
-            </div>
-            
-            <div class="search-tabs" style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <div style="display: flex; gap: 8px;">
-                    <button class="search-tab-btn active" id="searchTabProducts">Товары (<span id="searchCountProducts">0</span>)</button>
-                    <button class="search-tab-btn" id="searchTabShops">Магазины (<span id="searchCountShops">0</span>)</button>
-                </div>
-                <button class="btn-outline-small" id="btnNearMeSearch" onclick="toggleNearMeFilterSearch()" style="display: none; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px; font-weight: 600; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; transition: all 0.2s;">
-                    📍 <span id="lblNearMeBtnSearch">Near Me</span>
-                </button>
-            </div>
-            
-            <div class="search-results-content" style="margin-top: 20px;">
-                <div class="products-grid" id="searchProductsGrid"></div>
-                <div class="shops-grid" id="searchShopsGrid" style="display: none;"></div>
-                <div class="no-results-msg" id="noResultsMsg" style="display: none;">Ничего не найдено</div>
-            </div>
-        </div>
-
     </main>
 
-    <!-- Footer -->
-    <footer class="site-footer" style="margin-top: auto; padding: 20px; text-align: center; border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 16px;">
-        <div class="footer-controls" style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-            <!-- Language Switcher -->
-            <div class="lang-wrap" id="langWrap" style="margin: 0; position: relative;">
+    <!-- Floating footer controls (desktop) -->
+    <footer class="site-footer hide-mobile">
+        <div class="footer-controls">
+            <div class="lang-wrap" id="langWrap">
                 <button class="lang-switch-btn" id="langBtn" aria-label="Change Language">
-                    <svg class="lang-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path
-                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                        </path>
-                    </svg>
                     <span class="lang-text">UZ</span>
                     <svg class="lang-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                 </button>
-                <div class="lang-dropdown" id="langDropdown" style="bottom: 100%; top: auto; margin-bottom: 8px; margin-top: 0;">
+                <div class="lang-dropdown" id="langDropdown">
                     <div class="lang-option" data-lang="uz">
-                        O'zbek <span class="lang-check">✓</span>
+                        O'zbek
+                        <svg class="lang-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
-                    <div class="lang-option selected" data-lang="ru">
-                        Русский <span class="lang-check">✓</span>
+                    <div class="lang-option" data-lang="ru">
+                        Русский
+                        <svg class="lang-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
                 </div>
             </div>
 
-            <!-- Theme Toggle -->
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle theme">
-                <span class="theme-icon theme-icon-sun">☀️</span>
-                <span class="theme-icon theme-icon-moon">🌙</span>
+                <span class="theme-icon theme-icon-sun">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+                </span>
+                <span class="theme-icon theme-icon-moon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </span>
             </button>
-        </div>
-        <div style="font-size: 13px; color: var(--text3);">
-            © 2026 Topin · Toshkent, O'zbekiston
         </div>
     </footer>
 
@@ -172,7 +103,7 @@
                     </svg>
                 </button>
                 <button class="modal-close" id="modalClose" aria-label="Yopish">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -181,63 +112,68 @@
             </div>
 
             <div class="modal-body">
-                <!-- 1. Header Section: Logo & Name & Description -->
-                <div class="modal-info-col" style="margin-bottom: 20px;">
+                <!-- 1. Image Carousel -->
+                <div class="shop-carousel" id="shopCarousel"></div>
+
+                <!-- 2. Logo + Name + Description -->
+                <div class="modal-profile-row">
                     <div class="modal-logo" id="modalLogo">🏪</div>
-                    <h2 class="modal-shop-name" id="modalName">–</h2>
-                    <div id="modalRatingContainer" style="margin-bottom: 8px;"></div>
-                    <p class="modal-shop-desc" id="modalDescFull">Bu do'kon haqida ma'lumot...</p>
+                    <div class="modal-profile-info">
+                        <h2 class="modal-shop-name" id="modalName">–</h2>
+                        <p class="modal-shop-desc" id="modalDescFull"></p>
+                    </div>
                 </div>
 
-                <!-- 2. Image Carousel -->
-                <div class="shop-carousel" id="shopCarousel" style="margin-bottom: 24px;"></div>
-
-                <!-- 3. Details Section: Location on the Left, Social Links on the Right -->
+                <!-- 3. Social pills + Location card -->
                 <div class="modal-details-grid">
-                    <!-- Left: Location address & Map -->
-                    <div class="modal-details-left">
-                        <div class="modal-shop-loc" id="modalLoc" style="margin: 0; width: 100%;">
-                            <img src="img/icons/Location icon.svg" alt="Location" class="modal-loc-icon">
-                            <span id="modalLocText">–</span>
-                        </div>
-                        <!-- Little Map container -->
-                        <div class="modal-map-container" id="modalMapContainer" style="width: 100%; height: 160px; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); display: none;">
-                            <iframe id="modalMapIframe" src="" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                        </div>
-                    </div>
+                    <div class="modal-pills" id="modalRows"></div>
 
-                    <!-- Right: Social Links -->
-                    <div class="modal-details-right">
-                        <div class="modal-rows" id="modalRows"></div>
+                    <div class="modal-loc-card" id="modalLoc">
+                        <div class="modal-loc-head">
+                            <img src="img/icons/Location icon.svg" alt="" class="modal-loc-icon">
+                            <span class="modal-loc-title" id="modalLocTitle">Joylashuv</span>
+                            <span class="modal-loc-directions" id="modalDirectionsBtn">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10.94 2.44a1.5 1.5 0 0 1 2.12 0l8.5 8.5a1.5 1.5 0 0 1 0 2.12l-8.5 8.5a1.5 1.5 0 0 1-2.12 0l-8.5-8.5a1.5 1.5 0 0 1 0-2.12z"></path>
+                                    <path d="M9.5 13.7v-1.6a1.2 1.2 0 0 1 1.2-1.2h3.6"></path>
+                                    <path d="M12.6 8.9l2 2-2 2"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="modal-loc-text" id="modalLocText">–</div>
                     </div>
                 </div>
 
-                <!-- Store Products Grid Section -->
-                <div class="modal-products-section" id="modalProductsSection" style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; display: none;">
-                    <h3 class="modal-products-title" id="modalProductsTitle" style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--text);">Товары магазина</h3>
-                    <div class="modal-products-grid" id="modalProductsGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px;"></div>
+                <!-- 4. Store Products -->
+                <div class="modal-products-section" id="modalProductsSection" style="display: none;">
+                    <div class="modal-products-header">
+                        <h3 class="modal-products-title" id="modalProductsTitle">Mahsulotlar</h3>
+                        <a class="modal-all-btn" id="modalAllBtn" href="#">
+                            <span id="modalAllBtnText">Hammasi</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </a>
+                    </div>
+                    <div class="modal-products-scroll" id="modalProductsGrid"></div>
                 </div>
 
-                <!-- Reviews section in modal -->
-                <div class="reviews-section" style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <h3 class="reviews-title" id="lblReviewsTitle">Отзывы и оценки</h3>
-                    <div class="reviews-list" id="modalReviewsList">
-                        <!-- Loaded dynamically -->
-                    </div>
+                <!-- 5. Reviews -->
+                <div class="reviews-section">
+                    <h3 class="reviews-title" id="lblReviewsTitle">Fikrlar va baholar</h3>
+                    <div id="modalRatingContainer" style="display:none;"></div>
+                    <div class="reviews-list" id="modalReviewsList"></div>
 
-                    <!-- Write a review form -->
                     <div class="review-form-container">
                         <div class="review-form-header" id="btnToggleModalReviewForm" onclick="toggleModalReviewForm()" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                            <h4 class="review-form-title" id="lblWriteReview" style="margin: 0;">Оставить отзыв</h4>
-                            <span class="toggle-icon" id="modalReviewToggleIcon" style="font-size: 18px; transition: transform 0.2s; color: var(--accent);">➕</span>
+                            <h4 class="review-form-title" id="lblWriteReview" style="margin: 0;">Fikr qoldirish</h4>
+                            <span class="toggle-icon" id="modalReviewToggleIcon" style="font-size: 18px; color: var(--blue);">➕</span>
                         </div>
                         <form class="review-form" id="modalReviewForm" onsubmit="submitModalReview(event)" style="display: none; margin-top: 16px;">
                             <div class="form-group">
-                                <label for="modalReviewAuthor" id="lblYourName">Ваше имя</label>
-                                <input type="text" id="modalReviewAuthor" class="form-input" placeholder="Введите имя..." required>
+                                <label for="modalReviewAuthor" id="lblYourName">Sizning ismingiz</label>
+                                <input type="text" id="modalReviewAuthor" class="form-input" placeholder="Ismingizni kiriting..." required>
                             </div>
                             <div class="form-group">
-                                <label id="lblYourRating">Ваша оценка</label>
+                                <label id="lblYourRating">Sizning bahoingiz</label>
                                 <div class="star-rating-selector" id="modalStarSelector">
                                     <span data-val="1">☆</span>
                                     <span data-val="2">☆</span>
@@ -247,25 +183,29 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="modalReviewComment" id="lblYourComment">Комментарий</label>
-                                <textarea id="modalReviewComment" class="form-textarea" placeholder="Напишите ваш отзыв..." required></textarea>
+                                <label for="modalReviewComment" id="lblYourComment">Fikr-mulohaza</label>
+                                <textarea id="modalReviewComment" class="form-textarea" placeholder="Fikringizni yozing..." required></textarea>
                             </div>
-                            <button type="submit" class="btn-submit-review" id="btnSubmitReview">Отправить отзыв</button>
+                            <button type="submit" class="btn-submit-review" id="btnSubmitReview">Yuborish</button>
                         </form>
                     </div>
                 </div>
+            </div>
 
-                <!-- Go to Store Button at the very bottom -->
-                <div style="display: flex; justify-content: center; margin-top: 24px; margin-bottom: 12px;">
-                    <a class="btn-modal-primary" id="modalStoreBtn" href="#" style="display: none; width: 100%; max-width: 280px; box-sizing: border-box; text-decoration: none;">
-                        <span id="modalStoreBtnText">Do'konga o'tish</span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                    </a>
-                </div>
-
+            <!-- Bottom Action Buttons -->
+            <div class="modal-sticky-actions" id="modalStickyActions" style="display: none;">
+                <a class="btn-tg-pill" id="modalTgActionBtn" href="#" target="_blank" rel="noopener noreferrer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M21.6 4.1 2.9 11.3c-1 .4-1 1.3-.2 1.6l4.7 1.5 1.8 5.5c.2.6.4.8.9.8.4 0 .6-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.2-15c.3-1.2-.4-1.8-1.5-1.6zM7.9 14.1l10.4-6.6c.5-.3 1-.1.6.2l-8.9 8-.3 3.3-1.8-4.9z"/>
+                    </svg>
+                    <span class="btn-pill-label" id="modalTgLabel">Telegramda bog'lanish</span>
+                </a>
+                <a class="btn-phone-pill" id="modalPhoneActionBtn" href="#">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    <span id="modalPhoneActionText">+998 71 379 0102</span>
+                </a>
             </div>
         </div>
     </div>
@@ -273,11 +213,32 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
-    <script src="js/config.js?v=3.1"></script>
-    <script src="js/utils.js?v=3.1"></script>
-    <script src="js/market.js?v=3.1"></script>
-    <script src="js/home.js?v=3.1"></script>
-    <script src="js/modal.js?v=3.1"></script>
+    <!-- Floating Bottom Search Bar for Mobile -->
+    <div class="floating-search-bar" id="floatingSearchBar">
+        <div class="floating-search-inner">
+            <div class="floating-search-input-wrap">
+                <span class="floating-search-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </span>
+                <input type="text" id="floatingSearchInput" placeholder="Qidiruv..." aria-label="Search">
+                <button class="clear-search-btn" id="clearFloatingSearchBtn" style="display: none;">✕</button>
+            </div>
+            <button class="back-circle-btn" onclick="history.back()" aria-label="Go back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script src="js/config.js?v=4.1"></script>
+    <script src="js/utils.js?v=4.1"></script>
+    <script src="js/market.js?v=4.1"></script>
+    <script src="js/home.js?v=4.1"></script>
+    <script src="js/modal.js?v=4.1"></script>
 </body>
 
 </html>

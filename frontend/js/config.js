@@ -1,6 +1,6 @@
 const API = '';          // same origin — backend serves frontend statically
 const TOKEN_KEY = 'houz_token';
-let currentLang = localStorage.getItem('houz_lang_v2') || 'ru';
+let currentLang = localStorage.getItem('houz_lang_v2') || 'uz';
 
 const i18n = {
   uz: {
@@ -63,15 +63,16 @@ const i18n = {
     cat: {
       "furniture": "Mebel",
       "lighting": "Yoritish",
-      "art-decor": "San’at va dekor",
+      "art-decor": "San'at va dekor",
       "walls": "Devorlar",
-      "floor": "Pol",
-      "stone": "Tosh",
-      "real-estate": "Eksteryer",
-      "plants": "O‘simliklar",
-      "bathroom": "Vannaxona",
+      "floor": "Pol qoplamalari",
+      "stone": "Tosh materiallari",
+      "real-estate": "Ko'chmas mulk",
+      "plants": "O'simliklar",
+      "bathroom": "Hammom",
       "other": "Boshqa"
     },
+    found: "Topildi",
     // New dynamic translation keys
     searchHeaderPlaceholder: "Do'konlar va tovarlarni qidirish...",
     searchShopsPlaceholder: "Do'konlarni qidirish...",
@@ -82,8 +83,15 @@ const i18n = {
     tabShops: "Do'konlar",
     nothingFound: "Hech narsa topilmadi",
     shopProducts: "Do'kon mahsulotlari",
-    viewInRoom: "Xonangizda ko'rish",
-    contactTelegram: "Telegram orqali bog'lanish",
+    viewInRoom: "AR ko'rish",
+    contactTelegram: "Telegramda bog'lanish",
+    locationTitle: "Joylashuv",
+    productsTitle: "Mahsulotlar",
+    productLabel: "Mahsulot",
+    download3d: "3D modelni yuklab olish",
+    telegramConnect: "Telegramda bog'lanish",
+    back: "Ortga",
+    homeCrumb: "Asosiy",
     callPhone: "Qo'ng'iroq qilish",
     descriptionTitle: "Tavsif",
     view3dModel: "3D modelni ko'rish",
@@ -185,13 +193,14 @@ const i18n = {
       "lighting": "Освещение",
       "art-decor": "Искусство и декор",
       "walls": "Стены",
-      "floor": "Пол",
-      "stone": "Камень",
-      "real-estate": "Экстерьер",
+      "floor": "Напольные покрытия",
+      "stone": "Каменные материалы",
+      "real-estate": "Недвижимость",
       "plants": "Растения",
-      "bathroom": "Ванная комната",
+      "bathroom": "Ванная",
       "other": "Другое"
     },
+    found: "Найдено",
     // New dynamic translation keys
     searchHeaderPlaceholder: "Поиск магазинов и товаров...",
     searchShopsPlaceholder: "Поиск магазинов...",
@@ -202,8 +211,15 @@ const i18n = {
     tabShops: "Магазины",
     nothingFound: "Ничего не найдено",
     shopProducts: "Товары магазина",
-    viewInRoom: "Посмотреть у себя в комнате",
+    viewInRoom: "Смотреть в AR",
     contactTelegram: "Связаться в Telegram",
+    locationTitle: "Локация",
+    productsTitle: "Товары",
+    productLabel: "Товаров",
+    download3d: "Скачать 3D модель",
+    telegramConnect: "Написать в Telegram",
+    back: "Назад",
+    homeCrumb: "Главная",
     callPhone: "Позвонить",
     descriptionTitle: "Описание",
     view3dModel: "Просмотр 3D модели",
@@ -298,9 +314,6 @@ function translateStaticElements() {
   const catalogTitle = document.querySelector('.categories-section .section-title');
   if (catalogTitle) catalogTitle.textContent = t('catalogCategories');
 
-  // closeSearchBtn
-  const closeSearchBtn = document.getElementById('closeSearchBtn');
-  if (closeSearchBtn) closeSearchBtn.textContent = t('closeSearch');
 
   // search tabs text
   const searchTabProducts = document.getElementById('searchTabProducts');
@@ -346,6 +359,33 @@ function translateStaticElements() {
 
   const lblModalTitle = document.getElementById('lblModalTitle');
   if (lblModalTitle) lblModalTitle.textContent = t('view3dModel');
+
+  // shops.html filter menu
+  const filterDropdownBtn = document.getElementById('filterDropdownBtn');
+  if (filterDropdownBtn) {
+    const span = filterDropdownBtn.querySelector('span');
+    if (span) span.textContent = currentLang === 'ru' ? 'Вид и фильтры' : 'Ko\'rinish va filtrlar';
+  }
+  const lblViewTitle = document.getElementById('lblViewTitle');
+  if (lblViewTitle) lblViewTitle.textContent = currentLang === 'ru' ? 'Отображение' : 'Ko\'rinish';
+  
+  const lblSortTitle = document.getElementById('lblSortTitle');
+  if (lblSortTitle) lblSortTitle.textContent = currentLang === 'ru' ? 'Сортировка' : 'Saralash';
+
+  const optSortDefault = document.getElementById('optSortDefault');
+  if (optSortDefault) optSortDefault.textContent = t('sortDefault');
+
+  const optSortName = document.getElementById('optSortName');
+  if (optSortName) optSortName.textContent = t('sortAlphabetical');
+
+  const optSortNear = document.getElementById('optSortNear');
+  if (optSortNear) optSortNear.textContent = t('nearMe');
+
+  const btnListView = document.getElementById('btnListView');
+  if (btnListView) btnListView.textContent = currentLang === 'ru' ? 'Список' : 'Ro\'yxat';
+
+  const btnMapView = document.getElementById('btnMapView');
+  if (btnMapView) btnMapView.textContent = currentLang === 'ru' ? 'Карта' : 'Xarita';
 
   // store.html elements
   const tabProducts = document.getElementById('tabProducts');

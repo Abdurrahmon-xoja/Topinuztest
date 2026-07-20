@@ -7,6 +7,7 @@ let _liveSubCategories = [];
 let _userCoords = null;
 let _nearMeFilterActive = false;
 let _currentViewMode = 'list'; // 'list' or 'map'
+let _shopsLayoutMode = localStorage.getItem('topin_layout_mode') || 'list';
 let _map = null;
 let _mapMarkers = [];
 
@@ -24,12 +25,34 @@ async function initShopsPage() {
   const btnNear = document.getElementById('lblNearMeBtn');
   if (btnNear) btnNear.textContent = t('nearMe');
 
+  _syncLayoutToggleIcon();
+
   await Promise.all([
     buildCategoryTabs(_activeMainCategory),
     fetchAndRenderShops(_activeMainCategory),
   ]);
 
-
+  // Floating mobile search → live-filter shops
+  const floatingInput = document.getElementById('floatingSearchInput');
+  const clearBtn = document.getElementById('clearFloatingSearchBtn');
+  if (floatingInput) {
+    let searchTid;
+    floatingInput.addEventListener('input', () => {
+      const val = floatingInput.value.trim();
+      if (clearBtn) clearBtn.style.display = val ? 'block' : 'none';
+      clearTimeout(searchTid);
+      searchTid = setTimeout(() => {
+        fetchAndRenderShops(_activeMainCategory, _activeSubCategory, val);
+      }, 300);
+    });
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        floatingInput.value = '';
+        clearBtn.style.display = 'none';
+        fetchAndRenderShops(_activeMainCategory, _activeSubCategory, '');
+      });
+    }
+  }
 
   document.getElementById('shopModal')?.addEventListener('click', (e) => {
     if (e.target === document.getElementById('shopModal')) closeShopModal();
@@ -68,7 +91,7 @@ async function buildCategoryTabs(activeMainSlug) {
       tabsEl.parentNode.style.display = 'none';
       return;
   } else {
-      tabsEl.parentNode.style.display = 'block';
+      tabsEl.parentNode.style.display = '';
   }
 
   const allTabs = [{ name: t('hammasi'), nameRu: t('hammasi'), slug: 'all', id: 'all' }, ...subCats];
@@ -90,6 +113,14 @@ async function buildCategoryTabs(activeMainSlug) {
       tabsEl.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       _activeSubCategory = btn.dataset.id; // use ID for filtering backend dynamically
+      
+      const isAll = btn.dataset.slug === 'all' || btn.dataset.id === 'all';
+      const titleEl = document.getElementById('pageTitle');
+      if (titleEl) {
+        titleEl.textContent = isAll 
+          ? (_activeMainCategory === 'all' ? t('allShops') : getCatName(_activeMainCategory)) 
+          : btn.dataset.name;
+      }
       
       const searchVal = document.getElementById('shopSearch')?.value || '';
       // We pass the actual Main DB Category ID instead of slug to backend
@@ -156,6 +187,13 @@ async function fetchAndRenderShops(activeMainIdOrSlug = 'all', activeSubIdOrSlug
 }
 
 function getActiveCategoryName() {
+  if (_activeSubCategory !== 'all') {
+    const activeBtn = document.querySelector('#catTabs .cat-pill.active');
+    if (activeBtn) {
+      return activeBtn.dataset.name;
+    }
+  }
+
   if (_activeMainCategory === 'all') return t('shopsCount');
   const translated = getCatName(_activeMainCategory);
   // getCatName returns the slug itself if no i18n match — fall back to DB name
@@ -172,7 +210,7 @@ function renderShops(shops) {
   const pageCountEl = document.getElementById('pageCount');
   if (!grid) return;
 
-  if (countEl) countEl.textContent = `${getActiveCategoryName()} ${shops.length}`;
+  if (countEl) countEl.innerHTML = `${t('found')} <b>${shops.length}</b>`;
   if (pageCountEl) pageCountEl.textContent = `${shops.length} ta`;
 
   const filterBtn = document.querySelector('.btn-outline-small.btn-filter');
@@ -193,39 +231,42 @@ function renderShops(shops) {
     return;
   }
 
+  grid.className = _shopsLayoutMode === 'grid' ? 'shops-grid grid-layout' : 'shops-grid list-layout';
+
   grid.innerHTML = shops.map(shop => {
-    return `
-    <div class="market-card market-card-hidden"
-         onclick="openShopModal(${shop.id})" role="button" tabindex="0"
-         onkeydown="if(event.key==='Enter')openShopModal(${shop.id})">
-
-      <div class="market-logo-box">
-        ${logoFallback(shop.logoUrl, shop.name)}
-      </div>
-
-      <div class="market-info">
-        <div class="market-name">${escHtml(shop.name)}</div>
-        ${renderRatingStarsHtml(shop.rating, shop.reviewsCount)}
-        ${(() => {
-          if (_userCoords && shop.latitude && shop.longitude) {
-            const dist = calculateDistance(_userCoords.lat, _userCoords.lng, shop.latitude, shop.longitude);
-            if (dist !== null) {
-              const text = t('kmAway').replace('{km}', dist.toFixed(1));
-              return `<div class="market-distance" style="font-size:12px; color:var(--accent); font-weight:700; display:flex; align-items:center; gap:4px; margin-top:4px;">📍 ${text}</div>`;
-            }
-          }
-          return '';
-        })()}
-        <div class="market-desc" style="margin-top: 4px;">${escHtml((currentLang === 'ru' ? shop.description_ru : shop.description) || '')}</div>
-      </div>
-
-      <div class="market-chevron">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </div>
-
-    </div>`;
+    const desc = escHtml((currentLang === 'ru' ? shop.description_ru : shop.description) || '');
+    if (_shopsLayoutMode === 'grid') {
+      return `
+      <div class="market-card grid-card market-card-hidden"
+           onclick="openShopModal(${shop.id})" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter')openShopModal(${shop.id})">
+        <div class="market-logo-box">
+          ${logoFallback(shop.logoUrl, shop.name)}
+        </div>
+        <div class="market-info">
+          <div class="market-name">${escHtml(shop.name)}</div>
+          <div class="market-desc">${desc}</div>
+        </div>
+      </div>`;
+    } else {
+      return `
+      <div class="market-card list-card market-card-hidden"
+           onclick="openShopModal(${shop.id})" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter')openShopModal(${shop.id})">
+        <div class="market-logo-box">
+          ${logoFallback(shop.logoUrl, shop.name)}
+        </div>
+        <div class="market-info">
+          <div class="market-name">${escHtml(shop.name)}</div>
+          <div class="market-desc">${desc}</div>
+        </div>
+        <div class="market-chevron">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </div>`;
+    }
   }).join('');
 
   requestAnimationFrame(() => {
@@ -297,20 +338,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     const page = path.split('/').pop();
     if (page === 'shops.html' || page === 'shops') {
         initShopsPage();
-        const wrap = document.querySelector('.markets-categories-wrap');
+        const wrap = document.querySelector('.cat-tabs-scroll');
         if (wrap) enableDragScroll(wrap);
     }
 });
 
 async function handleLangChangeMarket() {
-  const catName = _activeMainCategory === 'all' ? t('allShops') : getCatName(_activeMainCategory);
-  const titleEl = document.getElementById('pageTitle');
-  if (titleEl) titleEl.textContent = catName;
-
   const btnNear = document.getElementById('lblNearMeBtn');
   if (btnNear) btnNear.textContent = t('nearMe');
 
   await buildCategoryTabs(_activeMainCategory);
+
+  // Update title based on selected subcategory
+  const activeBtn = document.querySelector('#catTabs .cat-pill.active');
+  const titleEl = document.getElementById('pageTitle');
+  if (titleEl) {
+    if (activeBtn && _activeSubCategory !== 'all') {
+      titleEl.textContent = activeBtn.dataset.name;
+    } else {
+      titleEl.textContent = _activeMainCategory === 'all' ? t('allShops') : getCatName(_activeMainCategory);
+    }
+  }
+
   const shopsToRender = _nearMeFilterActive ? getSortedShops(_allShops) : _allShops;
   renderShops(shopsToRender);
 }
@@ -321,7 +370,7 @@ function getSortedShops(shopsList) {
   
   if (sortVal === 'name-asc') {
     list.sort((a, b) => (a.name || '').localeCompare(b.name || '', currentLang === 'ru' ? 'ru' : 'uz'));
-  } else if (_nearMeFilterActive && _userCoords) {
+  } else if (sortVal === 'near-me' && _nearMeFilterActive && _userCoords) {
     list.sort((a, b) => {
       const hasA = a.latitude && a.longitude;
       const hasB = b.latitude && b.longitude;
@@ -338,59 +387,46 @@ function getSortedShops(shopsList) {
 
 function handleShopSortChange() {
   const sortVal = document.getElementById('shopSort')?.value || 'default';
-  if (sortVal === 'name-asc' && _nearMeFilterActive) {
-    _nearMeFilterActive = false;
-    const btn = document.getElementById('btnNearMe');
-    if (btn) {
-      btn.style.background = 'var(--surface)';
-      btn.style.color = 'var(--text)';
-    }
-  }
-  const sorted = getSortedShops(_allShops);
-  renderShops(sorted);
-  if (_currentViewMode === 'map') {
-    initLeafletMap(sorted);
-  }
-}
-
-function toggleNearMeFilter() {
-  const btn = document.getElementById('btnNearMe');
-  if (!btn) return;
   
-  if (!_nearMeFilterActive) {
-    showToast(currentLang === 'ru' ? '📍 Определение геопозиции...' : '📍 Geopozitsiyani aniqlash...', 'info');
-    getUserLocation(
-      (position) => {
-        _userCoords = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        window._userCoords = _userCoords;
-        
-        _nearMeFilterActive = true;
-        btn.style.background = 'var(--accent)';
-        btn.style.color = '#fff';
-        
-        const shopSort = document.getElementById('shopSort');
-        if (shopSort) shopSort.value = 'default';
-        
-        const sorted = getSortedShops(_allShops);
-        renderShops(sorted);
-        if (_currentViewMode === 'map') {
-          initLeafletMap(sorted);
+  if (sortVal === 'near-me') {
+    if (!_nearMeFilterActive) {
+      showToast(currentLang === 'ru' ? '📍 Определение геопозиции...' : '📍 Geopozitsiyani aniqlash...', 'info');
+      getUserLocation(
+        (position) => {
+          _userCoords = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          window._userCoords = _userCoords;
+          _nearMeFilterActive = true;
+          
+          const sorted = getSortedShops(_allShops);
+          renderShops(sorted);
+          if (_currentViewMode === 'map') {
+            initLeafletMap(sorted);
+          }
+          showToast('✅ Список отсортирован по расстоянию', 'success');
+        },
+        (error) => {
+          console.error(error);
+          showToast(currentLang === 'ru' ? '❌ Доступ к геопозиции отклонен или недоступен' : '❌ Geopozitsiyaga ruxsat rad etildi yoki mavjud emas', 'error');
+          // reset back to default
+          const selectEl = document.getElementById('shopSort');
+          if (selectEl) selectEl.value = 'default';
+          _nearMeFilterActive = false;
+          const sorted = getSortedShops(_allShops);
+          renderShops(sorted);
         }
-        showToast('✅ Список отсортирован по расстоянию', 'success');
-      },
-      (error) => {
-        console.error(error);
-        showToast(currentLang === 'ru' ? '❌ Доступ к геопозиции отклонен или недоступен' : '❌ Geopozitsiyaga ruxsat rad etildi yoki mavjud emas', 'error');
+      );
+    } else {
+      const sorted = getSortedShops(_allShops);
+      renderShops(sorted);
+      if (_currentViewMode === 'map') {
+        initLeafletMap(sorted);
       }
-    );
+    }
   } else {
     _nearMeFilterActive = false;
-    btn.style.background = 'var(--surface)';
-    btn.style.color = 'var(--text)';
-    
     const sorted = getSortedShops(_allShops);
     renderShops(sorted);
     if (_currentViewMode === 'map') {
@@ -398,6 +434,30 @@ function toggleNearMeFilter() {
     }
   }
 }
+
+// ─── Filter Dropdown Handlers ─────────────────────────────────────
+window.toggleFilterDropdown = (e) => {
+  e.stopPropagation();
+  const menu = document.getElementById('filterDropdownMenu');
+  if (menu) {
+    const isHidden = menu.style.display === 'none' || menu.style.display === '';
+    menu.style.display = isHidden ? 'flex' : 'none';
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Close dropdown when clicking outside
+  document.addEventListener('click', () => {
+    const menu = document.getElementById('filterDropdownMenu');
+    if (menu) menu.style.display = 'none';
+  });
+
+  // Prevent dropdown closure when clicking inside the menu
+  const menuEl = document.getElementById('filterDropdownMenu');
+  if (menuEl) {
+    menuEl.addEventListener('click', (e) => e.stopPropagation());
+  }
+});
 
 function switchViewMode(mode) {
   _currentViewMode = mode;
@@ -519,3 +579,30 @@ window.addEventListener('langchange', () => {
         handleLangChangeMarket();
     }
 });
+
+function _syncLayoutToggleIcon() {
+  const btnIcon = document.getElementById('layoutToggleIcon');
+  if (!btnIcon) return;
+  if (_shopsLayoutMode === 'list') {
+    // currently list → icon shows grid option
+    btnIcon.innerHTML = `
+      <rect x="4" y="4" width="6" height="16" rx="1"></rect>
+      <rect x="14" y="4" width="6" height="16" rx="1"></rect>
+    `;
+  } else {
+    // currently grid → icon shows list option
+    btnIcon.innerHTML = `
+      <rect x="4" y="4" width="16" height="6" rx="1"></rect>
+      <rect x="4" y="14" width="16" height="6" rx="1"></rect>
+    `;
+  }
+}
+
+function toggleLayoutMode() {
+  _shopsLayoutMode = _shopsLayoutMode === 'grid' ? 'list' : 'grid';
+  localStorage.setItem('topin_layout_mode', _shopsLayoutMode);
+  _syncLayoutToggleIcon();
+
+  const shopsToRender = _nearMeFilterActive ? getSortedShops(_allShops) : _allShops;
+  renderShops(shopsToRender);
+}
