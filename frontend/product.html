@@ -7,7 +7,7 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="/css/topin.css?v=4.1">
+    <link rel="stylesheet" href="/css/topin.css?v=4.2">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
 <body>
@@ -212,8 +212,8 @@
     <!-- Toast elements -->
     <div class="toast" id="toast"></div>
 
-    <script src="/js/config.js?v=4.1"></script>
-    <script src="/js/utils.js?v=4.1"></script>
+    <script src="/js/config.js?v=4.2"></script>
+    <script src="/js/utils.js?v=4.2"></script>
     <script>
         let product = null;
         let shop = null;
@@ -234,8 +234,10 @@
         }
 
         function formatPrice(val, currency) {
-            const cur = (currency === 'UZS' || !currency) ? "so'm" : currency;
-            return `${parseFloat(val).toLocaleString()} ${cur}`;
+            if (!val) return '';
+            const formattedNum = parseFloat(val).toLocaleString(currentLang === 'ru' ? 'ru-RU' : 'uz-UZ');
+            const cur = (currency === 'UZS' || !currency) ? (currentLang === 'ru' ? 'сум' : "so'm") : currency;
+            return `${formattedNum} ${cur}`;
         }
 
         function renderProductDetails() {
@@ -314,10 +316,15 @@
             }
             if (shop.telegram) {
                 const tgHref = shop.telegram.startsWith('http') ? shop.telegram : `https://t.me/${shop.telegram.replace('@', '')}`;
-                tgBtn.style.display = 'flex';
-                tgBtn.href = tgHref;
-                tgBtnFull.style.display = 'flex';
                 tgBtnFull.href = tgHref;
+                tgBtn.href = tgHref;
+                if (window.innerWidth < 768) {
+                    tgBtnFull.style.display = 'flex';
+                    tgBtn.style.display = 'none';
+                } else {
+                    tgBtnFull.style.display = 'none';
+                    tgBtn.style.display = 'flex';
+                }
             } else {
                 tgBtn.style.display = 'none';
                 tgBtnFull.style.display = 'none';
@@ -325,7 +332,7 @@
 
             // Primary image + gallery
             if (product.imageUrl) {
-                document.getElementById('primaryImage').src = removeImageCrop(product.imageUrl);
+                document.getElementById('primaryImage').src = cloudinaryOptimize(removeImageCrop(product.imageUrl), 800);
             }
 
             const thumbsEl = document.getElementById('thumbnailGallery');
@@ -339,7 +346,7 @@
 
             thumbsEl.innerHTML = imagesList.map((url, i) => `
                 <div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="selectImage('${url}', this)">
-                    <img src="${removeImageCrop(cloudinaryOptimize(url))}" alt="Thumb ${i+1}">
+                    <img src="${removeImageCrop(cloudinaryOptimize(url, 200))}" alt="Thumb ${i+1}" loading="lazy">
                 </div>
             `).join('');
             thumbsEl.style.display = imagesList.length > 1 ? 'flex' : 'none';
@@ -569,7 +576,7 @@
         }
 
         function selectImage(url, el) {
-            document.getElementById('primaryImage').src = removeImageCrop(url);
+            document.getElementById('primaryImage').src = cloudinaryOptimize(removeImageCrop(url), 800);
             document.querySelectorAll('.thumb-item').forEach(thumb => thumb.classList.remove('active'));
             if (el) el.classList.add('active');
         }

@@ -403,9 +403,9 @@ async function _loadModalProducts(shopId, shopSlug, shopName, shopCurrency) {
                 </div>
             ` : '';
 
-            const currency = (!shopCurrency || shopCurrency === 'UZS') ? "so'm" : shopCurrency;
+            const currency = (!shopCurrency || shopCurrency === 'UZS') ? (currentLang === 'ru' ? 'сум' : "so'm") : shopCurrency;
             const priceStr = prod.price 
-                ? `${parseFloat(prod.price).toLocaleString()} ${currency}`
+                ? `${parseFloat(prod.price).toLocaleString(currentLang === 'ru' ? 'ru-RU' : 'uz-UZ')} ${currency}`
                 : (currentLang === 'ru' ? 'Цена по запросу' : 'Narx soʻrov boʻyicha');
                 
             const oldPriceHtml = prod.salePrice

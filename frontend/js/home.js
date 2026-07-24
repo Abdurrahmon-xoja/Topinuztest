@@ -352,7 +352,7 @@ function setupSearch() {
                 const shopName = p.Shop?.name || '';
                 const imgUrl = p.imageUrl ? cloudinaryOptimize(p.imageUrl) : '';
                 const currencyRaw = p.Shop?.currency || 'UZS';
-                const currency = currencyRaw === 'UZS' ? "so'm" : currencyRaw;
+                const currency = (currencyRaw === 'UZS' || !currencyRaw) ? (currentLang === 'ru' ? 'сум' : "so'm") : currencyRaw;
                 const price = p.salePrice || p.price;
                 const priceStr = price ? `${parseFloat(price).toLocaleString()} ${currency}` : (currentLang === 'ru' ? 'Цена по запросу' : "So'rov bo'yicha narx");
                 const storeSlug = p.Shop?.slug || '';
