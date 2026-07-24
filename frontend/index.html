@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/topin.css?v=4.0">
+    <link rel="stylesheet" href="css/topin.css?v=4.2">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
 
@@ -24,13 +24,22 @@
                 <span class="logo-text-top">TOP</span><span class="logo-text-in">IN</span>
             </a>
 
-            <!-- Search trigger (opens full-page search) -->
-            <button class="header-search-icon" id="desktopSearchTrigger" aria-label="Search">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-            </button>
+            <!-- Right icons (Search + Menu) -->
+            <div class="header-right-actions">
+                <button class="header-icon-btn" id="desktopSearchTrigger" aria-label="Search">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+                <a href="/shops" class="header-icon-btn" aria-label="Menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </a>
+            </div>
         </div>
     </header>
 
@@ -116,9 +125,9 @@
         </div>
     </footer>
 
-    <script src="js/config.js?v=4.0"></script>
-    <script src="js/utils.js?v=4.0"></script>
-    <script src="js/home.js?v=4.0"></script>
+    <script src="js/config.js?v=4.2"></script>
+    <script src="js/utils.js?v=4.2"></script>
+    <script src="js/home.js?v=4.2"></script>
 
 </body>
 
