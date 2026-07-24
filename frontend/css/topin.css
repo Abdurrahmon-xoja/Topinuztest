@@ -402,28 +402,9 @@ button:focus-visible {
 .home-card--bathroom    { grid-area: bathroom; }
 .home-card--other       { grid-area: other; }
 
-/* Wide card ("Boshqa / Other") special background & placement */
+/* Wide card ("Boshqa / Other") */
 .home-card--other {
-    background: linear-gradient(135deg, #444141 0%, #2E2C2C 100%);
-}
-
-.home-card--other .home-card-bg {
-    width: auto;
-    height: 85%;
-    right: 20px;
-    left: auto;
-    top: 50%;
-    bottom: auto;
-    transform: translateY(-50%);
-    object-fit: contain;
-}
-
-.home-card--other:hover .home-card-bg {
-    transform: translateY(-50%) scale(1.05);
-}
-
-.home-card--other .home-card-overlay {
-    background: linear-gradient(90deg, rgba(46,44,44,0.8) 0%, rgba(46,44,44,0.2) 60%, rgba(46,44,44,0) 100%);
+    grid-area: other;
 }
 
 /* skeletons for home grid */
