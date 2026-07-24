@@ -1066,9 +1066,15 @@ button:focus-visible {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 250;
+    z-index: 400;
     padding: 12px 15px calc(14px + env(safe-area-inset-bottom));
     pointer-events: none;
+    transition: bottom 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.floating-search-bar.keyboard-active {
+    padding-bottom: 8px !important;
+    z-index: 9999;
 }
 
 .floating-search-inner {

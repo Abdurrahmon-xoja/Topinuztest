@@ -21,7 +21,7 @@ function _buildCarousel(images) {
     _carouselIdx = 0;
 
     const slides = sorted.map((img, i) =>
-        `<div class="carousel-slide"><img src="${escHtml(img.url)}" alt="Фото ${i + 1}" loading="lazy"></div>`
+        `<div class="carousel-slide"><img src="${escHtml(cloudinaryOptimize(img.url, 800))}" alt="Фото ${i + 1}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}></div>`
     ).join('');
 
     const dots = sorted.length > 1
@@ -127,7 +127,9 @@ function openShopModal(shopId) {
     if (descEl) {
       if (desc && desc.trim()) {
         descEl.textContent = desc;
-        descEl.style.display = 'block';
+        descEl.style.display = '-webkit-box';
+        descEl.classList.remove('expanded');
+        descEl.onclick = () => descEl.classList.toggle('expanded');
       } else {
         descEl.textContent = '';
         descEl.style.display = 'none';
@@ -227,14 +229,20 @@ function openShopModal(shopId) {
     if (shop.instagram) {
       const handle = shop.instagram.split('/').pop().replace('?','');
       rows.push(`<div class="modal-row" onclick="goExternal('${escHtml(shop.instagram)}')" style="cursor:pointer">
-        <img src="img/icons/instgram%20.svg" class="modal-row-svg" alt="IG">
+        <svg class="modal-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
         <span class="modal-row-text">@${escHtml(handle)}</span>
       </div>`);
     }
     if (shop.telegram) {
       const handle = shop.telegram.split('/').pop();
       rows.push(`<div class="modal-row" onclick="goExternal('${escHtml(shop.telegram)}')" style="cursor:pointer">
-        <img src="img/icons/Telegram%20.svg" class="modal-row-svg" alt="TG">
+        <svg class="modal-row-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M21.94 2.4a1.5 1.5 0 0 0-1.53-.26L2.7 9.07a1.5 1.5 0 0 0 .1 2.83l4.63 1.48 1.77 5.79a1.5 1.5 0 0 0 2.55.6l2.28-2.42 4.36 3.22a1.5 1.5 0 0 0 2.37-.92l2.16-15.79a1.5 1.5 0 0 0-.98-1.46zM9.5 13.5l8.4-7.4-6.8 8.9-.3 3.2-1.3-4.7z"></path>
+        </svg>
         <span class="modal-row-text">@${escHtml(handle)}</span>
       </div>`);
     }
@@ -256,14 +264,11 @@ function openShopModal(shopId) {
     if (shop.website) {
       const host = new URL(shop.website).hostname.replace('www.','');
       rows.push(`<div class="modal-row" onclick="goExternal('${escHtml(shop.website)}')" style="cursor:pointer">
-        <img src="img/icons/WebsitegoArrow%20Icon.svg" class="modal-row-svg" alt="Web">
+        <svg class="modal-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+        </svg>
         <span class="modal-row-text">www.${escHtml(host)}</span>
-      </div>`);
-    }
-    if (shop.phone) {
-      rows.push(`<div class="modal-row" onclick="window.location.href='tel:${escHtml(shop.phone)}'" style="cursor:pointer">
-        <img src="img/icons/phone%20icon.svg" class="modal-row-svg" alt="Phone">
-        <span class="modal-row-text">${escHtml(shop.phone)}</span>
       </div>`);
     }
 
@@ -274,7 +279,6 @@ function openShopModal(shopId) {
 
     // Primary buttons
     const shareBtn = document.getElementById('modalShareBtn');
-    const dirBtn = document.getElementById('modalDirectionsBtn');
 
     if (shareBtn) {
       shareBtn.innerHTML = `
@@ -326,19 +330,11 @@ function openShopModal(shopId) {
       };
     }
 
-    if (dirBtn) {
-      dirBtn.style.display = 'none';
-    }
-
     const overlay = document.getElementById('shopModal');
     if (overlay) {
         overlay.style.display = 'flex';
         
         // Lock background scroll
-        _modalScrollY = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${_modalScrollY}px`;
-        document.body.style.width = '100%';
         document.body.style.overflow = 'hidden';
         document.documentElement.style.overflow = 'hidden';
         
@@ -453,12 +449,8 @@ function closeShopModal(immediate = false) {
     
     // Unlock background scroll helper
     const unlockBody = () => {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
         document.body.style.overflow = '';
         document.documentElement.style.overflow = '';
-        window.scrollTo(0, _modalScrollY);
     };
 
     if (overlay) {

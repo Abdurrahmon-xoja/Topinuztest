@@ -34,6 +34,7 @@ async function initShopsPage() {
 
   // Floating mobile search → live-filter shops
   const floatingInput = document.getElementById('floatingSearchInput');
+  const floatingBar = document.getElementById('floatingSearchBar');
   const clearBtn = document.getElementById('clearFloatingSearchBtn');
   if (floatingInput) {
     let searchTid;
@@ -50,6 +51,34 @@ async function initShopsPage() {
         floatingInput.value = '';
         clearBtn.style.display = 'none';
         fetchAndRenderShops(_activeMainCategory, _activeSubCategory, '');
+      });
+    }
+
+    // Keep floating search bar visible right above mobile soft keyboard
+    if (floatingBar && window.visualViewport) {
+      const handleVisualViewportChange = () => {
+        const viewport = window.visualViewport;
+        const offsetBottom = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+        if (offsetBottom > 80) {
+          floatingBar.style.bottom = `${offsetBottom}px`;
+          floatingBar.classList.add('keyboard-active');
+        } else {
+          floatingBar.style.bottom = '';
+          floatingBar.classList.remove('keyboard-active');
+        }
+      };
+
+      window.visualViewport.addEventListener('resize', handleVisualViewportChange);
+      window.visualViewport.addEventListener('scroll', handleVisualViewportChange);
+
+      floatingInput.addEventListener('focus', () => {
+        setTimeout(handleVisualViewportChange, 100);
+      });
+      floatingInput.addEventListener('blur', () => {
+        setTimeout(() => {
+          floatingBar.style.bottom = '';
+          floatingBar.classList.remove('keyboard-active');
+        }, 100);
       });
     }
   }
