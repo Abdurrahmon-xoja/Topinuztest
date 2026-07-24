@@ -161,34 +161,35 @@ async function loadCategoriesHome() {
     // Show skeleton loader first
     grid.innerHTML = Array(10).fill().map(() => `
       <div class="skeleton-home-card">
+        <div class="skeleton-home-icon"></div>
         <div class="skeleton-home-text"></div>
       </div>
     `).join('');
 
     const categoryImages = {
-      'lighting':    'img/Lighting.png',
       'furniture':   'img/Furniture.png',
-      'walls':       'img/Walls.png',
-      'plants':      'img/Plants.png',
+      'lighting':    'img/Lighting.png',
       'art-decor':   'img/Art & Decor.png',
-      'bathroom':    'img/Bathroom.png',
+      'walls':       'img/Walls.png',
+      'floor':       'img/Floor.png',
       'stone':       'img/Stone.png',
       'real-estate': 'img/Real Estate.png',
-      'floor':       'img/Floor.png',
+      'plants':      'img/Plants.png',
+      'bathroom':    'img/Bathroom.png',
       'other':       'img/Other.png',
     };
 
     const categories = [
-      { slug: 'lighting',     image: categoryImages['lighting'] },
-      { slug: 'furniture',    image: categoryImages['furniture'] },
-      { slug: 'walls',        image: categoryImages['walls'] },
-      { slug: 'plants',       image: categoryImages['plants'] },
-      { slug: 'art-decor',    image: categoryImages['art-decor'] },
-      { slug: 'bathroom',     image: categoryImages['bathroom'] },
-      { slug: 'stone',        image: categoryImages['stone'] },
-      { slug: 'real-estate',  image: categoryImages['real-estate'] },
-      { slug: 'floor',        image: categoryImages['floor'] },
-      { slug: 'other',        image: categoryImages['other'] },
+      { name: 'Furniture',    slug: 'furniture',    image: categoryImages['furniture'] },
+      { name: 'Lighting',     slug: 'lighting',     image: categoryImages['lighting'] },
+      { name: 'Art & Decor',  slug: 'art-decor',    image: categoryImages['art-decor'] },
+      { name: 'Walls',        slug: 'walls',        image: categoryImages['walls'] },
+      { name: 'Floor',        slug: 'floor',        image: categoryImages['floor'] },
+      { name: 'Stone',        slug: 'stone',        image: categoryImages['stone'] },
+      { name: 'Real Estate',  slug: 'real-estate',  image: categoryImages['real-estate'] },
+      { name: 'Plants',       slug: 'plants',       image: categoryImages['plants'] },
+      { name: 'Bathroom',     slug: 'bathroom',     image: categoryImages['bathroom'] },
+      { name: 'Other',        slug: 'other',        image: categoryImages['other'] },
     ];
   
     await Promise.all(categories.map(cat => new Promise(resolve => {
@@ -198,27 +199,13 @@ async function loadCategoriesHome() {
         img.src = cat.image;
     })));
 
-    grid.innerHTML = categories.map(cat => {
-      const catName = getCatName(cat.slug);
-      const isOther = cat.slug === 'other';
-
-      return `
-        <a href="/shops?category=${encodeURIComponent(cat.slug)}&name=${encodeURIComponent(catName)}"
-           class="home-card home-card--${cat.slug} ${isOther ? 'home-card--wide' : ''} home-card-hidden">
-          <img src="${cat.image}" alt="${escHtml(catName)}" class="home-card-bg" draggable="false" style="pointer-events:none;">
-          <div class="home-card-overlay"></div>
-          <div class="home-card-content">
-            <span class="home-card-title">${escHtml(catName)}</span>
-            <div class="home-card-btn" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </div>
-          </div>
-        </a>
-      `;
-    }).join('');
+    grid.innerHTML = categories.map(cat => `
+      <a href="/shops?category=${encodeURIComponent(cat.slug)}&name=${encodeURIComponent(getCatName(cat.slug))}"
+         class="home-card home-card--${cat.slug} home-card-hidden">
+        <img src="${cat.image}" alt="${escHtml(getCatName(cat.slug))}" class="home-card-img" draggable="false" style="pointer-events:none;">
+        <span class="home-card-label">${escHtml(getCatName(cat.slug))}</span>
+      </a>
+    `).join('');
 
     requestAnimationFrame(() => {
         grid.querySelectorAll('.home-card-hidden').forEach(el => el.classList.remove('home-card-hidden'));
