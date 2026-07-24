@@ -7,8 +7,14 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0FA986">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=3.2">
+    <link rel="stylesheet" href="css/topin.css?v=4.2">
+    <script>
+        (function() {
+            const saved = localStorage.getItem('houz_theme');
+            const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <style>
         body {
             font-family: 'Outfit', sans-serif;

@@ -11,7 +11,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/style.css?v=2.5">
+    <link rel="stylesheet" href="css/topin.css?v=4.2">
+    <script>
+        (function() {
+            const saved = localStorage.getItem('houz_theme');
+            const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
 </head>
 
 <body>
