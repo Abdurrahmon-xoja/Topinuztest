@@ -68,6 +68,7 @@ async function initShopsPage() {
     if (floatingBar) {
       floatingInput.addEventListener('focus', () => {
         floatingBar.classList.add('keyboard-active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
       floatingInput.addEventListener('blur', () => {
         floatingBar.classList.remove('keyboard-active');

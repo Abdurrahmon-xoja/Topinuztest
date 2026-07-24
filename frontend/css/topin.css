@@ -1020,13 +1020,16 @@ button:focus-visible {
     z-index: 400;
     padding: 12px 15px calc(14px + env(safe-area-inset-bottom));
     pointer-events: none;
+    transition: top 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .floating-search-bar:focus-within,
 .floating-search-bar.keyboard-active {
-    padding-bottom: 8px !important;
-    bottom: 0 !important;
-    z-index: 9999;
+    position: fixed !important;
+    top: calc(10px + env(safe-area-inset-top, 0px)) !important;
+    bottom: auto !important;
+    z-index: 99999 !important;
+    padding: 8px 15px !important;
 }
 
 .floating-search-inner {
@@ -1062,7 +1065,7 @@ button:focus-visible {
     background: none;
     border: none;
     color: var(--dark-text);
-    font-size: 14px;
+    font-size: 16px !important;
     font-weight: 500;
 }
 

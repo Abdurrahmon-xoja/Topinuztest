@@ -2,12 +2,12 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Storefront | Topin</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="/css/topin.css?v=4.1">
+    <link rel="stylesheet" href="/css/topin.css?v=4.3">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
     <style>
         .store-sticky-bar {
@@ -79,6 +79,11 @@
                 <span class="store-hero-chip" id="storeCategoryChip" style="display:none;"></span>
             </div>
             <p class="store-hero-desc" id="storeTagline"></p>
+        </div>
+
+        <!-- Subcategory filter pills -->
+        <div class="cat-tabs-scroll" id="subcatTabs" style="display:none;">
+            <div class="markets-categories" id="subcatPills"></div>
         </div>
 
         <!-- Product count -->
@@ -172,8 +177,8 @@
     <!-- Toast UI element -->
     <div class="toast" id="toast"></div>
 
-    <script src="/js/config.js?v=4.1"></script>
-    <script src="/js/utils.js?v=4.1"></script>
+    <script src="/js/config.js?v=4.3"></script>
+    <script src="/js/utils.js?v=4.3"></script>
     <script>
         let shop = null;
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
@@ -304,21 +309,63 @@
             try {
                 const res = await fetch(`/api/shops/${shop.id}/products?limit=100`);
                 const json = await res.json();
-                const products = json.data || [];
+                _allProducts = json.data || [];
 
-                const countEl = document.getElementById('productCount');
-                countEl.innerHTML = currentLang === 'ru'
-                    ? `${t('productLabel')} <b>${products.length}</b>`
-                    : `${t('productLabel')} <b>${products.length} ta</b>`;
+                renderSubcatPills();
+                renderProductGrid();
+            } catch (err) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--red);">
+                    <p>${t('uploadError')}</p>
+                </div>`;
+            }
+        }
 
-                if (products.length === 0) {
-                    grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text3);">
-                        <p>${t('notFound')}</p>
-                    </div>`;
-                    return;
-                }
+        let _allProducts = [];
+        let _activeSubcat = 'all';
 
-                grid.innerHTML = products.map(prod => {
+        function renderSubcatPills() {
+            const subs = new Map();
+            _allProducts.forEach(p => {
+                if (p.SubCategory) subs.set(p.SubCategory.id, p.SubCategory);
+            });
+            if (subs.size < 2) return;
+
+            const subName = (s) => (currentLang === 'ru' ? (s.name_ru || s.name) : s.name);
+            const sorted = [...subs.values()].sort((a, b) => (a.order || 0) - (b.order || 0));
+            const pillsEl = document.getElementById('subcatPills');
+            pillsEl.innerHTML =
+                `<button class="cat-pill active" data-sub="all">${t('hammasi')}</button>` +
+                sorted.map(s => `<button class="cat-pill" data-sub="${s.id}">${escHtml(subName(s))}</button>`).join('');
+            document.getElementById('subcatTabs').style.display = '';
+
+            pillsEl.querySelectorAll('.cat-pill').forEach(btn => {
+                btn.onclick = () => {
+                    _activeSubcat = btn.dataset.sub === 'all' ? 'all' : parseInt(btn.dataset.sub);
+                    pillsEl.querySelectorAll('.cat-pill').forEach(x => x.classList.toggle('active', x === btn));
+                    renderProductGrid();
+                };
+            });
+        }
+
+        function renderProductGrid() {
+            const grid = document.getElementById('productGrid');
+            const products = _activeSubcat === 'all'
+                ? _allProducts
+                : _allProducts.filter(p => p.SubCategoryId === _activeSubcat);
+
+            const countEl = document.getElementById('productCount');
+            countEl.innerHTML = currentLang === 'ru'
+                ? `${t('productLabel')} <b>${products.length}</b>`
+                : `${t('productLabel')} <b>${products.length} ta</b>`;
+
+            if (products.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text3);">
+                    <p>${t('notFound')}</p>
+                </div>`;
+                return;
+            }
+
+            grid.innerHTML = products.map(prod => {
                     const hasModel = prod.glbUrl || prod.usdzUrl;
                     const arBadgeHtml = `
                         <div class="product-card-ar-badge">${hasModel ? '3D' : ''}
@@ -345,12 +392,6 @@
                         </a>
                     `;
                 }).join('');
-
-            } catch (err) {
-                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--red);">
-                    <p>${t('uploadError')}</p>
-                </div>`;
-            }
         }
 
         let selectedRating = 5;
