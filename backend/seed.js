@@ -17,7 +17,7 @@ async function seed() {
         { name: 'Walls', slug: 'walls', icon: '🧱' },
         { name: 'Floor', slug: 'floor', icon: '🪵' },
         { name: 'Stone', slug: 'stone', icon: '🪨' },
-        { name: 'Real Estate', slug: 'real-estate', icon: '🏘️' },
+        { name: 'Exterior', slug: 'real-estate', icon: '🏘️' },
         { name: 'Plants', slug: 'plants', icon: '🪴' },
         { name: 'Bathroom', slug: 'bathroom', icon: '🛁' },
         { name: 'Other', slug: 'other', icon: '📦' }
