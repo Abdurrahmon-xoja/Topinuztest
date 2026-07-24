@@ -353,6 +353,11 @@
                 document.getElementById('lblDownload3DText').textContent = t('download3d');
             }
 
+            const btnStickyDownload = document.getElementById('btnStickyDownload');
+            if (btnStickyDownload) {
+                btnStickyDownload.style.display = hasZip ? 'flex' : 'none';
+            }
+
             if (stickyBar) {
                 stickyBar.style.display = has3D ? 'flex' : 'none';
                 document.getElementById('lblViewAR').textContent = t('viewInRoom');
