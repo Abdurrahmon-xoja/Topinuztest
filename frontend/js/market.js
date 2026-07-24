@@ -64,14 +64,29 @@ async function initShopsPage() {
       });
     }
 
-    // Keep floating search bar visible right above mobile soft keyboard
     if (floatingBar) {
+      const updateKeyboardPosition = () => {
+        if (document.activeElement === floatingInput && window.visualViewport) {
+          const keyboardOffset = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
+          floatingBar.style.bottom = `${keyboardOffset}px`;
+        } else {
+          floatingBar.style.bottom = '0px';
+        }
+      };
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updateKeyboardPosition);
+        window.visualViewport.addEventListener('scroll', updateKeyboardPosition);
+      }
+
       floatingInput.addEventListener('focus', () => {
         floatingBar.classList.add('keyboard-active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        updateKeyboardPosition();
       });
+
       floatingInput.addEventListener('blur', () => {
         floatingBar.classList.remove('keyboard-active');
+        floatingBar.style.bottom = '0px';
       });
     }
   }

@@ -1017,19 +1017,19 @@ button:focus-visible {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 400;
+    z-index: 9999;
     padding: 12px 15px calc(14px + env(safe-area-inset-bottom));
     pointer-events: none;
-    transition: top 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: bottom 0.15s ease-out;
 }
 
 .floating-search-bar:focus-within,
 .floating-search-bar.keyboard-active {
     position: fixed !important;
-    top: calc(10px + env(safe-area-inset-top, 0px)) !important;
-    bottom: auto !important;
+    bottom: 0 !important;
+    top: auto !important;
     z-index: 99999 !important;
-    padding: 8px 15px !important;
+    padding-bottom: 10px !important;
 }
 
 .floating-search-inner {
