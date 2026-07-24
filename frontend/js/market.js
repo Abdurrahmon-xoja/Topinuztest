@@ -55,30 +55,12 @@ async function initShopsPage() {
     }
 
     // Keep floating search bar visible right above mobile soft keyboard
-    if (floatingBar && window.visualViewport) {
-      const handleVisualViewportChange = () => {
-        const viewport = window.visualViewport;
-        const offsetBottom = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
-        if (offsetBottom > 80) {
-          floatingBar.style.bottom = `${offsetBottom}px`;
-          floatingBar.classList.add('keyboard-active');
-        } else {
-          floatingBar.style.bottom = '';
-          floatingBar.classList.remove('keyboard-active');
-        }
-      };
-
-      window.visualViewport.addEventListener('resize', handleVisualViewportChange);
-      window.visualViewport.addEventListener('scroll', handleVisualViewportChange);
-
+    if (floatingBar) {
       floatingInput.addEventListener('focus', () => {
-        setTimeout(handleVisualViewportChange, 100);
+        floatingBar.classList.add('keyboard-active');
       });
       floatingInput.addEventListener('blur', () => {
-        setTimeout(() => {
-          floatingBar.style.bottom = '';
-          floatingBar.classList.remove('keyboard-active');
-        }, 100);
+        floatingBar.classList.remove('keyboard-active');
       });
     }
   }
