@@ -212,7 +212,7 @@ const i18n = {
     nothingFound: "Ничего не найдено",
     shopProducts: "Товары магазина",
     viewInRoom: "Смотреть в AR",
-    contactTelegram: "Связаться в Telegram",
+    contactTelegram: "Написать в Telegram",
     locationTitle: "Локация",
     productsTitle: "Товары",
     productLabel: "Товаров",
