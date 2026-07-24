@@ -333,6 +333,8 @@ function openShopModal(shopId) {
     const overlay = document.getElementById('shopModal');
     if (overlay) {
         overlay.style.display = 'flex';
+        const floatingBar = document.getElementById('floatingSearchBar');
+        if (floatingBar) floatingBar.style.display = 'none';
         
         // Lock background scroll
         document.body.style.overflow = 'hidden';
@@ -446,6 +448,8 @@ function closeShopModal(immediate = false) {
     _stopCarousel();
     const overlay = document.getElementById('shopModal');
     const sheet = document.getElementById('modalSheet');
+    const floatingBar = document.getElementById('floatingSearchBar');
+    if (floatingBar) floatingBar.style.display = '';
     
     // Unlock background scroll helper
     const unlockBody = () => {
