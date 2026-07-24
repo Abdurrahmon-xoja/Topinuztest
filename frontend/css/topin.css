@@ -42,13 +42,13 @@
 }
 
 [data-theme="dark"] {
-    --bg: #000000;
-    --bg2: #0C0C0E;
-    --surface: #1C1C1E;
-    --surface2: #1C1C1E;
-    --white-box: #2C2C2E;
+    --bg: #0B0C0E;
+    --bg2: #121316;
+    --surface: #1C1D22;
+    --surface2: #25272E;
+    --white-box: #2C2E38;
     --border: rgba(255, 255, 255, 0.08);
-    --border2: rgba(255, 255, 255, 0.16);
+    --border2: rgba(255, 255, 255, 0.14);
     --text: #F5F5F7;
     --text2: #98989E;
     --text3: #636366;
