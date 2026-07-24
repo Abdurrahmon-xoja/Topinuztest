@@ -65,27 +65,38 @@ async function initShopsPage() {
     }
 
     if (floatingBar) {
-      const updateKeyboardPosition = () => {
-        if (document.activeElement === floatingInput && window.visualViewport) {
-          const keyboardOffset = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
-          floatingBar.style.bottom = `${keyboardOffset}px`;
+      const positionAboveKeyboard = () => {
+        if (document.activeElement === floatingInput) {
+          const vv = window.visualViewport;
+          const vh = vv ? vv.height : window.innerHeight;
+          const offsetTop = vv ? vv.offsetTop : 0;
+          const barHeight = floatingBar.offsetHeight || 60;
+          
+          floatingBar.style.position = 'fixed';
+          floatingBar.style.top = `${offsetTop + vh - barHeight - 10}px`;
+          floatingBar.style.bottom = 'auto';
         } else {
+          floatingBar.style.position = 'fixed';
+          floatingBar.style.top = '';
           floatingBar.style.bottom = '0px';
         }
       };
 
       if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', updateKeyboardPosition);
-        window.visualViewport.addEventListener('scroll', updateKeyboardPosition);
+        window.visualViewport.addEventListener('resize', positionAboveKeyboard);
+        window.visualViewport.addEventListener('scroll', positionAboveKeyboard);
       }
 
       floatingInput.addEventListener('focus', () => {
         floatingBar.classList.add('keyboard-active');
-        updateKeyboardPosition();
+        setTimeout(positionAboveKeyboard, 50);
+        setTimeout(positionAboveKeyboard, 300);
       });
 
       floatingInput.addEventListener('blur', () => {
         floatingBar.classList.remove('keyboard-active');
+        floatingBar.style.position = 'fixed';
+        floatingBar.style.top = '';
         floatingBar.style.bottom = '0px';
       });
     }
