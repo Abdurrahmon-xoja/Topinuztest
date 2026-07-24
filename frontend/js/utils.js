@@ -33,14 +33,15 @@ return String(str || '')
     .replace(/"/g, '&quot;');
 }
 
-function cloudinaryOptimize(url) {
+function cloudinaryOptimize(url, width = 400) {
     if (!url || !url.includes('res.cloudinary.com')) return url;
-    return url.replace('/upload/', '/upload/q_auto,f_auto,w_400/');
+    if (url.includes('/upload/c_fill')) return url;
+    return url.replace('/upload/', `/upload/c_fill,g_auto,q_auto,f_auto,w_${width}/`);
 }
 
 function logoFallback(logoUrl, name) {
 if (logoUrl) {
-    const optimizedUrl = cloudinaryOptimize(logoUrl);
+    const optimizedUrl = cloudinaryOptimize(logoUrl, 200);
     return `<img src="${escHtml(optimizedUrl)}" alt="${escHtml(name)}"
             onerror="this.replaceWith(document.createTextNode('🏪'))">`;
 }

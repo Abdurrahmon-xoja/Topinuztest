@@ -21,7 +21,7 @@ function _buildCarousel(images) {
     _carouselIdx = 0;
 
     const slides = sorted.map((img, i) =>
-        `<div class="carousel-slide"><img src="${escHtml(cloudinaryOptimize(img.url, 800))}" alt="Фото ${i + 1}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}></div>`
+        `<div class="carousel-slide"><img src="${escHtml(cloudinaryOptimize(img.url, 800))}" alt="Фото ${i + 1}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} style="width:100%; height:100%; object-fit:cover !important; object-position:center !important;"></div>`
     ).join('');
 
     const dots = sorted.length > 1
