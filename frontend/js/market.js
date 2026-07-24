@@ -27,6 +27,16 @@ async function initShopsPage() {
 
   _syncLayoutToggleIcon();
 
+  if (!window._adminCategories || window._adminCategories.length === 0) {
+    try {
+      const catRes = await fetch(`${API}/api/categories`);
+      if (catRes.ok) {
+        const catJson = await catRes.json();
+        window._adminCategories = catJson.data || catJson || [];
+      }
+    } catch(e) {}
+  }
+
   await Promise.all([
     buildCategoryTabs(_activeMainCategory),
     fetchAndRenderShops(_activeMainCategory),

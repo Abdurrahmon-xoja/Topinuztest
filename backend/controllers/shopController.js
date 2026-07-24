@@ -76,7 +76,18 @@ exports.getAllShops = async (req, res) => {
             const likeOp = isSqlite ? Op.like : Op.iLike;
             whereClause.name = { [likeOp]: `%${search}%` };
         }
-        if (category) whereClause.CategoryId = category;
+        if (category) {
+            if (isNaN(category)) {
+                const foundCat = await Category.findOne({ where: { slug: category } });
+                if (foundCat) {
+                    whereClause.CategoryId = foundCat.id;
+                } else {
+                    whereClause.CategoryId = -1;
+                }
+            } else {
+                whereClause.CategoryId = category;
+            }
+        }
 
         // Filter by subcategory at DB level — avoids sending all shops to the client
         const subCatInclude = { model: SubCategory, through: { attributes: [] } };
