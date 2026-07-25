@@ -97,7 +97,7 @@ window._moveGalleryImage = async (imageId, direction) => {
   } catch (e) {}
 };
 
-function openShopForm(shop = null) {
+window.openShopForm = function openShopForm(shop = null) {
   const overlay = document.getElementById('shopFormOverlay');
   const title = document.getElementById('formTitle');
   if (!overlay) return;
@@ -233,12 +233,12 @@ function openShopForm(shop = null) {
   }
 }
 
-function editShop(shopId) {
+window.editShop = function editShop(shopId) {
   const shop = _adminShops.find(s => s.id === shopId);
   if (shop) openShopForm(shop);
 }
 
-function closeShopForm() {
+window.closeShopForm = function closeShopForm() {
   const overlay = document.getElementById('shopFormOverlay');
   if (overlay) overlay.style.display = 'none';
   document.body.style.overflow = '';
@@ -268,7 +268,7 @@ window.addCustomLinkRow = (label = '', url = '') => {
   container.appendChild(row);
 };
 
-async function saveShop() {
+window.saveShop = async function saveShop() {
   const id = document.getElementById('shopId').value;
   const name = document.getElementById('fName').value.trim();
   const categoryId = document.getElementById('fCategory').value || null;
@@ -375,8 +375,10 @@ async function saveShop() {
   }
 }
 
-async function deleteShop(shopId, name) {
-  if (!confirm(`${t('delete')} "${name}"?`)) return;
+window.deleteShop = async function deleteShop(shopId, name) {
+  const shop = _adminShops.find(s => s.id === shopId);
+  const shopName = name || shop?.name || '';
+  if (!confirm(`${t('delete')} "${shopName}"?`)) return;
 
   try {
     const res = await fetch(`${API}/api/shops/${shopId}`, { 

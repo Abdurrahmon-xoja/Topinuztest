@@ -113,7 +113,7 @@ window.showAdminShopsView = (categoryId, categoryName) => {
         <div class="action-btns" style="display:flex; gap:8px;">
           ${shop.storeEnabled ? `<button class="btn-edit" onclick="impersonateShop(${shop.id})" style="background:var(--blue); color:white; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;">Войти</button>` : ''}
           <button class="btn-edit" onclick="editShop(${shop.id})">${t('edit')}</button>
-          <button class="btn-delete" onclick="deleteShop(${shop.id}, '${escHtml(shop.name)}')">${t('delete')}</button>
+          <button class="btn-delete" onclick="deleteShop(${shop.id})">${t('delete')}</button>
         </div>
       </td>
     </tr>

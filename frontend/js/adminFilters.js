@@ -7,7 +7,8 @@ window.showFiltersView = (categoryId, categoryName) => {
     const filtersView = document.getElementById('adminFiltersView');
     filtersView.style.display = 'block';
     
-    document.getElementById('adminFiltersTitle').textContent = t('filtersTitle') + categoryName;
+    const titleEl = document.getElementById('adminFiltersCategoryName') || document.getElementById('adminFiltersTitle');
+    if (titleEl) titleEl.textContent = categoryName || '';
     
     renderAdminFilters();
 };
@@ -38,7 +39,7 @@ window.renderAdminFilters = () => {
             </div>
             <div style="display:flex;gap:8px">
                 <button class="btn-edit" onclick="editFilter(${sc.id})" style="font-size:13px;padding:6px 12px">${t('edit')}</button>
-                <button class="btn-delete" onclick="deleteFilter(${sc.id}, '${escHtml(sc.name)}')">${t('delete')}</button>
+                <button class="btn-delete" onclick="deleteFilter(${sc.id})">${t('delete')}</button>
             </div>
         </div>
     `).join('');
@@ -113,7 +114,9 @@ window.editFilter = async (id) => {
 };
 
 window.deleteFilter = async (id, name) => {
-    if(!confirm(`${t('delete')} "${name}"?`)) return;
+    const sc = window._adminSubCategories.find(s => s.id === id);
+    const filterName = name || sc?.name || '';
+    if(!confirm(`${t('delete')} "${filterName}"?`)) return;
 
     try {
         const res = await fetch(`${API}/api/subcategories/${id}`, {

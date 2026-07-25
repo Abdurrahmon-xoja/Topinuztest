@@ -59,6 +59,9 @@ function adminLogout() {
     window.location.href = 'login.html';
 }
 
+window.adminLogout = adminLogout;
+window.handle401 = handle401;
+
 // Auto-init on login page
 document.addEventListener('DOMContentLoaded', () => {
     if (window.location.pathname.endsWith('login.html')) {
