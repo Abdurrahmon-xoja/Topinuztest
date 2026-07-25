@@ -67,7 +67,7 @@ const i18n = {
       "walls": "Devorlar",
       "floor": "Pol qoplamalari",
       "stone": "Tosh materiallari",
-      "real-estate": "Ko'chmas mulk",
+      "real-estate": "Eksteryer",
       "plants": "O'simliklar",
       "bathroom": "Hammom",
       "other": "Boshqa"
@@ -195,7 +195,7 @@ const i18n = {
       "walls": "Стены",
       "floor": "Напольные покрытия",
       "stone": "Каменные материалы",
-      "real-estate": "Недвижимость",
+      "real-estate": "Экстерьер",
       "plants": "Растения",
       "bathroom": "Ванная",
       "other": "Другое"

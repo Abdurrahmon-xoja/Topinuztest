@@ -140,7 +140,7 @@ window.impersonateShop = async (shopId) => {
         
         showToast('Вход в панель магазина выполнен успешно. Перенаправление...', 'success');
         setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = '/dashboard';
         }, 1000);
     } catch (err) {
         showToast('Ошибка входа: ' + err.message, 'error');

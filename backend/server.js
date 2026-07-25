@@ -34,6 +34,12 @@ app.use('/api', (req, res, next) => {
 });
 
 
+// SSR HTML must always be revalidated (it embeds ?v= asset versions)
+app.use(['/shops', '/stores'], (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-cache');
+    next();
+});
+
 // Cache the shops.html file in memory — cleared on each deploy (process restart)
 let _shopsHtml = null;
 
@@ -323,6 +329,10 @@ app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dashboard.html'));
 });
 
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/login.html'));
+});
+
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/admin.html'));
 });
@@ -331,10 +341,13 @@ app.use(express.static(path.join(__dirname, '../frontend'), {
     maxAge: '1d',
     etag: true,
     setHeaders: (res, filePath) => {
-        if (filePath.endsWith('.html') || filePath.endsWith('.css') || filePath.endsWith('.js')) {
-            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.setHeader('Pragma', 'no-cache');
-            res.setHeader('Expires', '0');
+        if (filePath.endsWith('.html')) {
+            // HTML carries the ?v= cache-busting queries, so it must be
+            // revalidated — but ETag still allows cheap 304 responses
+            res.setHeader('Cache-Control', 'no-cache');
+        } else if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
+            // CSS/JS are referenced with ?v= versions — safe to cache long
+            res.setHeader('Cache-Control', 'public, max-age=604800');
         }
     }
 }));

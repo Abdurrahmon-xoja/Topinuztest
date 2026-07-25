@@ -1,6 +1,6 @@
 function initLoginPage() {
     if (localStorage.getItem(TOKEN_KEY)) {
-      window.location.href = 'admin.html';
+      window.location.href = '/admin';
       return;
     }
   
@@ -32,7 +32,7 @@ function initLoginPage() {
   
         if (res.ok && data.success && data.token) {
           localStorage.setItem(TOKEN_KEY, data.token);
-          window.location.href = data.role === 'admin' ? 'admin.html' : 'dashboard';
+          window.location.href = data.role === 'admin' ? '/admin' : '/dashboard';
         } else {
           throw new Error('invalid');
         }
@@ -48,7 +48,7 @@ function handle401(res) {
     if (res.status === 401) {
         localStorage.removeItem(TOKEN_KEY);
         alert("Ваша сессия истекла. Пожалуйста, войдите снова.\n(Sessiya tugadi. Iltimos, qayta kiring.)");
-        window.location.href = 'login.html';
+        window.location.href = '/login';
         return true;
     }
     return false;
@@ -56,7 +56,7 @@ function handle401(res) {
 
 function adminLogout() {
     localStorage.removeItem(TOKEN_KEY);
-    window.location.href = 'login.html';
+    window.location.href = '/login';
 }
 
 window.adminLogout = adminLogout;
@@ -64,7 +64,7 @@ window.handle401 = handle401;
 
 // Auto-init on login page
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname.endsWith('login.html')) {
+    if (window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('/login')) {
         initLoginPage();
     }
 });

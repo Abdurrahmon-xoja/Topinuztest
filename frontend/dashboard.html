@@ -725,7 +725,7 @@
         // Token auth check on load
         const token = localStorage.getItem(TOKEN_KEY);
         if (!token) {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         }
 
         let vendorShop = null;
@@ -745,10 +745,10 @@
                 const json = await res.json();
                 vendorShop = json.data;
             } catch(e) {
-                // If user is actually superadmin, redirect them to admin.html
+                // If user is actually superadmin, redirect them to /admin
                 // We'll read the token role (simplest method: fetch shops, if it fails session expired)
                 localStorage.removeItem(TOKEN_KEY);
-                window.location.href = 'login.html';
+                window.location.href = '/login';
                 return;
             }
 
@@ -1229,7 +1229,7 @@
 
         function vendorLogout() {
             localStorage.removeItem(TOKEN_KEY);
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         }
 
         // Analytics Loading & Drawing Functions
