@@ -164,17 +164,20 @@ async function loadCategoriesHome() {
     `).join('');
 
     const categoryImages = {
-      'furniture':   'img/Furniture.png',
-      'lighting':    'img/Lighting.png',
-      'art-decor':   'img/Art & Decor.png',
-      'walls':       'img/Walls.png',
-      'floor':       'img/Floor.png',
-      'stone':       'img/Stone.png',
-      'real-estate': 'img/Real Estate.png',
-      'plants':      'img/Plants.png',
-      'bathroom':    'img/Bathroom.png',
-      'other':       'img/Other.png',
+      'furniture':   'img/home/furniture.jpg',
+      'lighting':    'img/home/lighting.jpg',
+      'art-decor':   'img/home/art-decor.jpg',
+      'walls':       'img/home/walls.jpg',
+      'floor':       'img/home/floor.jpg',
+      'stone':       'img/home/stone.jpg',
+      'real-estate': 'img/home/real-estate.jpg',
+      'plants':      'img/home/plants.jpg',
+      'bathroom':    'img/home/bathroom.jpg',
+      'other':       'img/home/other.jpg',
     };
+
+    // Cards whose photo is dark → light label + light chip (per Figma)
+    const darkCards = new Set(['furniture', 'floor']);
 
     const categories = [
       { slug: 'lighting',     image: categoryImages['lighting'] },
@@ -196,16 +199,19 @@ async function loadCategoriesHome() {
         img.src = cat.image;
     })));
 
+    const arrowSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
+
     grid.innerHTML = categories.map(cat => {
       const catName = getCatName(cat.slug);
+      const darkCls = darkCards.has(cat.slug) ? ' home-card--dark' : '';
 
       return `
         <a href="/shops?category=${encodeURIComponent(cat.slug)}&name=${encodeURIComponent(catName)}"
-           class="home-card home-card--${cat.slug} home-card-hidden">
+           class="home-card home-card--${cat.slug}${darkCls} home-card-hidden">
           <img src="${cat.image}" alt="${escHtml(catName)}" class="home-card-bg" draggable="false" style="pointer-events:none;">
-          <div class="home-card-overlay"></div>
           <div class="home-card-content">
             <span class="home-card-title">${escHtml(catName)}</span>
+            <span class="home-card-chip">${arrowSvg}</span>
           </div>
         </a>
       `;
