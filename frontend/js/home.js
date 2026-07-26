@@ -339,46 +339,94 @@ function setupSearch() {
         if (searchResultsCount) searchResultsCount.style.display = 'none';
 
         try {
-            const prodRes = await fetch(`/api/products?search=${encodeURIComponent(query)}&limit=50`);
+            // Search both shops and products in parallel
+            const [shopsRes, prodRes] = await Promise.all([
+                fetch(`/api/shops?search=${encodeURIComponent(query)}`),
+                fetch(`/api/products?search=${encodeURIComponent(query)}&limit=50`)
+            ]);
+
+            const shopsJson = await shopsRes.json();
             const prodJson = await prodRes.json();
+            const shops = shopsJson.data || [];
             const products = prodJson.data || [];
 
+            const totalResults = shops.length + products.length;
+
             if (searchResultsCount) {
-                searchResultsCount.innerHTML = `${currentLang === 'ru' ? 'Найдено' : 'Topildi'} <b>${products.length}${currentLang === 'ru' ? '' : ' ta'}</b>`;
-                searchResultsCount.style.display = products.length > 0 ? 'block' : 'none';
+                searchResultsCount.innerHTML = `${currentLang === 'ru' ? 'Найдено' : 'Topildi'} <b>${totalResults}${currentLang === 'ru' ? '' : ' ta'}</b>`;
+                searchResultsCount.style.display = totalResults > 0 ? 'block' : 'none';
             }
 
-            if (products.length === 0) {
+            if (totalResults === 0) {
                 searchResultsList.innerHTML = '';
                 noResultsMsg.style.display = 'block';
                 return;
             }
 
-            searchResultsList.innerHTML = products.map(p => {
-                const shopName = p.Shop?.name || '';
-                const imgUrl = p.imageUrl ? cloudinaryOptimize(p.imageUrl) : '';
-                const currencyRaw = p.Shop?.currency || 'UZS';
-                const currency = (currencyRaw === 'UZS' || !currencyRaw) ? (currentLang === 'ru' ? 'сум' : "so'm") : currencyRaw;
-                const price = p.salePrice || p.price;
-                const priceStr = price ? `${parseFloat(price).toLocaleString()} ${currency}` : (currentLang === 'ru' ? 'Цена по запросу' : "So'rov bo'yicha narx");
-                const storeSlug = p.Shop?.slug || '';
-                const has3D = p.glbUrl || p.usdzUrl;
-                const badges = has3D ? `
-                    <span class="search-result-badge">3D
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                    </span>` : '';
+            let html = '';
 
-                return `
-                    <a href="/stores/${storeSlug}/products/${p.slug}" class="search-result-item">
-                        ${imgUrl ? `<img src="${imgUrl}" class="search-result-img" alt="${escHtml(p.name)}">` : `<div class="search-result-img" style="display:flex;align-items:center;justify-content:center;font-size:24px;">📦</div>`}
-                        <div class="search-result-info">
-                            <span class="search-result-shop">${escHtml(shopName)}${badges}</span>
-                            <span class="search-result-title">${escHtml(p.name)}</span>
-                            <span class="search-result-price">${priceStr}</span>
-                        </div>
-                    </a>
-                `;
-            }).join('');
+            // --- Stores section ---
+            if (shops.length > 0) {
+                const storesLabel = currentLang === 'ru' ? 'Магазины' : "Do'konlar";
+                html += `<div class="search-section-label">${storesLabel}</div>`;
+                html += `<div class="search-shops-grid">`;
+                html += shops.map(shop => {
+                    const logo = shop.logoUrl
+                        ? `<img src="${cloudinaryOptimize(shop.logoUrl, 200)}" alt="${escHtml(shop.name)}" class="search-shop-card-logo">`
+                        : `<div class="search-shop-card-logo search-shop-card-logo--placeholder">${(shop.name || '?').charAt(0).toUpperCase()}</div>`;
+                    const catName = shop.Category
+                        ? (currentLang === 'ru'
+                            ? (i18n.ru.cat[shop.Category.slug] || shop.Category.name)
+                            : (i18n.uz.cat[shop.Category.slug] || shop.Category.name))
+                        : '';
+                    return `
+                        <a href="/stores/${shop.slug}" class="search-shop-card">
+                            ${logo}
+                            <div class="search-shop-card-info">
+                                <span class="search-shop-card-name">${escHtml(shop.name)}</span>
+                                ${catName ? `<span class="search-shop-card-cat">${escHtml(catName)}</span>` : ''}
+                            </div>
+                            <svg class="search-shop-card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </a>
+                    `;
+                }).join('');
+                html += `</div>`;
+            }
+
+            // --- Products section ---
+            if (products.length > 0) {
+                if (shops.length > 0) {
+                    const productsLabel = currentLang === 'ru' ? 'Товары' : 'Mahsulotlar';
+                    html += `<div class="search-section-label">${productsLabel}</div>`;
+                }
+                html += products.map(p => {
+                    const shopName = p.Shop?.name || '';
+                    const imgUrl = p.imageUrl ? cloudinaryOptimize(p.imageUrl) : '';
+                    const currencyRaw = p.Shop?.currency || 'UZS';
+                    const currency = (currencyRaw === 'UZS' || !currencyRaw) ? (currentLang === 'ru' ? 'сум' : "so'm") : currencyRaw;
+                    const price = p.salePrice || p.price;
+                    const priceStr = price ? `${parseFloat(price).toLocaleString()} ${currency}` : (currentLang === 'ru' ? 'Цена по запросу' : "So'rov bo'yicha narx");
+                    const storeSlug = p.Shop?.slug || '';
+                    const has3D = p.glbUrl || p.usdzUrl;
+                    const badges = has3D ? `
+                        <span class="search-result-badge">3D
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        </span>` : '';
+
+                    return `
+                        <a href="/stores/${storeSlug}/products/${p.slug}" class="search-result-item">
+                            ${imgUrl ? `<img src="${imgUrl}" class="search-result-img" alt="${escHtml(p.name)}">` : `<div class="search-result-img" style="display:flex;align-items:center;justify-content:center;font-size:24px;">📦</div>`}
+                            <div class="search-result-info">
+                                <span class="search-result-shop">${escHtml(shopName)}${badges}</span>
+                                <span class="search-result-title">${escHtml(p.name)}</span>
+                                <span class="search-result-price">${priceStr}</span>
+                            </div>
+                        </a>
+                    `;
+                }).join('');
+            }
+
+            searchResultsList.innerHTML = html;
         } catch (err) {
             searchResultsList.innerHTML = `<p style="color:var(--red);">Ошибка поиска</p>`;
         }

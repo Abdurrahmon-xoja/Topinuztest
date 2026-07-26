@@ -789,6 +789,84 @@ button:focus-visible {
     font-size: 15px;
 }
 
+/* ─── Search section labels & store cards ────────────────── */
+.search-section-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 20px 0 10px;
+    letter-spacing: -0.01em;
+}
+
+.search-shops-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.search-shop-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border-radius: 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.2s;
+}
+
+.search-shop-card:hover {
+    transform: scale(0.995);
+}
+
+.search-shop-card-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--white-box);
+    border: 1px solid var(--border);
+    object-fit: cover;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.search-shop-card-logo--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.search-shop-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.search-shop-card-name {
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-shop-card-cat {
+    font-size: 13px;
+    color: var(--text2);
+}
+
+.search-shop-card-arrow {
+    flex-shrink: 0;
+    color: var(--text3);
+}
+
 /* ─── Shops (category) page ──────────────────────────────── */
 .shops-page {
     flex: 1;
