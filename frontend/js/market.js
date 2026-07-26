@@ -632,16 +632,16 @@ function _syncLayoutToggleIcon() {
   const btnIcon = document.getElementById('layoutToggleIcon');
   if (!btnIcon) return;
   if (_shopsLayoutMode === 'list') {
-    // currently list → icon shows grid option
+    // currently list → icon shows grid option (two vertical lines)
     btnIcon.innerHTML = `
-      <rect x="4" y="4" width="6" height="16" rx="1"></rect>
-      <rect x="14" y="4" width="6" height="16" rx="1"></rect>
+      <line x1="8" y1="4" x2="8" y2="20"></line>
+      <line x1="16" y1="4" x2="16" y2="20"></line>
     `;
   } else {
-    // currently grid → icon shows list option
+    // currently grid → icon shows list option (two horizontal lines)
     btnIcon.innerHTML = `
-      <rect x="4" y="4" width="16" height="6" rx="1"></rect>
-      <rect x="4" y="14" width="16" height="6" rx="1"></rect>
+      <line x1="4" y1="8" x2="20" y2="8"></line>
+      <line x1="4" y1="16" x2="20" y2="16"></line>
     `;
   }
 }
