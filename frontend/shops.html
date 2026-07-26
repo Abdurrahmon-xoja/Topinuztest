@@ -155,6 +155,14 @@
                                 <input type="text" id="modalReviewAuthor" class="form-input" placeholder="Ismingizni kiriting..." required>
                             </div>
                             <div class="form-group">
+                                <label for="modalReviewPhone" id="lblYourPhone">Telefon raqamingiz</label>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-weight:600; color:var(--text2); font-size:14px; white-space:nowrap;">+998</span>
+                                    <input type="tel" id="modalReviewPhone" class="form-input" placeholder="XX XXX XX XX" maxlength="12" required
+                                           style="flex:1;" oninput="formatPhoneInput(this)">
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label id="lblYourRating">Sizning bahoingiz</label>
                                 <div class="star-rating-selector" id="modalStarSelector">
                                     <span data-val="1">☆</span>

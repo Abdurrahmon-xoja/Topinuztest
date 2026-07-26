@@ -704,10 +704,15 @@ async function loadModalReviews(shopId) {
                 starsHtml += i <= r.rating ? '★' : '☆';
             }
 
+            let maskedPhone = '';
+            if (r.phone && r.phone.length >= 4) {
+                maskedPhone = `<span class="review-phone">+998 ** *** ** ${r.phone.slice(-2)}</span>`;
+            }
+
             return `
                 <div class="review-item">
                     <div class="review-header">
-                        <span class="review-author">${escHtml(r.authorName)}</span>
+                        <span class="review-author">${escHtml(r.authorName)} ${maskedPhone}</span>
                         <span class="review-date">${dateStr}</span>
                     </div>
                     <div class="review-stars">${starsHtml}</div>
