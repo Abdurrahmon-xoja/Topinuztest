@@ -287,16 +287,9 @@ function switchLang(lang) {
 }
 
 function updateLanguageSwitcherUI(lang) {
-  const langBtn = document.getElementById('langBtn');
-  const langDropdown = document.getElementById('langDropdown');
-  if (langBtn && langDropdown) {
-    const textSpan = langBtn.querySelector('.lang-text');
-    if (textSpan) textSpan.textContent = lang.toUpperCase();
-
-    const options = langDropdown.querySelectorAll('.lang-option');
-    options.forEach(opt => {
-      opt.classList.toggle('selected', opt.getAttribute('data-lang') === lang);
-    });
+  const langText = document.getElementById('langText');
+  if (langText) {
+    langText.textContent = lang.toUpperCase();
   }
 }
 
@@ -493,35 +486,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Translate static strings immediately on DOM load
     translateStaticElements();
 
-    const langWrap = document.getElementById('langWrap');
-    const langBtn = document.getElementById('langBtn');
-    const langDropdown = document.getElementById('langDropdown');
-  
-    if (langWrap && langBtn && langDropdown) {
-
-        // ── Sync UI to saved language on every page load ──
+    // Simple language toggle button (click to switch UZ ↔ RU)
+    const langToggleBtn = document.getElementById('langToggleBtn');
+    if (langToggleBtn) {
         updateLanguageSwitcherUI(currentLang);
-        // ─────────────────────────────────────────────────
-
-        langBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            langDropdown.classList.toggle('active');
-        });
-  
-        document.addEventListener('click', (e) => {
-            if (!langWrap.contains(e.target)) {
-                langDropdown.classList.remove('active');
-            }
-        });
-  
-        const options = langDropdown.querySelectorAll('.lang-option');
-        options.forEach(opt => {
-            opt.addEventListener('click', () => {
-                langDropdown.classList.remove('active');
-                
-                const lang = opt.getAttribute('data-lang');
-                switchLang(lang);
-            });
+        langToggleBtn.addEventListener('click', () => {
+            const nextLang = currentLang === 'uz' ? 'ru' : 'uz';
+            switchLang(nextLang);
         });
     }
 });
