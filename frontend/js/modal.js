@@ -692,6 +692,7 @@ async function loadModalReviews(shopId) {
             return;
         }
 
+        const isAdmin = !!localStorage.getItem('houz_token');
         listEl.innerHTML = reviews.map(r => {
             const dateStr = new Date(r.createdAt).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'uz-UZ', {
                 year: 'numeric',
@@ -709,11 +710,13 @@ async function loadModalReviews(shopId) {
                 maskedPhone = `<span class="review-phone">+998 ** *** ** ${r.phone.slice(-2)}</span>`;
             }
 
+            const deleteBtn = isAdmin ? `<button class="review-delete-btn" onclick="deleteReview(${r.id}, 'shop')" title="Delete">✖</button>` : '';
+
             return `
                 <div class="review-item">
                     <div class="review-header">
                         <span class="review-author">${escHtml(r.authorName)} ${maskedPhone}</span>
-                        <span class="review-date">${dateStr}</span>
+                        <span class="review-date">${dateStr} ${deleteBtn}</span>
                     </div>
                     <div class="review-stars">${starsHtml}</div>
                     <p class="review-comment">${escHtml(r.comment)}</p>
@@ -827,6 +830,29 @@ async function submitModalReview(event) {
     } finally {
         btnSubmit.disabled = false;
         btnSubmit.textContent = t('submitReviewBtn');
+    }
+}
+
+async function deleteReview(reviewId, type) {
+    if (!confirm(currentLang === 'ru' ? 'Удалить этот отзыв?' : 'Bu fikrni o\'chirishni xohlaysizmi?')) return;
+    const token = localStorage.getItem('houz_token');
+    if (!token) return;
+
+    const endpoint = type === 'shop' ? `/api/shops/reviews/${reviewId}` : `/api/products/reviews/${reviewId}`;
+    try {
+        const res = await fetch(endpoint, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error();
+        showToast(currentLang === 'ru' ? 'Отзыв удалён' : 'Fikr o\'chirildi', 'success');
+        // Reload reviews
+        const shopId = window._currentOpenShopId;
+        if (shopId && type === 'shop') {
+            await loadModalReviews(shopId);
+        }
+    } catch (err) {
+        showToast(currentLang === 'ru' ? 'Ошибка при удалении' : 'O\'chirishda xatolik', 'error');
     }
 }
 

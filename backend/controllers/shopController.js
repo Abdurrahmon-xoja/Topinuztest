@@ -413,6 +413,24 @@ exports.createShopReview = async (req, res) => {
     }
 };
 
+exports.deleteShopReview = async (req, res) => {
+    try {
+        const review = await Review.findByPk(req.params.reviewId);
+        if (!review) {
+            return res.status(404).json({ success: false, message: 'Review not found' });
+        }
+        const shopId = review.ShopId;
+        await review.destroy();
+        if (shopId) {
+            await recalculateShopRating(shopId);
+            cacheClear();
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 exports.getUserLocationFromIp = async (req, res) => {
     try {
         let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;

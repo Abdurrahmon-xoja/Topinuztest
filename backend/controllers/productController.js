@@ -349,6 +349,23 @@ exports.createProductReview = async (req, res) => {
     }
 };
 
+exports.deleteProductReview = async (req, res) => {
+    try {
+        const review = await Review.findByPk(req.params.reviewId);
+        if (!review) {
+            return res.status(404).json({ success: false, message: 'Review not found' });
+        }
+        const productId = review.ProductId;
+        await review.destroy();
+        if (productId) {
+            await recalculateProductRating(productId);
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 // Temp uploads (without product ID)
 exports.uploadTempProductImages = async (req, res) => {
     try {

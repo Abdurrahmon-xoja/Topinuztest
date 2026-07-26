@@ -12,6 +12,7 @@ router.get('/:id', productController.getProductById);
 // Product reviews
 router.get('/:id/reviews', productController.getProductReviews);
 router.post('/:id/reviews', productController.createProductReview);
+router.delete('/reviews/:reviewId', authMiddleware, productController.deleteProductReview);
 
 // Protected routes (admin/vendor)
 router.post('/', authMiddleware, productController.createProduct);

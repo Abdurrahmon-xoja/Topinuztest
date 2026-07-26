@@ -18,6 +18,7 @@ router.delete('/:id', authMiddleware, shopController.deleteShop);
 // Shop reviews
 router.get('/:id/reviews', shopController.getShopReviews);
 router.post('/:id/reviews', shopController.createShopReview);
+router.delete('/reviews/:reviewId', authMiddleware, shopController.deleteShopReview);
 
 // Products under this shop
 router.get('/:shopId/products', productController.getAllProducts);
