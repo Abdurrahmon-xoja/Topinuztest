@@ -18,6 +18,7 @@ function _renderGalleryImages() {
       <img src="${escHtml(img.url)}" alt="Фото ${i + 1}">
       <div class="gallery-img-controls">
         <button type="button" title="Влево" ${i === 0 ? 'disabled style="opacity:0.3"' : ''} onclick="_moveGalleryImage(${img.id}, 'prev')">←</button>
+        <button type="button" title="Обрезать" onclick="_cropExistingGalleryImage(${img.id})">✂</button>
         <button type="button" title="Вправо" ${i === _galleryImages.length - 1 ? 'disabled style="opacity:0.3"' : ''} onclick="_moveGalleryImage(${img.id}, 'next')">→</button>
         <button type="button" class="gallery-del-btn" title="Удалить" onclick="_deleteGalleryImage(${img.id})">✕</button>
       </div>
@@ -99,6 +100,49 @@ window._moveGalleryImage = async (imageId, direction) => {
       body: JSON.stringify({ ids: _galleryImages.map(img => img.id) })
     });
   } catch (e) {}
+};
+
+window._cropExistingGalleryImage = async (imageId) => {
+  const img = _galleryImages.find(g => g.id === imageId);
+  if (!img) return;
+
+  const croppedFile = await openImageCropper(img.url, 'gallery');
+  if (!croppedFile) return;
+
+  const formData = new FormData();
+  formData.append('image', croppedFile);
+
+  try {
+    showToast('Обновление фото…', 'info');
+    // Delete old, upload new
+    const delRes = await fetch(`${API}/api/shops/${_editingShopId}/images/${imageId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}` }
+    });
+    if (handle401(delRes)) return;
+
+    const upRes = await fetch(`${API}/api/shops/${_editingShopId}/images`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}` },
+      body: formData
+    });
+    if (handle401(upRes)) return;
+    if (!upRes.ok) throw new Error(await upRes.text());
+    const json = await upRes.json();
+    if (!json.success) throw new Error(json.message);
+
+    // Replace in local array at same position
+    const idx = _galleryImages.findIndex(g => g.id === imageId);
+    if (idx !== -1) {
+      _galleryImages[idx] = { ...json.data, order: img.order };
+    } else {
+      _galleryImages.push(json.data);
+    }
+    _renderGalleryImages();
+    showToast('Фото обновлено ✂', 'success');
+  } catch (err) {
+    showToast('Ошибка: ' + err.message, 'error');
+  }
 };
 
 window.openShopForm = function openShopForm(shop = null) {
@@ -186,6 +230,7 @@ window.openShopForm = function openShopForm(shop = null) {
   if (dropZone) {
       if (shop?.logoUrl) {
           dropZone.innerHTML = `<img src="${escHtml(shop.logoUrl)}" alt="Logo">
+                                <button type="button" class="logo-crop-btn" onclick="_cropExistingLogo()" title="Обрезать логотип">✂</button>
                                 <input type="file" id="fLogoFile" accept="image/png, image/jpeg, image/svg+xml">`;
       } else {
           dropZone.innerHTML = `<span id="logoDropText">${t('dropLogo')}</span>
@@ -500,6 +545,46 @@ window._handleLogoUpload = async (file) => {
         showToast(t('logoUploaded'), 'success');
     } catch (err) {
         showToast(t('uploadFailed') + err.message, 'error');
+        dropZone.innerHTML = `<span id="logoDropText">${t('uploadError')}</span>
+                              <input type="file" id="fLogoFile" accept="image/png, image/jpeg, image/svg+xml">`;
+        _initDropZoneUI();
+    }
+};
+
+window._cropExistingLogo = async () => {
+    const currentUrl = document.getElementById('fLogoUrl')?.value;
+    if (!currentUrl) { showToast('Нет логотипа для обрезки', 'error'); return; }
+
+    const croppedFile = await openImageCropper(currentUrl, 'logo');
+    if (!croppedFile) return;
+
+    const dropZone = document.getElementById('logoDropZone');
+    dropZone.innerHTML = `<span id="logoDropText">${t('uploading')}</span>`;
+
+    const formData = new FormData();
+    formData.append('image', croppedFile);
+
+    try {
+        const res = await fetch(`${API}/api/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}` },
+            body: formData
+        });
+        if (handle401(res)) return;
+        if (!res.ok) throw new Error('Upload error');
+        const json = await res.json();
+        if (!json.success) throw new Error(json.message);
+
+        const imgUrl = json.data.url;
+        document.getElementById('fLogoUrl').value = imgUrl;
+
+        dropZone.innerHTML = `<img src="${imgUrl}" alt="Preview">
+                              <button type="button" class="logo-crop-btn" onclick="_cropExistingLogo()" title="Обрезать логотип">✂</button>
+                              <input type="file" id="fLogoFile" accept="image/png, image/jpeg, image/svg+xml">`;
+        _initDropZoneUI();
+        showToast('Логотип обрезан ✂', 'success');
+    } catch (err) {
+        showToast('Ошибка: ' + err.message, 'error');
         dropZone.innerHTML = `<span id="logoDropText">${t('uploadError')}</span>
                               <input type="file" id="fLogoFile" accept="image/png, image/jpeg, image/svg+xml">`;
         _initDropZoneUI();

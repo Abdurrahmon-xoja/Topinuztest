@@ -7,7 +7,7 @@ let _cropperMode = 'logo'; // 'logo' or 'gallery'
  * Opens the crop modal with the given image file.
  * Returns a Promise that resolves with the cropped File, or null if cancelled.
  */
-window.openImageCropper = function(file, mode = 'logo') {
+window.openImageCropper = function(fileOrUrl, mode = 'logo') {
     return new Promise((resolve) => {
         _cropperResolve = resolve;
         _cropperMode = mode;
@@ -15,7 +15,7 @@ window.openImageCropper = function(file, mode = 'logo') {
         const overlay = document.getElementById('cropperOverlay');
         const img = document.getElementById('cropperImage');
         const aspectInfo = document.getElementById('cropperAspectInfo');
-        if (!overlay || !img) { resolve(file); return; }
+        if (!overlay || !img) { resolve(typeof fileOrUrl === 'string' ? null : fileOrUrl); return; }
 
         // Set aspect ratio info text
         if (aspectInfo) {
@@ -24,20 +24,16 @@ window.openImageCropper = function(file, mode = 'logo') {
                 : 'Фото галереи (свободная обрезка)';
         }
 
-        // Load image into the cropper
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            img.src = e.target.result;
+        const initCropper = (src) => {
+            img.src = src;
             overlay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
 
-            // Destroy previous instance if any
             if (_cropperInstance) {
                 _cropperInstance.destroy();
                 _cropperInstance = null;
             }
 
-            // Initialize Cropper.js
             _cropperInstance = new Cropper(img, {
                 aspectRatio: mode === 'logo' ? 1 : NaN,
                 viewMode: 1,
@@ -53,9 +49,19 @@ window.openImageCropper = function(file, mode = 'logo') {
                 toggleDragModeOnDblclick: false,
                 background: true,
                 modal: true,
+                checkCrossOrigin: false,
             });
         };
-        reader.readAsDataURL(file);
+
+        if (typeof fileOrUrl === 'string') {
+            // URL string — load directly
+            initCropper(fileOrUrl);
+        } else {
+            // File object — read as data URL
+            const reader = new FileReader();
+            reader.onload = (e) => initCropper(e.target.result);
+            reader.readAsDataURL(fileOrUrl);
+        }
     });
 };
 
