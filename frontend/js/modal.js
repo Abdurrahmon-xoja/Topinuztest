@@ -725,16 +725,34 @@ async function loadModalReviews(shopId) {
     }
 }
 
+function formatPhoneInput(el) {
+    let digits = el.value.replace(/\D/g, '').slice(0, 9);
+    let formatted = '';
+    if (digits.length > 0) formatted = digits.slice(0, 2);
+    if (digits.length > 2) formatted += ' ' + digits.slice(2, 5);
+    if (digits.length > 5) formatted += ' ' + digits.slice(5, 7);
+    if (digits.length > 7) formatted += ' ' + digits.slice(7, 9);
+    el.value = formatted;
+}
+
 async function submitModalReview(event) {
     event.preventDefault();
     const shopId = window._currentOpenShopId;
     if (!shopId) return;
 
     const authorInput = document.getElementById('modalReviewAuthor');
+    const phoneInput = document.getElementById('modalReviewPhone');
     const commentInput = document.getElementById('modalReviewComment');
     const btnSubmit = document.querySelector('#modalReviewForm button[type="submit"]');
 
     if (!commentInput.value.trim()) return;
+
+    const phoneDigits = phoneInput.value.replace(/\D/g, '');
+    if (phoneDigits.length !== 9) {
+        showToast(t('reviewInvalidPhone'), 'error');
+        phoneInput.focus();
+        return;
+    }
 
     btnSubmit.disabled = true;
     btnSubmit.textContent = '...';
@@ -744,36 +762,47 @@ async function submitModalReview(event) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                authorName: authorInput.value.trim() || 'Гость',
+                authorName: authorInput.value.trim() || 'Mehmon',
+                phone: '+998' + phoneDigits,
                 comment: commentInput.value.trim(),
                 rating: selectedModalRating
             })
         });
 
-        if (!res.ok) throw new Error();
+        if (res.status === 409) {
+            showToast(t('reviewDuplicatePhone'), 'error');
+            return;
+        }
+        if (!res.ok) {
+            const json = await res.json().catch(() => ({}));
+            if (json.message && json.message.includes('phone')) {
+                showToast(t('reviewInvalidPhone'), 'error');
+            } else {
+                showToast(t('copyError'), 'error');
+            }
+            return;
+        }
         
-        // Clear form
         authorInput.value = '';
+        phoneInput.value = '';
         commentInput.value = '';
         selectedModalRating = 5;
         const starSelector = document.getElementById('modalStarSelector');
         if (starSelector) {
             const stars = starSelector.querySelectorAll('span');
             stars.forEach(s => {
-                s.textContent = parseInt(s.dataset.val) <= 5 ? '★' : '☆';
+                s.textContent = parseInt(s.dataset.val) <= 5 ? '\u2605' : '\u2606';
                 s.classList.add('selected');
             });
         }
 
         showToast(t('reviewSuccess'), 'success');
 
-        // Collapse the form on success
         const form = document.getElementById('modalReviewForm');
         const icon = document.getElementById('modalReviewToggleIcon');
         if (form) form.style.display = 'none';
-        if (icon) icon.textContent = '➕';
+        if (icon) icon.textContent = '\u2795';
 
-        // Reload shop in local list to update average rating on shops page
         const shopRes = await fetch(`/api/shops/${shopId}`);
         if (shopRes.ok) {
             const updatedShop = (await shopRes.json()).data;
@@ -782,12 +811,10 @@ async function submitModalReview(event) {
                 if (idx !== -1) {
                     _allShops[idx] = updatedShop;
                 }
-                // Re-render shop listing cards on market directory page if function exists
                 if (typeof renderShops === 'function') {
                     renderShops(_allShops);
                 }
             }
-            // Update modal header rating
             const ratingContainer = document.getElementById('modalRatingContainer');
             if (ratingContainer) {
                 ratingContainer.innerHTML = renderRatingStarsHtml(updatedShop.rating, updatedShop.reviewsCount);
@@ -796,7 +823,7 @@ async function submitModalReview(event) {
         
         await loadModalReviews(shopId);
     } catch (err) {
-        showToast('Ошибка при отправке отзыва', 'error');
+        showToast(t('copyError'), 'error');
     } finally {
         btnSubmit.disabled = false;
         btnSubmit.textContent = t('submitReviewBtn');
