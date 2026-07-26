@@ -5,6 +5,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: 'Гость'
         },
+        phone: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         comment: {
             type: DataTypes.TEXT,
             allowNull: false

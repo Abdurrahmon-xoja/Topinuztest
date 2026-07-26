@@ -110,6 +110,14 @@
                         <input type="text" id="reviewAuthor" class="form-input" placeholder="Ismingizni kiriting..." required>
                     </div>
                     <div class="form-group">
+                        <label for="reviewPhone" id="lblYourPhone">Telefon raqamingiz</label>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-weight:600; color:var(--text2); font-size:14px; white-space:nowrap;">+998</span>
+                            <input type="tel" id="reviewPhone" class="form-input" placeholder="XX XXX XX XX" maxlength="12" required
+                                   style="flex:1;" oninput="formatPhoneInput(this)">
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label id="lblYourRating">Sizning bahoingiz</label>
                         <div class="star-rating-selector" id="starSelector">
                             <span data-val="1">☆</span>
@@ -443,10 +451,15 @@
                     });
                     let starsHtml = '';
                     for (let i = 1; i <= 5; i++) starsHtml += i <= r.rating ? '★' : '☆';
+                    // Mask phone: show last 2 digits only
+                    let maskedPhone = '';
+                    if (r.phone && r.phone.length >= 4) {
+                        maskedPhone = `<span class="review-phone">+998 ** *** ** ${r.phone.slice(-2)}</span>`;
+                    }
                     return `
                         <div class="review-item">
                             <div class="review-header">
-                                <span class="review-author">${escHtml(r.authorName)}</span>
+                                <span class="review-author">${escHtml(r.authorName)} ${maskedPhone}</span>
                                 <span class="review-date">${dateStr}</span>
                             </div>
                             <div class="review-stars">${starsHtml}</div>
@@ -459,15 +472,33 @@
             }
         }
 
+        function formatPhoneInput(el) {
+            let digits = el.value.replace(/\D/g, '').slice(0, 9);
+            let formatted = '';
+            if (digits.length > 0) formatted = digits.slice(0, 2);
+            if (digits.length > 2) formatted += ' ' + digits.slice(2, 5);
+            if (digits.length > 5) formatted += ' ' + digits.slice(5, 7);
+            if (digits.length > 7) formatted += ' ' + digits.slice(7, 9);
+            el.value = formatted;
+        }
+
         async function submitReview(event) {
             event.preventDefault();
             if (!shop) return;
 
             const authorInput = document.getElementById('reviewAuthor');
+            const phoneInput = document.getElementById('reviewPhone');
             const commentInput = document.getElementById('reviewComment');
             const btnSubmit = document.getElementById('btnSubmitReview');
 
             if (!commentInput.value.trim()) return;
+
+            const phoneDigits = phoneInput.value.replace(/\D/g, '');
+            if (phoneDigits.length !== 9) {
+                showToast(t('reviewInvalidPhone'), 'error');
+                phoneInput.focus();
+                return;
+            }
 
             btnSubmit.disabled = true;
             btnSubmit.textContent = '...';
@@ -478,14 +509,29 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         authorName: authorInput.value.trim() || 'Mehmon',
+                        phone: '+998' + phoneDigits,
                         comment: commentInput.value.trim(),
                         rating: selectedRating
                     })
                 });
 
-                if (!res.ok) throw new Error();
+                if (res.status === 409) {
+                    const json = await res.json();
+                    showToast(t('reviewDuplicatePhone'), 'error');
+                    return;
+                }
+                if (!res.ok) {
+                    const json = await res.json().catch(() => ({}));
+                    if (json.message && json.message.includes('phone')) {
+                        showToast(t('reviewInvalidPhone'), 'error');
+                    } else {
+                        showToast(t('copyError'), 'error');
+                    }
+                    return;
+                }
 
                 authorInput.value = '';
+                phoneInput.value = '';
                 commentInput.value = '';
                 selectedRating = 5;
 

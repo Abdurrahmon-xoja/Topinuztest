@@ -123,6 +123,10 @@ const i18n = {
     yourComment: "Fikr-mulohaza",
     submitReviewBtn: "Yuborish",
     reviewSuccess: "Fikr muvaffaqiyatli qo'shildi!",
+    yourPhone: "Telefon raqamingiz",
+    inputPhonePlaceholder: "+998 XX XXX XX XX",
+    reviewDuplicatePhone: "Siz allaqachon ushbu do'kon uchun fikr qoldirdingiz",
+    reviewInvalidPhone: "Noto'g'ri telefon raqam formati",
     inputNamePlaceholder: "Ismingizni kiriting...",
     inputCommentPlaceholder: "Fikringizni yozing...",
     noReviewsYet: "Fikrlar hali yo'q. Birinchi bo'lib fikr qoldiring!",
@@ -253,6 +257,10 @@ const i18n = {
     yourComment: "Комментарий",
     submitReviewBtn: "Отправить отзыв",
     reviewSuccess: "Отзыв успешно добавлен!",
+    yourPhone: "Номер телефона",
+    inputPhonePlaceholder: "+998 XX XXX XX XX",
+    reviewDuplicatePhone: "Вы уже оставляли отзыв для этого магазина",
+    reviewInvalidPhone: "Неверный формат номера телефона",
     inputNamePlaceholder: "Введите имя...",
     inputCommentPlaceholder: "Напишите ваш отзыв...",
     noReviewsYet: "Отзывов пока нет. Оставьте первый отзыв!",
@@ -417,6 +425,9 @@ function translateStaticElements() {
 
   const lblYourName = document.getElementById('lblYourName');
   if (lblYourName) lblYourName.textContent = t('yourName');
+
+  const lblYourPhone = document.getElementById('lblYourPhone');
+  if (lblYourPhone) lblYourPhone.textContent = t('yourPhone');
 
   const lblYourRating = document.getElementById('lblYourRating');
   if (lblYourRating) lblYourRating.textContent = t('yourRating');

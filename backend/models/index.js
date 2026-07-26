@@ -109,6 +109,9 @@ const initDb = async () => {
             try { await sequelize.query("ALTER TABLE Products ADD COLUMN rating REAL DEFAULT 5.0;"); } catch (e) {}
             try { await sequelize.query("ALTER TABLE Products ADD COLUMN reviewsCount INTEGER DEFAULT 0;"); } catch (e) {}
 
+            // Review anti-abuse: phone column
+            try { await sequelize.query("ALTER TABLE Reviews ADD COLUMN phone VARCHAR(255) DEFAULT '';"); } catch (e) {}
+
             await sequelize.query('PRAGMA foreign_keys = true;');
         } else {
             // PostgreSQL handles alter: true safely and natively

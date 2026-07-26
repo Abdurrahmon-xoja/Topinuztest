@@ -362,16 +362,42 @@ exports.getShopReviews = async (req, res) => {
 
 exports.createShopReview = async (req, res) => {
     try {
-        const { authorName, comment, rating } = req.body;
+        const { authorName, comment, rating, phone } = req.body;
         if (!comment || rating === undefined) {
             return res.status(400).json({ success: false, message: 'Comment and rating are required' });
         }
+        if (!phone) {
+            return res.status(400).json({ success: false, message: 'Phone number is required' });
+        }
+
+        // Normalize phone: keep only digits
+        const digits = phone.replace(/\D/g, '');
+        // Expect 998XXXXXXXXX (12 digits) or 9XXXXXXXX (9 digits)
+        let normalizedPhone;
+        if (digits.length === 12 && digits.startsWith('998')) {
+            normalizedPhone = digits;
+        } else if (digits.length === 9 && /^[0-9]{9}$/.test(digits)) {
+            normalizedPhone = '998' + digits;
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid phone number format. Use +998 XX XXX XX XX' });
+        }
+
         const numericRating = parseInt(rating);
         if (numericRating < 1 || numericRating > 5) {
             return res.status(400).json({ success: false, message: 'Rating must be between 1 and 5' });
         }
+
+        // Prevent duplicate: one review per phone per shop
+        const existing = await Review.findOne({
+            where: { phone: normalizedPhone, ShopId: req.params.id }
+        });
+        if (existing) {
+            return res.status(409).json({ success: false, message: 'DUPLICATE_PHONE' });
+        }
+
         const review = await Review.create({
             authorName: authorName || 'Гость',
+            phone: normalizedPhone,
             comment,
             rating: numericRating,
             ShopId: req.params.id

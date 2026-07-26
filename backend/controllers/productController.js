@@ -301,16 +301,40 @@ exports.getProductReviews = async (req, res) => {
 
 exports.createProductReview = async (req, res) => {
     try {
-        const { authorName, comment, rating } = req.body;
+        const { authorName, comment, rating, phone } = req.body;
         if (!comment || rating === undefined) {
             return res.status(400).json({ success: false, message: 'Comment and rating are required' });
         }
+        if (!phone) {
+            return res.status(400).json({ success: false, message: 'Phone number is required' });
+        }
+
+        const digits = phone.replace(/\D/g, '');
+        let normalizedPhone;
+        if (digits.length === 12 && digits.startsWith('998')) {
+            normalizedPhone = digits;
+        } else if (digits.length === 9 && /^[0-9]{9}$/.test(digits)) {
+            normalizedPhone = '998' + digits;
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid phone number format. Use +998 XX XXX XX XX' });
+        }
+
         const numericRating = parseInt(rating);
         if (numericRating < 1 || numericRating > 5) {
             return res.status(400).json({ success: false, message: 'Rating must be between 1 and 5' });
         }
+
+        // Prevent duplicate: one review per phone per product
+        const existing = await Review.findOne({
+            where: { phone: normalizedPhone, ProductId: req.params.id }
+        });
+        if (existing) {
+            return res.status(409).json({ success: false, message: 'DUPLICATE_PHONE' });
+        }
+
         const review = await Review.create({
             authorName: authorName || 'Гость',
+            phone: normalizedPhone,
             comment,
             rating: numericRating,
             ProductId: req.params.id
