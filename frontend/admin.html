@@ -11,8 +11,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/style.css?v=4.4">
-    <link rel="stylesheet" href="css/topin.css?v=4.4">
+    <link rel="stylesheet" href="css/style.css?v=4.5">
+    <link rel="stylesheet" href="css/topin.css?v=4.5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script>
         (function() {
             const saved = localStorage.getItem('houz_theme');
@@ -292,15 +293,56 @@
         </div>
     </div>
 
+    <!-- Image Cropper Modal -->
+    <div class="cropper-overlay" id="cropperOverlay" style="display:none;">
+        <div class="cropper-modal-inner">
+            <div class="cropper-header">
+                <span class="cropper-title">Обрезка изображения</span>
+                <span class="cropper-aspect-info" id="cropperAspectInfo"></span>
+            </div>
+            <div class="cropper-canvas-wrap">
+                <img id="cropperImage" src="" alt="Crop preview">
+            </div>
+            <div class="cropper-toolbar">
+                <button type="button" onclick="cropperRotateLeft()" title="Повернуть влево">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                </button>
+                <button type="button" onclick="cropperRotateRight()" title="Повернуть вправо">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                </button>
+                <button type="button" onclick="cropperFlipH()" title="Отразить">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                </button>
+                <div style="width:1px; height:24px; background:rgba(255,255,255,0.15); margin:0 4px;"></div>
+                <button type="button" onclick="cropperZoomIn()" title="Приблизить">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                </button>
+                <button type="button" onclick="cropperZoomOut()" title="Отдалить">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                </button>
+                <div style="width:1px; height:24px; background:rgba(255,255,255,0.15); margin:0 4px;"></div>
+                <button type="button" onclick="cropperReset()" title="Сбросить">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                </button>
+            </div>
+            <div class="cropper-actions">
+                <button type="button" class="cropper-btn cropper-btn-cancel" onclick="cropperCancel()">Отмена</button>
+                <button type="button" class="cropper-btn cropper-btn-apply" onclick="cropperApply()">✂️ Обрезать и загрузить</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
-    <script src="js/config.js?v=4.3"></script>
-    <script src="js/utils.js?v=4.3"></script>
-    <script src="js/auth.js?v=4.3"></script>
-    <script src="js/adminShops.js?v=4.3"></script>
-    <script src="js/adminFilters.js?v=4.3"></script>
-    <script src="js/admin.js?v=4.3"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    <script src="js/config.js?v=4.5"></script>
+    <script src="js/utils.js?v=4.5"></script>
+    <script src="js/auth.js?v=4.5"></script>
+    <script src="js/adminCropper.js?v=4.5"></script>
+    <script src="js/adminShops.js?v=4.5"></script>
+    <script src="js/adminFilters.js?v=4.5"></script>
+    <script src="js/admin.js?v=4.5"></script>
     <script>
         // Auth guard + page init (inline to keep admin boot reliable)
         document.addEventListener('DOMContentLoaded', () => {

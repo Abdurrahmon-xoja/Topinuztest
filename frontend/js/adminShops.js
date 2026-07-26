@@ -29,14 +29,18 @@ function _renderGalleryImages() {
 
 window._handleGalleryUpload = async (file) => {
   if (!file.type.startsWith('image/')) { showToast(t('onlyImages'), 'error'); return; }
-  if (file.size > 5 * 1024 * 1024) { showToast(t('imageTooLarge'), 'error'); return; }
+  if (file.size > 10 * 1024 * 1024) { showToast(t('imageTooLarge'), 'error'); return; }
   if (_galleryImages.length >= 3) { showToast('Максимум 3 фото', 'error'); return; }
+
+  // Open cropper for gallery (free aspect ratio)
+  const croppedFile = await openImageCropper(file, 'gallery');
+  if (!croppedFile) return; // user cancelled
 
   const addBtn = document.getElementById('galleryAddBtn');
   if (addBtn) addBtn.style.opacity = '0.5';
 
   const formData = new FormData();
-  formData.append('image', file);
+  formData.append('image', croppedFile);
 
   try {
     const res = await fetch(`${API}/api/shops/${_editingShopId}/images`, {
@@ -453,16 +457,20 @@ window._handleLogoUpload = async (file) => {
         showToast(t('onlyImages'), 'error');
         return;
     }
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
         showToast(t('imageTooLarge'), 'error');
         return;
     }
+
+    // Open cropper for logo (1:1 aspect ratio)
+    const croppedFile = await openImageCropper(file, 'logo');
+    if (!croppedFile) return; // user cancelled
 
     const dropZone = document.getElementById('logoDropZone');
     dropZone.innerHTML = `<span id="logoDropText">${t('uploading')}</span>`;
 
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('image', croppedFile);
 
     try {
         const res = await fetch(`${API}/api/upload`, {
