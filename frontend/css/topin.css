@@ -424,6 +424,15 @@ button:focus-visible {
 .home-card--art-decor   { grid-area: art-decor; border-radius: 38px; }
 .home-card--walls       { grid-area: walls; }
 .home-card--floor       { grid-area: floor; border-radius: 38px; }
+
+/* Tall (2-row) cards: bigger text, allow wrap */
+.home-card--furniture .home-card-title,
+.home-card--art-decor .home-card-title,
+.home-card--floor .home-card-title {
+    font-size: 17px;
+    white-space: normal;
+    max-width: 140px;
+}
 .home-card--stone       { grid-area: stone; }
 .home-card--real-estate { grid-area: real-estate; }
 .home-card--plants      { grid-area: plants; }
