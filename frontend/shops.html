@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/topin.css?v=5.5">
+    <link rel="stylesheet" href="css/topin.css?v=5.6">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
 
@@ -22,6 +22,9 @@
     <main class="shops-page">
         <!-- Title row: back + category title + layout toggle -->
         <div class="shops-title-row">
+            <a href="/" class="back-btn" aria-label="Go back">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </a>
             <h1 class="page-title" id="pageTitle">–</h1>
             <button class="header-icon-btn" id="toggleLayoutBtn" onclick="toggleLayoutMode()" aria-label="Toggle layout mode">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="layoutToggleIcon">
@@ -218,11 +221,11 @@
         </div>
     </div>
 
-    <script src="js/config.js?v=5.5"></script>
-    <script src="js/utils.js?v=5.5"></script>
-    <script src="js/market.js?v=5.5"></script>
-    <script src="js/home.js?v=5.5"></script>
-    <script src="js/modal.js?v=5.5"></script>
+    <script src="js/config.js?v=5.6"></script>
+    <script src="js/utils.js?v=5.6"></script>
+    <script src="js/market.js?v=5.6"></script>
+    <script src="js/home.js?v=5.6"></script>
+    <script src="js/modal.js?v=5.6"></script>
 </body>
 
 </html>
