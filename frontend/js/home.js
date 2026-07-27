@@ -426,9 +426,16 @@ function setupSearch() {
         const row = document.getElementById('searchStoresRow');
         if (!row) return;
         try {
-            const res = await fetch('/api/shops?limit=10');
-            const json = await res.json();
-            const shops = json.data || [];
+            let shops = [];
+            try {
+                const res = await fetch('/api/shops/featured');
+                if (res.ok) { const json = await res.json(); shops = json.data || []; }
+            } catch(e) {}
+            if (shops.length === 0) {
+                const res = await fetch('/api/shops?limit=15');
+                const json = await res.json();
+                shops = (json.data || []).slice(0, 15);
+            }
             row.innerHTML = shops.map(shop => {
                 const shopName = getLocalizedText(shop, 'name_ru', 'name');
                 const logo = shop.logoUrl
