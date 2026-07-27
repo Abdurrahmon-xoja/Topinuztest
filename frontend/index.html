@@ -32,16 +32,52 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </button>
-                <a href="/shops" class="header-icon-btn" aria-label="Menu">
+                <button class="header-icon-btn" id="menuBurgerBtn" aria-label="Menu">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="3" y1="6" x2="21" y2="6"></line>
                         <line x1="3" y1="12" x2="21" y2="12"></line>
                         <line x1="3" y1="18" x2="21" y2="18"></line>
                     </svg>
-                </a>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-logo"><span class="logo-text-top">TOP</span><span class="logo-text-in">IN</span></span>
+            <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/shops" class="sidebar-nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span data-i18n="allShops">Barcha do'konlar</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-section">
+            <h4 class="sidebar-section-title" data-i18n="aboutCompany">Kompaniya haqida</h4>
+            <div class="sidebar-company-name">OOO GRACE PROJECTS</div>
+            <a class="sidebar-info-row" href="tel:+998971310023">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                <span>+998 97 131 00 23</span>
+            </a>
+            <a class="sidebar-info-row" href="https://maps.google.com/?q=Tashkent+Mahtumkuli+114A" target="_blank" rel="noopener noreferrer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>г. Ташкент, ул. Махтумкули, 114А</span>
+            </a>
+        </div>
+
+        <div class="sidebar-section sidebar-section-bottom">
+            <a href="/privacy" class="sidebar-privacy-link" data-i18n="privacyPolicy">Maxfiylik siyosati</a>
+            <div class="sidebar-copyright">© 2025 Topin. OOO GRACE PROJECTS</div>
+        </div>
+    </aside>
 
     <main class="home-layout">
         <!-- Main Home View -->

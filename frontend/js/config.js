@@ -134,7 +134,10 @@ const i18n = {
     listView: "Ro'yxat",
     mapView: "Xarita",
     kmAway: "{km} km uzoqlikda",
-    recommendedStores: "Tavsiya etilgan do'konlar"
+    recommendedStores: "Tavsiya etilgan do'konlar",
+    allShops: "Barcha do'konlar",
+    aboutCompany: "Kompaniya haqida",
+    privacyPolicy: "Maxfiylik siyosati"
   },
   ru: {
     home: "Главная",
@@ -269,7 +272,10 @@ const i18n = {
     listView: "Список",
     mapView: "Карта",
     kmAway: "в {km} км от вас",
-    recommendedStores: "Рекомендуемые магазины"
+    recommendedStores: "Рекомендуемые магазины",
+    allShops: "Все магазины",
+    aboutCompany: "О компании",
+    privacyPolicy: "Политика конфиденциальности"
   }
 };
 

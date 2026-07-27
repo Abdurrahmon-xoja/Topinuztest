@@ -1,4 +1,26 @@
+// Sidebar
+function openSidebar() {
+    document.getElementById('sidebar')?.classList.add('open');
+    document.getElementById('sidebarOverlay')?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    // Apply i18n to sidebar data-i18n elements
+    document.querySelectorAll('#sidebar [data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (key && typeof t === 'function') el.textContent = t(key);
+    });
+}
+function closeSidebar() {
+    document.getElementById('sidebar')?.classList.remove('open');
+    document.getElementById('sidebarOverlay')?.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
 async function initIndexPage() {
+    // Wire up hamburger button
+    const burgerBtn = document.getElementById('menuBurgerBtn');
+    if (burgerBtn) burgerBtn.addEventListener('click', openSidebar);
+
     setupSearch();
     await Promise.all([
         loadCategoriesHome(),
