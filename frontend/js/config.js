@@ -319,6 +319,10 @@ function translateStaticElements() {
     headerSearchInput.placeholder = t(isShops ? 'searchShopsPlaceholder' : 'searchHeaderPlaceholder');
   }
 
+  // Translate fullpage search input placeholder
+  const searchFullpageInput = document.getElementById('searchFullpageInput');
+  if (searchFullpageInput) searchFullpageInput.placeholder = t('searchPlaceholder');
+
   // index.html specific elements
   const catalogTitle = document.querySelector('.categories-section .section-title');
   if (catalogTitle) catalogTitle.textContent = t('catalogCategories');
