@@ -223,7 +223,7 @@ async function loadCategoriesHome() {
         img.src = cat.image;
     })));
 
-    const arrowSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
+
 
     grid.innerHTML = categories.map(cat => {
       const catName = getCatName(cat.slug);
@@ -235,7 +235,6 @@ async function loadCategoriesHome() {
           <img src="${cat.image}" alt="${escHtml(catName)}" class="home-card-bg" draggable="false" style="pointer-events:none;">
           <div class="home-card-content">
             <span class="home-card-title">${escHtml(catName)}</span>
-            <span class="home-card-chip">${arrowSvg}</span>
           </div>
         </a>
       `;
