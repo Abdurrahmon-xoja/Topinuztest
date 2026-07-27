@@ -70,7 +70,8 @@ const i18n = {
       "real-estate": "Eksteryer",
       "plants": "O'simliklar",
       "bathroom": "Hammom",
-      "other": "Boshqa"
+      "other": "Boshqa",
+      "specialists": "Ustalar"
     },
     found: "Topildi",
     // New dynamic translation keys
@@ -206,7 +207,8 @@ const i18n = {
       "real-estate": "Экстерьер",
       "plants": "Растения",
       "bathroom": "Ванная",
-      "other": "Другое"
+      "other": "Другое",
+      "specialists": "Специалисты"
     },
     found: "Найдено",
     // New dynamic translation keys

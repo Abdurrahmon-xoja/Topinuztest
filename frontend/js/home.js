@@ -186,6 +186,7 @@ const DEFAULT_LAYOUT = [
     {slug:'art-decor',span:2},{slug:'bathroom',span:1},
     {slug:'stone',span:1},{slug:'real-estate',span:1},
     {slug:'floor',span:2},{slug:'other',span:1},
+    {slug:'specialists',span:1},
 ];
 
 function getSavedLayout() {
@@ -407,7 +408,7 @@ async function loadCategoriesHome() {
     if (!grid) return;
   
     // Show skeleton loader first
-    grid.innerHTML = Array(10).fill().map(() => `
+    grid.innerHTML = Array(11).fill().map(() => `
       <div class="skeleton-home-card"></div>
     `).join('');
 
@@ -422,6 +423,7 @@ async function loadCategoriesHome() {
       'plants':      'img/home/plants.jpg',
       'bathroom':    'img/home/bathroom.jpg',
       'other':       'img/home/other.jpg',
+      'specialists': 'img/home/specialists.jpg',
     };
 
     // Cards whose photo is dark → light label + light chip (per Figma)
@@ -438,6 +440,7 @@ async function loadCategoriesHome() {
       { slug: 'real-estate',  image: categoryImages['real-estate'] },
       { slug: 'floor',        image: categoryImages['floor'] },
       { slug: 'other',        image: categoryImages['other'] },
+      { slug: 'specialists',  image: categoryImages['specialists'] },
     ];
 
     // Apply saved layout order

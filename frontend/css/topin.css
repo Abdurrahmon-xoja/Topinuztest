@@ -297,7 +297,7 @@ button:focus-visible {
         "art-decor bathroom"
         "stone floor"
         "real-estate floor"
-        "other other";
+        "other specialists";
 }
 
 @media (min-width: 768px) {
@@ -310,8 +310,8 @@ button:focus-visible {
         grid-template-areas:
             "lighting art-decor plants furniture"
             "walls art-decor bathroom furniture"
-            "floor stone other other"
-            "floor real-estate other other";
+            "floor stone other specialists"
+            "floor real-estate other specialists";
     }
 }
 
@@ -428,6 +428,7 @@ button:focus-visible {
 .home-card--real-estate { grid-area: real-estate; }
 .home-card--plants      { grid-area: plants; }
 .home-card--bathroom    { grid-area: bathroom; }
+.home-card--specialists { grid-area: specialists; }
 
 /* Wide card ("Boshqa / Other") */
 .home-card--other {

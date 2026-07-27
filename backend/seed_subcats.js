@@ -60,6 +60,16 @@ const subCategoriesData = {
     { slug: 'furniture-fittings', name: 'Furnituralar' },
     { slug: 'smart-home', name: 'Texnika' },
     { slug: 'acoustics', name: 'Akustika' }
+  ],
+  "specialists": [
+    { slug: 'turnkey-renovation', name: 'Remont pod klyuch' },
+    { slug: 'design-studios', name: 'Dizayn studiyalar' },
+    { slug: 'plumbers', name: 'Santexniklar' },
+    { slug: 'electricians', name: 'Elektrchilar' },
+    { slug: 'painters', name: 'Bo\'yoqchilar' },
+    { slug: 'tile-workers', name: 'Plitkachilar' },
+    { slug: 'carpenters', name: 'Duradgorlar' },
+    { slug: 'architects', name: 'Arxitektorlar' }
   ]
 };
 

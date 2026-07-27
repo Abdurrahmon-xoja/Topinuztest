@@ -20,7 +20,8 @@ async function seed() {
         { name: 'Exterior', slug: 'real-estate', icon: '🏘️' },
         { name: 'Plants', slug: 'plants', icon: '🪴' },
         { name: 'Bathroom', slug: 'bathroom', icon: '🛁' },
-        { name: 'Other', slug: 'other', icon: '📦' }
+        { name: 'Other', slug: 'other', icon: '📦' },
+        { name: 'Specialists', slug: 'specialists', icon: '🔧' }
     ];
 
     const categoryDocs = await Category.bulkCreate(categories);
