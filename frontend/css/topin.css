@@ -320,7 +320,7 @@ button:focus-visible {
     display: block;
     border-radius: 28px;
     overflow: hidden;
-    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease, border-radius 0.3s ease;
     cursor: pointer;
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
@@ -419,29 +419,26 @@ button:focus-visible {
 }
 
 /* per-category grid areas */
-.home-card--furniture   { grid-area: furniture; border-radius: 38px; }
+.home-card--furniture   { grid-area: furniture; }
 .home-card--lighting    { grid-area: lighting; }
-.home-card--art-decor   { grid-area: art-decor; border-radius: 38px; }
+.home-card--art-decor   { grid-area: art-decor; }
 .home-card--walls       { grid-area: walls; }
-.home-card--floor       { grid-area: floor; border-radius: 38px; }
-
-/* Tall (2-row) cards: bigger text, allow wrap */
-.home-card--furniture .home-card-title,
-.home-card--art-decor .home-card-title,
-.home-card--floor .home-card-title {
-    font-size: 17px;
-    white-space: normal;
-    max-width: 140px;
-}
+.home-card--floor       { grid-area: floor; }
 .home-card--stone       { grid-area: stone; }
 .home-card--real-estate { grid-area: real-estate; }
 .home-card--plants      { grid-area: plants; }
 .home-card--bathroom    { grid-area: bathroom; }
 .home-card--specialists { grid-area: specialists; }
+.home-card--other       { grid-area: other; }
 
-/* Wide card ("Boshqa / Other") */
-.home-card--other {
-    grid-area: other;
+/* Big cards (tall or wide) — applied dynamically by JS */
+.home-card--big {
+    border-radius: 38px;
+}
+.home-card--big .home-card-title {
+    font-size: 17px;
+    white-space: normal;
+    max-width: 140px;
 }
 
 .home-card--other .home-card-content {
@@ -615,6 +612,26 @@ button:focus-visible {
 
 [data-theme="dark"] .footer-info-btn:hover {
     background: var(--white-box);
+}
+
+/* Layout cycle button */
+.footer-layout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+    border: none;
+    cursor: pointer;
+}
+.footer-layout-btn:active {
+    transform: scale(0.93);
 }
 
 .footer-info-panel {

@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/topin.css?v=5.8">
+    <link rel="stylesheet" href="css/topin.css?v=5.9">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
 
@@ -123,6 +123,13 @@
     <!-- Floating footer controls -->
     <footer class="site-footer">
         <div class="footer-controls">
+            <!-- Layout cycle button -->
+            <button class="footer-layout-btn" id="layoutCycleBtn" aria-label="Change layout">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="4" rx="1.5"/><rect x="13" y="9" width="8" height="2" rx="1"/><rect x="3" y="13" width="4" height="8" rx="1.5"/><rect x="9" y="13" width="12" height="8" rx="2"/>
+                </svg>
+            </button>
+
             <!-- Language Toggle (simple button, no dropdown) -->
             <button class="lang-toggle-btn" id="langToggleBtn" aria-label="Toggle language">
                 <span class="lang-text" id="langText">UZ</span>
@@ -158,9 +165,9 @@
         </a>
     </div>
 
-    <script src="js/config.js?v=5.8"></script>
-    <script src="js/utils.js?v=5.8"></script>
-    <script src="js/home.js?v=5.8"></script>
+    <script src="js/config.js?v=5.9"></script>
+    <script src="js/utils.js?v=5.9"></script>
+    <script src="js/home.js?v=5.9"></script>
 
 </body>
 

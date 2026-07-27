@@ -178,10 +178,86 @@ function renderProductsGridHtml(products) {
     }).join('');
 }
 
+// ═══════ Grid Layout Variants ═══════
+const GRID_LAYOUTS = [
+    {
+        // Layout A: tall furniture, tall art-decor, tall floor
+        areas: '"lighting furniture" "walls furniture" "art-decor plants" "art-decor bathroom" "stone floor" "real-estate floor" "other specialists"',
+        big: ['furniture', 'art-decor', 'floor']
+    },
+    {
+        // Layout B: wide furniture, tall art-decor, wide floor
+        areas: '"furniture furniture" "lighting walls" "plants art-decor" "bathroom art-decor" "floor floor" "stone real-estate" "other specialists"',
+        big: ['furniture', 'art-decor', 'floor']
+    },
+    {
+        // Layout C: tall furniture, tall bathroom, wide lighting
+        areas: '"lighting lighting" "furniture walls" "furniture plants" "art-decor bathroom" "stone bathroom" "real-estate floor" "other specialists"',
+        big: ['lighting', 'furniture', 'bathroom']
+    },
+    {
+        // Layout D: tall lighting, wide art-decor, tall real-estate
+        areas: '"lighting furniture" "lighting walls" "art-decor art-decor" "plants real-estate" "bathroom real-estate" "stone floor" "other specialists"',
+        big: ['lighting', 'art-decor', 'real-estate']
+    }
+];
+
+let _activeLayoutIdx = parseInt(localStorage.getItem('topin_grid_layout') || '0', 10);
+if (_activeLayoutIdx >= GRID_LAYOUTS.length) _activeLayoutIdx = 0;
+
+function applyGridLayout(grid, idx) {
+    const layout = GRID_LAYOUTS[idx];
+    grid.style.gridTemplateAreas = layout.areas;
+    
+    // Update big card classes
+    grid.querySelectorAll('.home-card').forEach(card => {
+        // Extract slug from class list
+        const match = card.className.match(/home-card--([a-z-]+)/);
+        if (!match) return;
+        const slug = match[1];
+        if (slug === 'dark' || slug === 'big' || slug === 'hidden') return;
+        
+        if (layout.big.includes(slug)) {
+            card.classList.add('home-card--big');
+        } else {
+            card.classList.remove('home-card--big');
+        }
+    });
+}
+
+function cycleLayout() {
+    const grid = document.getElementById('homeGrid');
+    if (!grid) return;
+    
+    // Fade out
+    grid.style.opacity = '0';
+    grid.style.transform = 'scale(0.97)';
+    
+    setTimeout(() => {
+        _activeLayoutIdx = (_activeLayoutIdx + 1) % GRID_LAYOUTS.length;
+        localStorage.setItem('topin_grid_layout', _activeLayoutIdx);
+        applyGridLayout(grid, _activeLayoutIdx);
+        
+        // Fade in
+        requestAnimationFrame(() => {
+            grid.style.opacity = '1';
+            grid.style.transform = 'scale(1)';
+        });
+    }, 200);
+}
+
+// Wire up the layout cycle button
+(function() {
+    const btn = document.getElementById('layoutCycleBtn');
+    if (btn) btn.addEventListener('click', cycleLayout);
+})();
 
 async function loadCategoriesHome() {
     const grid = document.getElementById('homeGrid');
     if (!grid) return;
+    
+    // Smooth transition for layout changes
+    grid.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
   
     // Show skeleton loader first
     grid.innerHTML = Array(11).fill().map(() => `
@@ -240,6 +316,9 @@ async function loadCategoriesHome() {
         </a>
       `;
     }).join('');
+
+    // Apply saved layout variant
+    applyGridLayout(grid, _activeLayoutIdx);
 
     requestAnimationFrame(() => {
         grid.querySelectorAll('.home-card-hidden').forEach(el => el.classList.remove('home-card-hidden'));
