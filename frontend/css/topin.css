@@ -3031,7 +3031,7 @@ model-viewer {
 
 /* ═══════ Edit Mode ═══════ */
 .footer-edit-btn {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     width: 36px;
@@ -3082,5 +3082,27 @@ model-viewer {
 
 .home-grid.edit-mode .home-card .home-card-bg {
     border-radius: 14px;
+}
+
+.resize-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: none;
+    background: var(--blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: transform 0.15s;
+}
+.resize-btn:active {
+    transform: scale(0.9);
 }
 
