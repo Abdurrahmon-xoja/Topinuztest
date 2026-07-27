@@ -4768,3 +4768,82 @@ select:focus {
         text-align: center;
     }
 }
+
+/* ─── Admin support info popup ───────────────────────────── */
+.support-info-btn {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    z-index: 500;
+    transition: transform 0.2s ease;
+}
+
+.support-info-btn:hover {
+    transform: scale(1.06);
+}
+
+.support-info-panel {
+    position: fixed;
+    right: 24px;
+    bottom: 84px;
+    width: 260px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+    z-index: 500;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.support-info-panel.show {
+    display: flex;
+}
+
+.support-info-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 2px;
+}
+
+.support-info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.support-info-row svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--accent);
+}
+
+@media (max-width: 600px) {
+    .support-info-btn {
+        right: 16px;
+        bottom: 16px;
+    }
+    .support-info-panel {
+        right: 16px;
+        left: 16px;
+        width: auto;
+        bottom: 76px;
+    }
+}

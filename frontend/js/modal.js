@@ -110,11 +110,13 @@ function openShopModal(shopId) {
     const shop = _allShops.find(s => s.id === shopId);
     if (!shop) return;
 
+    const shopName = getLocalizedText(shop, 'name_ru', 'name');
+
     // Logo
-    document.getElementById('modalLogo').innerHTML = logoFallback(shop.logoUrl, shop.name);
+    document.getElementById('modalLogo').innerHTML = logoFallback(shop.logoUrl, shopName);
 
     // Info Column
-    document.getElementById('modalName').textContent = shop.name;
+    document.getElementById('modalName').textContent = shopName;
 
     // Rating
     const ratingContainer = document.getElementById('modalRatingContainer');
@@ -309,7 +311,7 @@ function openShopModal(shopId) {
             descParts.push(currentLang === 'ru' ? `📍 Адрес: ${shop.location}` : `📍 Manzil: ${shop.location}`);
         }
         
-        const shopTitle = shop.name;
+        const shopTitle = shopName;
         const shopText = descParts.join('\n');
 
         if (navigator.share) {
@@ -371,7 +373,7 @@ function openShopModal(shopId) {
         loadModalReviews(shop.id);
 
         // Fetch and render the store's products inside the bottom sheet
-        _loadModalProducts(shop.id, shop.slug, shop.name, shop.currency || 'UZS');
+        _loadModalProducts(shop.id, shop.slug, shopName, shop.currency || 'UZS');
     }
 }
 
@@ -419,16 +421,17 @@ async function _loadModalProducts(shopId, shopSlug, shopName, shopCurrency) {
                 : priceStr;
 
             const imageUrl = prod.imageUrl || 'img/placeholder.png';
+            const prodName = getLocalizedText(prod, 'name_ru', 'name');
 
             return `
                 <a href="/stores/${shopSlug}/products/${prod.slug}" class="product-card">
                     <div class="product-card-img-wrap">
-                        <img src="${cloudinaryOptimize(imageUrl)}" alt="${escHtml(prod.name)}" class="product-card-img" loading="lazy">
+                        <img src="${cloudinaryOptimize(imageUrl)}" alt="${escHtml(prodName)}" class="product-card-img" loading="lazy">
                         ${arBadge}
                     </div>
                     <div class="product-card-content">
                         <span class="product-card-shop">${escHtml(shopName)}</span>
-                        <h3 class="product-card-name">${escHtml(prod.name)}</h3>
+                        <h3 class="product-card-name">${escHtml(prodName)}</h3>
                         <div class="product-card-price-row">
                             <span class="product-card-price" ${prod.salePrice ? 'style="color: var(--red);"' : ''}>${displayPriceStr}</span>
                             ${oldPriceHtml}

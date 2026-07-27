@@ -4,6 +4,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        name_ru: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         slug: {
             type: DataTypes.STRING,
             allowNull: true
@@ -12,8 +16,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
+        shortDescription_ru: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
         description: {
             type: DataTypes.TEXT
+        },
+        description_ru: {
+            type: DataTypes.TEXT,
+            allowNull: true
         },
         price: {
             type: DataTypes.DECIMAL(10, 2)

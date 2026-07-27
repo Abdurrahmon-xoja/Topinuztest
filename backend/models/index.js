@@ -66,6 +66,12 @@ const initDb = async () => {
             try { await sequelize.query("ALTER TABLE SubCategories ADD COLUMN \"order\" INTEGER DEFAULT 0;"); } catch (e) {}
             try { await sequelize.query("ALTER TABLE SubCategories ADD COLUMN name_en VARCHAR(255);"); } catch (e) {}
 
+            // Bilingual (RU) name/description columns
+            try { await sequelize.query("ALTER TABLE Shops ADD COLUMN name_ru VARCHAR(255);"); } catch (e) {}
+            try { await sequelize.query("ALTER TABLE Products ADD COLUMN name_ru VARCHAR(255);"); } catch (e) {}
+            try { await sequelize.query("ALTER TABLE Products ADD COLUMN shortDescription_ru TEXT;"); } catch (e) {}
+            try { await sequelize.query("ALTER TABLE Products ADD COLUMN description_ru TEXT;"); } catch (e) {}
+
             // Shop storefront columns
             try { await sequelize.query("ALTER TABLE Shops ADD COLUMN slug VARCHAR(255);"); } catch (e) {}
             try { await sequelize.query("ALTER TABLE Shops ADD COLUMN bannerUrl TEXT;"); } catch (e) {}

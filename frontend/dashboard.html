@@ -371,6 +371,70 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
+        /* Support info popup */
+        .support-info-btn {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            z-index: 500;
+            transition: transform 0.2s ease;
+        }
+        .support-info-btn:hover {
+            transform: scale(1.06);
+        }
+        .support-info-panel {
+            position: fixed;
+            right: 24px;
+            bottom: 84px;
+            width: 260px;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 16px;
+            z-index: 500;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .support-info-panel.show {
+            display: flex;
+        }
+        .support-info-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 2px;
+        }
+        .support-info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text);
+            text-decoration: none;
+        }
+        .support-info-row svg {
+            flex-shrink: 0;
+            margin-top: 1px;
+            color: var(--accent);
+        }
+        @media (max-width: 600px) {
+            .support-info-btn { right: 16px; bottom: 16px; }
+            .support-info-panel { right: 16px; left: 16px; width: auto; bottom: 76px; }
+        }
     </style>
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
@@ -616,8 +680,12 @@
 
             <div class="form-grid-layout">
                 <div class="form-group">
-                    <label>Название товара *</label>
+                    <label>Название товара (UZ) *</label>
                     <input type="text" id="fProdName" class="form-control-dashboard" required>
+                </div>
+                <div class="form-group">
+                    <label>Название товара (RU)</label>
+                    <input type="text" id="fProdNameRu" class="form-control-dashboard">
                 </div>
                 <div class="form-group">
                     <label>Ссылка / Slug (автогенерация)</label>
@@ -648,13 +716,21 @@
                 </div>
 
                 <div class="form-group full-width-field">
-                    <label>Краткое описание товара (до 300 симв.)</label>
+                    <label>Краткое описание товара (UZ, до 300 симв.)</label>
                     <input type="text" id="fProdShortDesc" class="form-control-dashboard" maxlength="300">
+                </div>
+                <div class="form-group full-width-field">
+                    <label>Краткое описание товара (RU, до 300 симв.)</label>
+                    <input type="text" id="fProdShortDescRu" class="form-control-dashboard" maxlength="300">
                 </div>
 
                 <div class="form-group full-width-field">
-                    <label>Полное описание</label>
+                    <label>Полное описание (UZ)</label>
                     <textarea id="fProdDesc" class="form-control-dashboard" style="height: 100px; resize:vertical;"></textarea>
+                </div>
+                <div class="form-group full-width-field">
+                    <label>Полное описание (RU)</label>
+                    <textarea id="fProdDescRu" class="form-control-dashboard" style="height: 100px; resize:vertical;"></textarea>
                 </div>
 
                 <!-- Product image upload gallery slots -->
@@ -718,6 +794,38 @@
 
     <!-- Toast UI element -->
     <div class="toast" id="toast"></div>
+
+    <!-- Support info popup -->
+    <div class="support-info-panel" id="supportInfoPanel">
+        <h4 class="support-info-title">Связаться с поддержкой</h4>
+        <a class="support-info-row" href="tel:+998971310023">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <span>+998 97 131 00 23</span>
+        </a>
+        <a class="support-info-row" href="https://maps.google.com/?q=Tashkent+Mahtumkuli+114A" target="_blank" rel="noopener noreferrer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>г. Ташкент, ул. Махтумкули, 114А</span>
+        </a>
+    </div>
+    <button type="button" class="support-info-btn" id="supportInfoBtn" aria-label="Информация">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+    </button>
+    <script>
+        (function() {
+            const btn = document.getElementById('supportInfoBtn');
+            const panel = document.getElementById('supportInfoPanel');
+            if (!btn || !panel) return;
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                panel.classList.toggle('show');
+            });
+            document.addEventListener('click', (e) => {
+                if (panel.classList.contains('show') && !panel.contains(e.target) && e.target !== btn) {
+                    panel.classList.remove('show');
+                }
+            });
+        })();
+    </script>
 
     <script src="js/config.js?v=3.2"></script>
     <script src="js/utils.js?v=3.2"></script>
@@ -976,13 +1084,16 @@
         function openProductModal(prod = null) {
             document.getElementById('productId').value = prod?.id || '';
             document.getElementById('fProdName').value = prod?.name || '';
+            document.getElementById('fProdNameRu').value = prod?.name_ru || '';
             document.getElementById('fProdSlug').value = prod?.slug || '';
             document.getElementById('fProdPrice').value = prod?.price || '';
             document.getElementById('fProdSalePrice').value = prod?.salePrice || '';
             document.getElementById('fProdSubcat').value = prod?.SubCategoryId || '';
             document.getElementById('fProdStock').value = prod?.stockStatus || 'In Stock';
             document.getElementById('fProdShortDesc').value = prod?.shortDescription || '';
+            document.getElementById('fProdShortDescRu').value = prod?.shortDescription_ru || '';
             document.getElementById('fProdDesc').value = prod?.description || '';
+            document.getElementById('fProdDescRu').value = prod?.description_ru || '';
             
             document.getElementById('fGlbUrl').value = prod?.glbUrl || '';
             document.getElementById('fUsdzUrl').value = prod?.usdzUrl || '';
@@ -1159,6 +1270,7 @@
 
             const payload = {
                 name,
+                name_ru: document.getElementById('fProdNameRu').value.trim(),
                 slug: document.getElementById('fProdSlug').value.trim(),
                 price: parseFloat(price),
                 salePrice: document.getElementById('fProdSalePrice').value ? parseFloat(document.getElementById('fProdSalePrice').value) : null,
@@ -1167,7 +1279,9 @@
                 ShopId: vendorShop.id,
                 stockStatus: document.getElementById('fProdStock').value,
                 shortDescription: document.getElementById('fProdShortDesc').value.trim(),
+                shortDescription_ru: document.getElementById('fProdShortDescRu').value.trim(),
                 description: document.getElementById('fProdDesc').value.trim(),
+                description_ru: document.getElementById('fProdDescRu').value.trim(),
                 seoTitle: document.getElementById('fProdSeoTitle').value.trim(),
                 seoDescription: document.getElementById('fProdSeoDesc').value.trim(),
                 images: JSON.stringify(productGalleryImages),
@@ -1463,13 +1577,16 @@
             const pId = document.getElementById('productId').value || 'new';
             const draft = {
                 name: document.getElementById('fProdName').value,
+                name_ru: document.getElementById('fProdNameRu').value,
                 slug: document.getElementById('fProdSlug').value,
                 price: document.getElementById('fProdPrice').value,
                 salePrice: document.getElementById('fProdSalePrice').value,
                 SubCategoryId: document.getElementById('fProdSubcat').value,
                 stockStatus: document.getElementById('fProdStock').value,
                 shortDescription: document.getElementById('fProdShortDesc').value,
+                shortDescription_ru: document.getElementById('fProdShortDescRu').value,
                 description: document.getElementById('fProdDesc').value,
+                description_ru: document.getElementById('fProdDescRu').value,
                 seoTitle: document.getElementById('fProdSeoTitle').value,
                 seoDescription: document.getElementById('fProdSeoDesc').value,
                 images: productGalleryImages
@@ -1484,13 +1601,16 @@
                 if (confirm('Обнаружен несохраненный черновик для этого товара. Восстановить его?')) {
                     const draft = JSON.parse(draftStr);
                     document.getElementById('fProdName').value = draft.name || '';
+                    document.getElementById('fProdNameRu').value = draft.name_ru || '';
                     document.getElementById('fProdSlug').value = draft.slug || '';
                     document.getElementById('fProdPrice').value = draft.price || '';
                     document.getElementById('fProdSalePrice').value = draft.salePrice || '';
                     document.getElementById('fProdSubcat').value = draft.SubCategoryId || '';
                     document.getElementById('fProdStock').value = draft.stockStatus || 'In Stock';
                     document.getElementById('fProdShortDesc').value = draft.shortDescription || '';
+                    document.getElementById('fProdShortDescRu').value = draft.shortDescription_ru || '';
                     document.getElementById('fProdDesc').value = draft.description || '';
+                    document.getElementById('fProdDescRu').value = draft.description_ru || '';
                     document.getElementById('fProdSeoTitle').value = draft.seoTitle || '';
                     document.getElementById('fProdSeoDesc').value = draft.seoDescription || '';
                     productGalleryImages = draft.images || [];
@@ -1509,7 +1629,7 @@
 
         // Add dirty listeners to form inputs
         function setupDraftChangeListeners() {
-            const inputs = ['fProdName', 'fProdSlug', 'fProdPrice', 'fProdSalePrice', 'fProdSubcat', 'fProdStock', 'fProdShortDesc', 'fProdDesc', 'fProdSeoTitle', 'fProdSeoDesc'];
+            const inputs = ['fProdName', 'fProdNameRu', 'fProdSlug', 'fProdPrice', 'fProdSalePrice', 'fProdSubcat', 'fProdStock', 'fProdShortDesc', 'fProdShortDescRu', 'fProdDesc', 'fProdDescRu', 'fProdSeoTitle', 'fProdSeoDesc'];
             inputs.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener('input', markDraftDirty);

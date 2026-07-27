@@ -178,9 +178,10 @@
 
         function renderStorefrontDetails() {
             if (!shop) return;
-            document.title = `${shop.name} | Topin`;
-            document.getElementById('storeName').textContent = shop.name;
-            document.getElementById('storeHeroName').textContent = shop.name;
+            const shopName = getLocalizedText(shop, 'name_ru', 'name');
+            document.title = `${shopName} | Topin`;
+            document.getElementById('storeName').textContent = shopName;
+            document.getElementById('storeHeroName').textContent = shopName;
 
             const tagline = getLocalizedText(shop, 'description_ru', 'description');
             const taglineEl = document.getElementById('storeTagline');
@@ -204,7 +205,7 @@
             }
 
             if (shop.logoUrl) {
-                document.getElementById('storeLogo').innerHTML = `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shop.name)}">`;
+                document.getElementById('storeLogo').innerHTML = `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shopName)}">`;
             }
 
             // Mobile sticky contact bar
@@ -248,7 +249,7 @@
                 shareBtn.addEventListener('click', async () => {
                     const shareUrl = window.location.href;
                     if (navigator.share) {
-                        try { await navigator.share({ title: shop ? shop.name : 'Topin', url: shareUrl }); } catch (e) {}
+                        try { await navigator.share({ title: shop ? getLocalizedText(shop, 'name_ru', 'name') : 'Topin', url: shareUrl }); } catch (e) {}
                     } else if (navigator.clipboard) {
                         try {
                             await navigator.clipboard.writeText(shareUrl);
@@ -341,6 +342,7 @@
 
         function renderProductGrid() {
             const grid = document.getElementById('productGrid');
+            const shopName = getLocalizedText(shop, 'name_ru', 'name');
             const products = _activeSubcat === 'all'
                 ? _allProducts
                 : _allProducts.filter(p => p.SubCategoryId === _activeSubcat);
@@ -367,16 +369,17 @@
                     const priceStr = prod.price
                         ? `${parseFloat(prod.price).toLocaleString()} ${shop.currency === 'UZS' || !shop.currency ? "so'm" : shop.currency}`
                         : t('priceOnRequest');
+                    const prodName = getLocalizedText(prod, 'name_ru', 'name');
 
                     return `
                         <a href="/stores/${shop.slug}/products/${prod.slug}" class="product-card">
                             <div class="product-card-img-wrap">
-                                <img src="${cloudinaryOptimize(prod.imageUrl || '/img/placeholder.png')}" alt="${escHtml(prod.name)}" class="product-card-img" loading="lazy">
+                                <img src="${cloudinaryOptimize(prod.imageUrl || '/img/placeholder.png')}" alt="${escHtml(prodName)}" class="product-card-img" loading="lazy">
                                 ${arBadgeHtml}
                             </div>
                             <div class="product-card-content">
-                                <span class="product-card-shop">${escHtml(shop.name)}</span>
-                                <h3 class="product-card-name">${escHtml(prod.name)}</h3>
+                                <span class="product-card-shop">${escHtml(shopName)}</span>
+                                <h3 class="product-card-name">${escHtml(prodName)}</h3>
                                 <div class="product-card-price-row">
                                     <span class="product-card-price">${priceStr}</span>
                                 </div>

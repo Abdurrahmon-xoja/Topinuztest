@@ -45,8 +45,9 @@ async function loadFeaturedStores() {
 
         // Show up to 8 stores
         scrollContainer.innerHTML = shops.slice(0, 8).map(shop => {
-            const logoHtml = shop.logoUrl 
-                ? `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shop.name)}" class="featured-store-logo">`
+            const shopName = getLocalizedText(shop, 'name_ru', 'name');
+            const logoHtml = shop.logoUrl
+                ? `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shopName)}" class="featured-store-logo">`
                 : `<div class="featured-store-logo">🏪</div>`;
 
             const catName = shop.Category ? (currentLang === 'ru' ? shop.Category.name_ru || shop.Category.name : shop.Category.name || shop.Category.name_ru) : '';
@@ -54,7 +55,7 @@ async function loadFeaturedStores() {
             return `
                 <div class="featured-store-card" onclick="location.href='/stores/${shop.slug}'">
                     ${logoHtml}
-                    <div class="featured-store-name">${escHtml(shop.name)}</div>
+                    <div class="featured-store-name">${escHtml(shopName)}</div>
                     ${renderRatingStarsHtml(shop.rating, shop.reviewsCount)}
                     ${catName ? `<span class="featured-store-cat">${escHtml(catName)}</span>` : ''}
                 </div>
@@ -133,16 +134,17 @@ function renderProductsGridHtml(products) {
             : priceStr;
 
         const imageUrl = prod.imageUrl || 'img/placeholder.png';
+        const prodName = getLocalizedText(prod, 'name_ru', 'name');
 
         return `
             <a href="/stores/${shop.slug}/products/${prod.slug}" class="product-card">
                 <div class="product-card-img-wrap">
-                    <img src="${cloudinaryOptimize(imageUrl)}" alt="${escHtml(prod.name)}" class="product-card-img" loading="lazy">
+                    <img src="${cloudinaryOptimize(imageUrl)}" alt="${escHtml(prodName)}" class="product-card-img" loading="lazy">
                     ${arBadge}
                 </div>
                 <div class="product-card-content">
-                    <span class="product-card-shop">${escHtml(shop.name || '')}</span>
-                    <h3 class="product-card-name">${escHtml(prod.name)}</h3>
+                    <span class="product-card-shop">${escHtml(getLocalizedText(shop, 'name_ru', 'name') || '')}</span>
+                    <h3 class="product-card-name">${escHtml(prodName)}</h3>
                     ${renderRatingStarsHtml(prod.rating, prod.reviewsCount)}
                     <div class="product-card-price-row">
                         <span class="product-card-price" style="${prod.salePrice ? 'color: var(--red);' : ''}">${displayPriceStr}</span>
@@ -314,13 +316,14 @@ function setupSearch() {
             const json = await res.json();
             const shops = json.data || [];
             row.innerHTML = shops.map(shop => {
-                const logo = shop.logoUrl 
-                    ? `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shop.name)}">`
+                const shopName = getLocalizedText(shop, 'name_ru', 'name');
+                const logo = shop.logoUrl
+                    ? `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shopName)}">`
                     : `<span style="font-size:20px;">🏪</span>`;
                 return `
                     <a href="/stores/${shop.slug}" class="search-store-item">
                         <div class="search-store-logo">${logo}</div>
-                        <span class="search-store-name">${escHtml(shop.name)}</span>
+                        <span class="search-store-name">${escHtml(shopName)}</span>
                     </a>
                 `;
             }).join('');
@@ -371,9 +374,10 @@ function setupSearch() {
                 html += `<div class="search-section-label">${storesLabel}</div>`;
                 html += `<div class="search-shops-grid">`;
                 html += shops.map(shop => {
+                    const shopName = getLocalizedText(shop, 'name_ru', 'name');
                     const logo = shop.logoUrl
-                        ? `<img src="${cloudinaryOptimize(shop.logoUrl, 200)}" alt="${escHtml(shop.name)}" class="search-shop-card-logo">`
-                        : `<div class="search-shop-card-logo search-shop-card-logo--placeholder">${(shop.name || '?').charAt(0).toUpperCase()}</div>`;
+                        ? `<img src="${cloudinaryOptimize(shop.logoUrl, 200)}" alt="${escHtml(shopName)}" class="search-shop-card-logo">`
+                        : `<div class="search-shop-card-logo search-shop-card-logo--placeholder">${(shopName || '?').charAt(0).toUpperCase()}</div>`;
                     const catName = shop.Category
                         ? (currentLang === 'ru'
                             ? (i18n.ru.cat[shop.Category.slug] || shop.Category.name)
@@ -383,7 +387,7 @@ function setupSearch() {
                         <a href="/stores/${shop.slug}" class="search-shop-card">
                             ${logo}
                             <div class="search-shop-card-info">
-                                <span class="search-shop-card-name">${escHtml(shop.name)}</span>
+                                <span class="search-shop-card-name">${escHtml(shopName)}</span>
                                 ${catName ? `<span class="search-shop-card-cat">${escHtml(catName)}</span>` : ''}
                             </div>
                             <svg class="search-shop-card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -400,7 +404,8 @@ function setupSearch() {
                     html += `<div class="search-section-label">${productsLabel}</div>`;
                 }
                 html += products.map(p => {
-                    const shopName = p.Shop?.name || '';
+                    const shopName = getLocalizedText(p.Shop || {}, 'name_ru', 'name');
+                    const prodName = getLocalizedText(p, 'name_ru', 'name');
                     const imgUrl = p.imageUrl ? cloudinaryOptimize(p.imageUrl) : '';
                     const currencyRaw = p.Shop?.currency || 'UZS';
                     const currency = (currencyRaw === 'UZS' || !currencyRaw) ? (currentLang === 'ru' ? 'сум' : "so'm") : currencyRaw;
@@ -415,10 +420,10 @@ function setupSearch() {
 
                     return `
                         <a href="/stores/${storeSlug}/products/${p.slug}" class="search-result-item">
-                            ${imgUrl ? `<img src="${imgUrl}" class="search-result-img" alt="${escHtml(p.name)}">` : `<div class="search-result-img" style="display:flex;align-items:center;justify-content:center;font-size:24px;">📦</div>`}
+                            ${imgUrl ? `<img src="${imgUrl}" class="search-result-img" alt="${escHtml(prodName)}">` : `<div class="search-result-img" style="display:flex;align-items:center;justify-content:center;font-size:24px;">📦</div>`}
                             <div class="search-result-info">
                                 <span class="search-result-shop">${escHtml(shopName)}${badges}</span>
-                                <span class="search-result-title">${escHtml(p.name)}</span>
+                                <span class="search-result-title">${escHtml(prodName)}</span>
                                 <span class="search-result-price">${priceStr}</span>
                             </div>
                         </a>

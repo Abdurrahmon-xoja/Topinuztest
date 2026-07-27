@@ -7,7 +7,7 @@ const { uploadBuffer } = require('../utils/uploader');
 const { recalculateProductRating } = require('../utils/ratingHelper');
 
 const productIncludes = [
-    { model: Shop, attributes: ['id', 'name', 'slug', 'logoUrl', 'phone', 'telegram', 'instagram'] },
+    { model: Shop, attributes: ['id', 'name', 'name_ru', 'slug', 'logoUrl', 'phone', 'telegram', 'instagram'] },
     { model: Category, attributes: ['id', 'name', 'slug'] },
     { model: SubCategory, attributes: ['id', 'name', 'name_ru', 'slug', 'order'] }
 ];

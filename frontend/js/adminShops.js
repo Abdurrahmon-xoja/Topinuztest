@@ -153,6 +153,8 @@ window.openShopForm = function openShopForm(shop = null) {
   // Reset form
   document.getElementById('shopId').value = shop?.id || '';
   document.getElementById('fName').value = shop?.name || '';
+  const nameRuInput = document.getElementById('fNameRu');
+  if (nameRuInput) nameRuInput.value = shop?.name_ru || '';
   document.getElementById('fLocation').value = shop?.location || '';
   document.getElementById('fLocationLink').value = shop?.locationLink || '';
   document.getElementById('fLatitude').value = shop?.latitude || '';
@@ -366,6 +368,7 @@ window.saveShop = async function saveShop() {
 
   const payload = {
     name,
+    name_ru:     document.getElementById('fNameRu') ? document.getElementById('fNameRu').value.trim() : '',
     location:    document.getElementById('fLocation').value.trim(),
     locationLink: document.getElementById('fLocationLink').value.trim(),
     latitude:     document.getElementById('fLatitude').value ? parseFloat(document.getElementById('fLatitude').value) : null,

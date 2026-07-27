@@ -283,16 +283,17 @@ function renderShops(shops) {
 
   grid.innerHTML = shops.map(shop => {
     const desc = escHtml((currentLang === 'ru' ? shop.description_ru : shop.description) || '');
+    const shopName = getLocalizedText(shop, 'name_ru', 'name');
     if (_shopsLayoutMode === 'grid') {
       return `
       <div class="market-card grid-card market-card-hidden"
            onclick="openShopModal(${shop.id})" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter')openShopModal(${shop.id})">
         <div class="market-logo-box">
-          ${logoFallback(shop.logoUrl, shop.name)}
+          ${logoFallback(shop.logoUrl, shopName)}
         </div>
         <div class="market-info">
-          <div class="market-name">${escHtml(shop.name)}</div>
+          <div class="market-name">${escHtml(shopName)}</div>
           <div class="market-desc">${desc}</div>
         </div>
       </div>`;
@@ -302,10 +303,10 @@ function renderShops(shops) {
            onclick="openShopModal(${shop.id})" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter')openShopModal(${shop.id})">
         <div class="market-logo-box">
-          ${logoFallback(shop.logoUrl, shop.name)}
+          ${logoFallback(shop.logoUrl, shopName)}
         </div>
         <div class="market-info">
-          <div class="market-name">${escHtml(shop.name)}</div>
+          <div class="market-name">${escHtml(shopName)}</div>
           <div class="market-desc">${desc}</div>
         </div>
         <div class="market-chevron">
@@ -600,7 +601,7 @@ function initLeafletMap(shops) {
         .addTo(_map)
         .bindPopup(`
           <div style="font-family:inherit;padding:4px;min-width:180px;text-align:left;">
-            <strong style="font-size:14px;color:var(--text);display:block;margin-bottom:2px;">${escHtml(shop.name)}</strong>
+            <strong style="font-size:14px;color:var(--text);display:block;margin-bottom:2px;">${escHtml(getLocalizedText(shop, 'name_ru', 'name'))}</strong>
             <div style="font-size:11px;color:var(--text2);margin-bottom:6px;">${escHtml(shop.location || '')}</div>
             ${distanceText}
             <button onclick="openShopModal(${shop.id})" class="btn-primary-ar" style="width:100%;margin-top:8px;padding:6px 12px;font-size:11px;border-radius:6px;box-shadow:none;color:#fff;border:none;cursor:pointer;justify-content:center;display:flex;align-items:center;">
@@ -632,10 +633,12 @@ function _syncLayoutToggleIcon() {
   const btnIcon = document.getElementById('layoutToggleIcon');
   if (!btnIcon) return;
   if (_shopsLayoutMode === 'list') {
-    // currently list → icon shows grid option (two vertical lines)
+    // currently list → icon shows grid option (4 squares)
     btnIcon.innerHTML = `
-      <line x1="8" y1="4" x2="8" y2="20"></line>
-      <line x1="16" y1="4" x2="16" y2="20"></line>
+      <rect x="3" y="3" width="8" height="8" rx="1.5"></rect>
+      <rect x="13" y="3" width="8" height="8" rx="1.5"></rect>
+      <rect x="3" y="13" width="8" height="8" rx="1.5"></rect>
+      <rect x="13" y="13" width="8" height="8" rx="1.5"></rect>
     `;
   } else {
     // currently grid → icon shows list option (two horizontal lines)

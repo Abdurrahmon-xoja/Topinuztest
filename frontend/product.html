@@ -231,9 +231,11 @@
 
         function renderProductDetails() {
             if (!product || !shop) return;
-            document.title = `${product.name} | Topin`;
+            const productName = getLocalizedText(product, 'name_ru', 'name');
+            const shopName = getLocalizedText(shop, 'name_ru', 'name');
+            document.title = `${productName} | Topin`;
             document.getElementById('lblBack').textContent = t('back');
-            document.getElementById('productTitle').textContent = product.name;
+            document.getElementById('productTitle').textContent = productName;
 
             const catEl = document.getElementById('productCategoryName');
             const catName = currentLang === 'ru'
@@ -255,7 +257,7 @@
             }
 
             // Description
-            const desc = product.description || product.shortDescription || '';
+            const desc = getLocalizedText(product, 'description_ru', 'description') || getLocalizedText(product, 'shortDescription_ru', 'shortDescription') || '';
             document.getElementById('productDesc').textContent = desc;
             document.getElementById('lblDescription').textContent = t('descriptionTitle');
             document.getElementById('descCard').style.display = desc ? 'block' : 'none';
@@ -286,10 +288,10 @@
 
             // Store attribution
             document.getElementById('shopAttribution').href = `/stores/${shop.slug}`;
-            document.getElementById('shopAttributionName').textContent = shop.name;
+            document.getElementById('shopAttributionName').textContent = shopName;
             document.getElementById('shopAttributionDesc').textContent = getLocalizedText(shop, 'description_ru', 'description');
             if (shop.logoUrl) {
-                document.getElementById('shopLogo').innerHTML = `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shop.name)}">`;
+                document.getElementById('shopLogo').innerHTML = `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shopName)}">`;
             }
 
             // Contacts
@@ -365,9 +367,9 @@
                 <a href="/">${t('homeCrumb')}</a>
                 <span>/</span>
                 ${mainCatName && shop.Category?.slug ? `<a href="/shops?category=${encodeURIComponent(shop.Category.slug)}">${escHtml(mainCatName)}</a><span>/</span>` : ''}
-                <a href="/stores/${shop.slug}">${escHtml(shop.name)}</a>
+                <a href="/stores/${shop.slug}">${escHtml(shopName)}</a>
                 <span>/</span>
-                <span>${escHtml(product.name)}</span>
+                <span>${escHtml(productName)}</span>
             `;
         }
 
@@ -382,7 +384,7 @@
                 shareBtn.addEventListener('click', async () => {
                     const shareUrl = window.location.href;
                     if (navigator.share) {
-                        try { await navigator.share({ title: product ? product.name : 'Topin', url: shareUrl }); } catch (e) {}
+                        try { await navigator.share({ title: product ? getLocalizedText(product, 'name_ru', 'name') : 'Topin', url: shareUrl }); } catch (e) {}
                     } else if (navigator.clipboard) {
                         try {
                             await navigator.clipboard.writeText(shareUrl);
@@ -760,7 +762,7 @@
             const wrapper = document.getElementById('modelViewerWrapper');
             wrapper.innerHTML = `
                 <model-viewer src="${product.glbUrl}"
-                              alt="${escHtml(product.name)}"
+                              alt="${escHtml(getLocalizedText(product, 'name_ru', 'name'))}"
                               ar
                               camera-controls
                               auto-rotate
