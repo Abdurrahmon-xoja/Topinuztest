@@ -490,7 +490,7 @@ exports.getFeaturedShops = async (req, res) => {
     try {
         const shops = await Shop.findAll({
             where: { isActive: true, featuredOrder: { [Op.not]: null } },
-            include: [{ model: Category, attributes: ['id', 'name', 'slug', 'name_ru'] }],
+            include: [{ model: Category, attributes: ['id', 'name', 'slug'] }],
             order: [['featuredOrder', 'ASC']],
             limit: 15
         });
