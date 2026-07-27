@@ -329,6 +329,16 @@ function translateStaticElements() {
   const searchFullpageInput = document.getElementById('searchFullpageInput');
   if (searchFullpageInput) searchFullpageInput.placeholder = t('searchPlaceholder');
 
+  // Translate floating search (shops page)
+  const floatingSearchInput = document.getElementById('floatingSearchInput');
+  if (floatingSearchInput) floatingSearchInput.placeholder = t('searchShopsPlaceholder');
+
+  // Translate all data-i18n-placeholder elements
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (key) el.placeholder = t(key);
+  });
+
   // index.html specific elements
   const catalogTitle = document.querySelector('.categories-section .section-title');
   if (catalogTitle) catalogTitle.textContent = t('catalogCategories');
