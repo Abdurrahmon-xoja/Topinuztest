@@ -21,6 +21,7 @@ async function initIndexPage() {
     const burgerBtn = document.getElementById('menuBurgerBtn');
     if (burgerBtn) burgerBtn.addEventListener('click', openSidebar);
 
+    setupEditMode();
     setupSearch();
     await Promise.all([
         loadCategoriesHome(),
@@ -178,6 +179,209 @@ function renderProductsGridHtml(products) {
     }).join('');
 }
 
+// ═══════ Reorder system ═══════
+const DEFAULT_ORDER = ['lighting','furniture','walls','plants','art-decor','bathroom','stone','real-estate','floor','other'];
+
+// The bento layout pairs: each pair of 2 slugs shares a column section.
+// The template is always 5 row-pairs for mobile (2 cols), each pair fills 2 rows.
+// Row-pair pattern: [small, big] or [big, small] — first item is top-left area, second is the spanning one.
+const BENTO_PAIRS_MOBILE = [
+    // pair 0: pos 0 is 1-row top-left,  pos 1 spans 2-rows right
+    // pair 1: pos 2 spans 2-rows left,  pos 3 is 1-row top-right
+    // pair 2: pos 4 is 1-row top-left,  pos 5 spans 2-rows right
+    // pair 3: pos 6 is 1-row top-right,  pos 7 spans 2-rows left (flipped)
+    // pair 4: pos 8+9 share bottom full-width row
+];
+
+function getSavedOrder() {
+    try {
+        const saved = JSON.parse(localStorage.getItem('topin_cat_order'));
+        if (Array.isArray(saved) && saved.length === DEFAULT_ORDER.length) return saved;
+    } catch(e) {}
+    return null;
+}
+
+function buildMobileGridAreas(order) {
+    // Build the mobile bento grid-template-areas based on order
+    // Pattern repeats: pair of 2 slugs per 2 grid rows
+    // Row layout alternates: small+big, big+small
+    const o = order;
+    return `
+        "${o[0]} ${o[1]}"
+        "${o[2]} ${o[1]}"
+        "${o[4]} ${o[3]}"
+        "${o[4]} ${o[5]}"
+        "${o[6]} ${o[7]}"
+        "${o[8]} ${o[7]}"
+        "${o[9]} ${o[9]}"
+    `;
+}
+
+function buildDesktopGridAreas(order) {
+    const o = order;
+    return `
+        "${o[0]} ${o[4]} ${o[3]} ${o[1]}"
+        "${o[2]} ${o[4]} ${o[5]} ${o[1]}"
+        "${o[7]} ${o[6]} ${o[9]} ${o[9]}"
+        "${o[7]} ${o[8]} ${o[9]} ${o[9]}"
+    `;
+}
+
+function applyGridOrder(grid, order) {
+    grid.style.gridTemplateAreas = buildMobileGridAreas(order);
+    // Also handle desktop via a style tag
+    let styleEl = document.getElementById('customGridOrder');
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'customGridOrder';
+        document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = `@media (min-width: 768px) { .home-grid { grid-template-areas: ${buildDesktopGridAreas(order)}; } }`;
+}
+
+// ═══════ Edit mode ═══════
+let _editMode = false;
+
+function setupEditMode() {
+    const editBtn = document.getElementById('editLayoutBtn');
+    if (!editBtn) return;
+
+    editBtn.addEventListener('click', () => {
+        if (_editMode) {
+            exitEditMode();
+        } else {
+            enterEditMode();
+        }
+    });
+}
+
+function enterEditMode() {
+    _editMode = true;
+    const grid = document.getElementById('homeGrid');
+    const editBtn = document.getElementById('editLayoutBtn');
+    if (!grid) return;
+
+    grid.classList.add('edit-mode');
+    if (editBtn) {
+        editBtn.classList.add('active');
+        editBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+    }
+
+    // Switch to uniform grid for editing
+    grid.style.gridTemplateAreas = 'none';
+    grid.style.gridAutoRows = '120px';
+
+    // Disable links during edit
+    grid.querySelectorAll('.home-card').forEach(card => {
+        card.addEventListener('click', preventClick, true);
+        card.setAttribute('draggable', 'true');
+    });
+
+    setupDragHandlers(grid);
+}
+
+function exitEditMode() {
+    _editMode = false;
+    const grid = document.getElementById('homeGrid');
+    const editBtn = document.getElementById('editLayoutBtn');
+    if (!grid) return;
+
+    grid.classList.remove('edit-mode');
+    if (editBtn) {
+        editBtn.classList.remove('active');
+        editBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
+    }
+
+    // Save current DOM order
+    const cards = grid.querySelectorAll('.home-card');
+    const newOrder = [];
+    cards.forEach(card => {
+        const cls = Array.from(card.classList).find(c => c.startsWith('home-card--') && c !== 'home-card--dark');
+        if (cls) newOrder.push(cls.replace('home-card--', ''));
+    });
+
+    if (newOrder.length === DEFAULT_ORDER.length) {
+        localStorage.setItem('topin_cat_order', JSON.stringify(newOrder));
+        applyGridOrder(grid, newOrder);
+    }
+
+    // Restore grid
+    grid.style.gridAutoRows = '90px';
+
+    // Re-enable links
+    grid.querySelectorAll('.home-card').forEach(card => {
+        card.removeEventListener('click', preventClick, true);
+        card.removeAttribute('draggable');
+    });
+
+    removeDragHandlers(grid);
+}
+
+function preventClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+// ═══════ Touch-based drag reorder ═══════
+let _dragEl = null;
+let _touchStartY = 0;
+let _touchStartX = 0;
+
+function setupDragHandlers(grid) {
+    grid._onTouchStart = (e) => {
+        if (!_editMode) return;
+        const card = e.target.closest('.home-card');
+        if (!card) return;
+
+        _dragEl = card;
+        _touchStartX = e.touches[0].clientX;
+        _touchStartY = e.touches[0].clientY;
+
+        setTimeout(() => {
+            if (_dragEl === card) card.classList.add('dragging');
+        }, 150);
+    };
+
+    grid._onTouchMove = (e) => {
+        if (!_dragEl || !_editMode) return;
+        e.preventDefault();
+
+        const touch = e.touches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        const targetCard = target?.closest('.home-card');
+
+        if (targetCard && targetCard !== _dragEl) {
+            // Swap in DOM
+            const cards = [...grid.querySelectorAll('.home-card')];
+            const dragIdx = cards.indexOf(_dragEl);
+            const targetIdx = cards.indexOf(targetCard);
+
+            if (dragIdx < targetIdx) {
+                targetCard.after(_dragEl);
+            } else {
+                targetCard.before(_dragEl);
+            }
+        }
+    };
+
+    grid._onTouchEnd = () => {
+        if (_dragEl) {
+            _dragEl.classList.remove('dragging');
+            _dragEl = null;
+        }
+    };
+
+    grid.addEventListener('touchstart', grid._onTouchStart, { passive: true });
+    grid.addEventListener('touchmove', grid._onTouchMove, { passive: false });
+    grid.addEventListener('touchend', grid._onTouchEnd, { passive: true });
+}
+
+function removeDragHandlers(grid) {
+    if (grid._onTouchStart) grid.removeEventListener('touchstart', grid._onTouchStart);
+    if (grid._onTouchMove) grid.removeEventListener('touchmove', grid._onTouchMove);
+    if (grid._onTouchEnd) grid.removeEventListener('touchend', grid._onTouchEnd);
+}
+
 async function loadCategoriesHome() {
     const grid = document.getElementById('homeGrid');
     if (!grid) return;
@@ -215,6 +419,12 @@ async function loadCategoriesHome() {
       { slug: 'floor',        image: categoryImages['floor'] },
       { slug: 'other',        image: categoryImages['other'] },
     ];
+
+    // Apply saved order if exists
+    const savedOrder = getSavedOrder();
+    if (savedOrder) {
+        categories.sort((a, b) => savedOrder.indexOf(a.slug) - savedOrder.indexOf(b.slug));
+    }
   
     await Promise.all(categories.map(cat => new Promise(resolve => {
         const img = new Image();
@@ -223,7 +433,7 @@ async function loadCategoriesHome() {
         img.src = cat.image;
     })));
 
-
+    const currentOrder = categories.map(c => c.slug);
 
     grid.innerHTML = categories.map(cat => {
       const catName = getCatName(cat.slug);
@@ -239,6 +449,11 @@ async function loadCategoriesHome() {
         </a>
       `;
     }).join('');
+
+    // Apply custom grid areas if order was changed
+    if (savedOrder) {
+        applyGridOrder(grid, currentOrder);
+    }
 
     requestAnimationFrame(() => {
         grid.querySelectorAll('.home-card-hidden').forEach(el => el.classList.remove('home-card-hidden'));
