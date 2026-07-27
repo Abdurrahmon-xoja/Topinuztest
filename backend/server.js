@@ -337,6 +337,10 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/admin.html'));
 });
 
+app.get('/editor', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/editor.html'));
+});
+
 app.get('/privacy', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/privacy.html'));
 });

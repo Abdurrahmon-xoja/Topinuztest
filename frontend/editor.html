@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Визуальный редактор | Topin Admin</title>
+    <link rel="stylesheet" href="css/style.css?v=6.0">
+    <link rel="stylesheet" href="css/topin.css?v=6.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #111; color: #e1e1e1; overflow: hidden; height: 100vh; }
+
+        /* ─── Top bar ─── */
+        .editor-topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            height: 52px; padding: 0 16px;
+            background: #1a1a1e; border-bottom: 1px solid #2a2a2e;
+        }
+        .editor-topbar-left { display: flex; align-items: center; gap: 12px; }
+        .editor-topbar .logo { font-weight: 800; font-size: 18px; color: #fff; text-decoration: none; }
+        .editor-topbar .page-selector {
+            background: #2a2a2e; border: 1px solid #3a3a3e; color: #e1e1e1;
+            padding: 6px 12px; border-radius: 8px; font-size: 13px; cursor: pointer;
+        }
+        .editor-topbar-right { display: flex; align-items: center; gap: 8px; }
+        .editor-btn {
+            padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            border: none; cursor: pointer; transition: all 0.15s;
+        }
+        .editor-btn--ghost { background: transparent; color: #aaa; }
+        .editor-btn--ghost:hover { background: #2a2a2e; color: #fff; }
+        .editor-btn--primary { background: #3b82f6; color: #fff; }
+        .editor-btn--primary:hover { background: #2563eb; }
+        .editor-btn--danger { background: #ef4444; color: #fff; }
+        .editor-btn--danger:hover { background: #dc2626; }
+
+        /* ─── Device selector ─── */
+        .device-btns { display: flex; gap: 2px; background: #2a2a2e; border-radius: 8px; padding: 2px; }
+        .device-btn {
+            padding: 6px 10px; border-radius: 6px; border: none;
+            background: transparent; color: #888; cursor: pointer; transition: all 0.15s;
+        }
+        .device-btn.active { background: #3b82f6; color: #fff; }
+        .device-btn:hover:not(.active) { color: #ccc; }
+
+        /* ─── Main layout ─── */
+        .editor-main { display: flex; height: calc(100vh - 52px); }
+
+        /* ─── Sidebar ─── */
+        .editor-sidebar {
+            width: 320px; background: #1a1a1e; border-right: 1px solid #2a2a2e;
+            overflow-y: auto; flex-shrink: 0; display: flex; flex-direction: column;
+        }
+        .sidebar-section { padding: 16px; border-bottom: 1px solid #2a2a2e; }
+        .sidebar-section-title {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: #666; margin-bottom: 12px;
+        }
+        .sidebar-section-title span { float: right; font-weight: 400; color: #555; font-size: 10px; cursor: pointer; }
+
+        /* Element tree */
+        .el-tree-item {
+            display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+            border-radius: 6px; cursor: pointer; font-size: 13px; color: #bbb;
+            transition: background 0.1s;
+        }
+        .el-tree-item:hover { background: #2a2a2e; }
+        .el-tree-item.selected { background: #1e3a5f; color: #93c5fd; }
+        .el-tree-item .el-tag {
+            font-size: 10px; color: #666; font-family: 'SF Mono', monospace;
+            background: #2a2a2e; padding: 2px 6px; border-radius: 4px;
+        }
+
+        /* Property editors */
+        .prop-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .prop-label { font-size: 12px; color: #888; min-width: 70px; }
+        .prop-input {
+            flex: 1; background: #2a2a2e; border: 1px solid #3a3a3e; color: #e1e1e1;
+            padding: 6px 10px; border-radius: 6px; font-size: 12px; outline: none;
+        }
+        .prop-input:focus { border-color: #3b82f6; }
+        .prop-input--color { width: 32px; height: 32px; padding: 2px; cursor: pointer; }
+        .prop-input--sm { max-width: 60px; text-align: center; }
+
+        .prop-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 8px; }
+        .prop-group-label { font-size: 11px; color: #555; text-align: center; margin-top: 2px; }
+
+        /* CSS editor */
+        .css-editor {
+            width: 100%; min-height: 120px; background: #0d0d0f; border: 1px solid #2a2a2e;
+            color: #a8d8a8; padding: 10px; border-radius: 8px; font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px; resize: vertical; outline: none; line-height: 1.6;
+        }
+        .css-editor:focus { border-color: #3b82f6; }
+
+        /* ─── Canvas (iframe area) ─── */
+        .editor-canvas {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            background: #0d0d0f; overflow: auto; padding: 24px;
+        }
+        .editor-iframe-wrap {
+            background: #fff; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 0 60px rgba(0,0,0,0.5); transition: width 0.3s ease, height 0.3s ease;
+            position: relative;
+        }
+        .editor-iframe-wrap iframe {
+            width: 100%; height: 100%; border: none; display: block;
+        }
+
+        /* Overlay for element selection */
+        .editor-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 10; cursor: crosshair;
+        }
+        .editor-overlay.editing { pointer-events: none; }
+
+        /* Highlight box */
+        .editor-highlight {
+            position: absolute; border: 2px solid #3b82f6; background: rgba(59,130,246,0.08);
+            pointer-events: none; z-index: 11; transition: all 0.1s ease;
+            border-radius: 3px;
+        }
+        .editor-highlight::before {
+            content: attr(data-tag); position: absolute; top: -22px; left: -1px;
+            background: #3b82f6; color: #fff; font-size: 10px; font-weight: 600;
+            padding: 2px 6px; border-radius: 4px 4px 0 0; white-space: nowrap;
+        }
+
+        /* ─── No selection state ─── */
+        .empty-hint { text-align: center; color: #555; padding: 24px 16px; font-size: 13px; line-height: 1.6; }
+        .empty-hint svg { margin-bottom: 8px; opacity: 0.3; }
+
+        /* ─── Changes log ─── */
+        .changes-list { max-height: 200px; overflow-y: auto; }
+        .change-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 8px; border-radius: 6px; font-size: 12px; color: #aaa;
+        }
+        .change-item:hover { background: #2a2a2e; }
+        .change-item .change-prop { color: #93c5fd; font-family: monospace; }
+        .change-item .change-undo {
+            background: none; border: none; color: #ef4444; cursor: pointer; font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top bar -->
+    <div class="editor-topbar">
+        <div class="editor-topbar-left">
+            <a href="/admin" class="logo">← Admin</a>
+            <select class="page-selector" id="pageSelector">
+                <option value="/">Главная страница</option>
+                <option value="/shops?category=furniture&name=Мебель">Мебель</option>
+                <option value="/shops?category=lighting&name=Освещение">Освещение</option>
+            </select>
+            <div class="device-btns">
+                <button class="device-btn" data-w="375" data-h="812" title="Mobile">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                </button>
+                <button class="device-btn active" data-w="768" data-h="1024" title="Tablet">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                </button>
+                <button class="device-btn" data-w="1440" data-h="900" title="Desktop">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="editor-topbar-right">
+            <button class="editor-btn editor-btn--ghost" id="undoBtn" title="Отменить">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            </button>
+            <button class="editor-btn editor-btn--ghost" id="resetBtn">Сбросить всё</button>
+            <button class="editor-btn editor-btn--primary" id="saveBtn">Сохранить CSS</button>
+        </div>
+    </div>
+
+    <!-- Main layout -->
+    <div class="editor-main">
+        <!-- Sidebar -->
+        <aside class="editor-sidebar" id="editorSidebar">
+            <!-- Element info (shown when selected) -->
+            <div id="noSelectionHint">
+                <div class="empty-hint">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <p>Кликните на элемент на странице, чтобы начать редактирование</p>
+                </div>
+            </div>
+
+            <div id="selectionPanel" style="display:none;">
+                <!-- Selected element info -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Выбранный элемент</div>
+                    <div class="el-tree-item selected" id="selectedElInfo">
+                        <span class="el-tag" id="selTagName">div</span>
+                        <span id="selClassName">.home-card</span>
+                    </div>
+                </div>
+
+                <!-- Typography -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Типография</div>
+                    <div class="prop-row">
+                        <label class="prop-label">Текст</label>
+                        <input type="text" class="prop-input" id="propText" placeholder="Текст элемента">
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Размер</label>
+                        <input type="text" class="prop-input prop-input--sm" id="propFontSize" placeholder="16px">
+                        <select class="prop-input" id="propFontWeight" style="max-width:100px;">
+                            <option value="">—</option>
+                            <option value="300">Light</option>
+                            <option value="400">Regular</option>
+                            <option value="500">Medium</option>
+                            <option value="600">Semibold</option>
+                            <option value="700">Bold</option>
+                            <option value="800">ExtraBold</option>
+                        </select>
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Цвет</label>
+                        <input type="color" class="prop-input prop-input--color" id="propColor" value="#000000">
+                        <input type="text" class="prop-input" id="propColorText" placeholder="#000000">
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Align</label>
+                        <select class="prop-input" id="propTextAlign">
+                            <option value="">—</option>
+                            <option value="left">Left</option>
+                            <option value="center">Center</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Spacing -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Отступы</div>
+                    <div class="prop-group">
+                        <div>
+                            <input type="text" class="prop-input prop-input--sm" id="propPaddingTop" placeholder="0">
+                            <div class="prop-group-label">top</div>
+                        </div>
+                        <div>
+                            <input type="text" class="prop-input prop-input--sm" id="propPaddingRight" placeholder="0">
+                            <div class="prop-group-label">right</div>
+                        </div>
+                        <div>
+                            <input type="text" class="prop-input prop-input--sm" id="propPaddingBottom" placeholder="0">
+                            <div class="prop-group-label">bottom</div>
+                        </div>
+                        <div>
+                            <input type="text" class="prop-input prop-input--sm" id="propPaddingLeft" placeholder="0">
+                            <div class="prop-group-label">left</div>
+                        </div>
+                    </div>
+                    <div class="sidebar-section-title" style="margin-top:8px;">Margin</div>
+                    <div class="prop-group">
+                        <div>
+                            <input type="text" class="prop-input prop-input--sm" id="propMarginTop" placeholder="0">
+                            <div class="prop-group-label">top</div>
+                        </div>
+                        <div>
+                            <input type="text" class="prop-input prop-input--sm" id="propMarginRight" placeholder="0">
+                            <div class="prop-group-label">right</div>
+                        </div>
+                        <div>
+                            <input type="text" class="prop-input prop-input--sm" id="propMarginBottom" placeholder="0">
+                            <div class="prop-group-label">bottom</div>
+                        </div>
+                        <div>
+                            <input type="text" class="prop-input prop-input--sm" id="propMarginLeft" placeholder="0">
+                            <div class="prop-group-label">left</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Background & Border -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Фон и граница</div>
+                    <div class="prop-row">
+                        <label class="prop-label">Фон</label>
+                        <input type="color" class="prop-input prop-input--color" id="propBgColor" value="#ffffff">
+                        <input type="text" class="prop-input" id="propBgColorText" placeholder="transparent">
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Радиус</label>
+                        <input type="text" class="prop-input prop-input--sm" id="propBorderRadius" placeholder="0px">
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Граница</label>
+                        <input type="text" class="prop-input" id="propBorder" placeholder="1px solid #ccc">
+                    </div>
+                </div>
+
+                <!-- Size -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Размеры</div>
+                    <div class="prop-row">
+                        <label class="prop-label">Ширина</label>
+                        <input type="text" class="prop-input" id="propWidth" placeholder="auto">
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Высота</label>
+                        <input type="text" class="prop-input" id="propHeight" placeholder="auto">
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Display</label>
+                        <select class="prop-input" id="propDisplay">
+                            <option value="">—</option>
+                            <option value="block">block</option>
+                            <option value="flex">flex</option>
+                            <option value="grid">grid</option>
+                            <option value="inline">inline</option>
+                            <option value="inline-flex">inline-flex</option>
+                            <option value="none">none (скрыть)</option>
+                        </select>
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Gap</label>
+                        <input type="text" class="prop-input prop-input--sm" id="propGap" placeholder="0">
+                    </div>
+                </div>
+
+                <!-- Custom CSS -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Произвольный CSS</div>
+                    <textarea class="css-editor" id="customCssEditor" placeholder="/* Пример: */&#10;opacity: 0.8;&#10;box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></textarea>
+                    <button class="editor-btn editor-btn--primary" id="applyCssBtn" style="width:100%;margin-top:8px;">Применить</button>
+                </div>
+            </div>
+
+            <!-- Changes log -->
+            <div class="sidebar-section" style="margin-top:auto;">
+                <div class="sidebar-section-title">История изменений <span id="changesCount">0</span></div>
+                <div class="changes-list" id="changesList">
+                    <div class="empty-hint" style="padding:8px; font-size:12px;">Нет изменений</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Canvas -->
+        <div class="editor-canvas" id="editorCanvas">
+            <div class="editor-iframe-wrap" id="iframeWrap" style="width:768px; height:1024px;">
+                <iframe id="previewFrame" src="/"></iframe>
+                <div class="editor-overlay" id="editorOverlay"></div>
+                <div class="editor-highlight" id="editorHighlight" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js?v=6.0"></script>
+    <script src="js/editorAdmin.js?v=6.0"></script>
+    <script>
+        if (!localStorage.getItem('houz_token')) {
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>
