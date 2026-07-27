@@ -16,6 +16,24 @@ function toggleTheme() {
     localStorage.setItem('houz_theme', next);
 }
 
+// ─── Footer support info popup (index/store pages) ──────
+(function initFooterInfoPopup() {
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('footerInfoBtn');
+        const panel = document.getElementById('footerInfoPanel');
+        if (!btn || !panel) return;
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            panel.classList.toggle('show');
+        });
+        document.addEventListener('click', (e) => {
+            if (panel.classList.contains('show') && !panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+                panel.classList.remove('show');
+            }
+        });
+    });
+})();
+
 function showToast(msg, type = 'info') {
     const t = document.getElementById('toast');
     if (!t) return;

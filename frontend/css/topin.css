@@ -578,6 +578,79 @@ button:focus-visible {
     display: none;
 }
 
+/* ─── Footer info (support) button + popup ───────────────── */
+.footer-info-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+    border: none;
+    cursor: pointer;
+}
+
+.footer-info-btn:active {
+    transform: scale(0.93);
+}
+
+.footer-info-btn:hover {
+    background: var(--bg2);
+}
+
+[data-theme="dark"] .footer-info-btn:hover {
+    background: var(--white-box);
+}
+
+.footer-info-panel {
+    position: fixed;
+    left: 50%;
+    bottom: 78px;
+    transform: translateX(-50%);
+    width: min(260px, calc(100vw - 32px));
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+    z-index: 250;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: auto;
+}
+
+.footer-info-panel.show {
+    display: flex;
+}
+
+.footer-info-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 2px;
+}
+
+.footer-info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.footer-info-row svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--accent);
+}
+
 /* ─── Search takeover (index) ────────────────────────────── */
 .search-view {
     width: 100%;
@@ -627,10 +700,18 @@ button:focus-visible {
     background: var(--text3);
 }
 
+.search-stores-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 20px 0 0;
+    padding: 0 4px;
+}
+
 .search-stores-row {
     display: flex;
     gap: 18px;
-    margin-top: 24px;
+    margin-top: 12px;
     padding: 4px 4px 8px;
     overflow-x: auto;
     scrollbar-width: none;

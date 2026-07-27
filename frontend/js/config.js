@@ -133,7 +133,8 @@ const i18n = {
     nearMe: "Yaqin atrofda",
     listView: "Ro'yxat",
     mapView: "Xarita",
-    kmAway: "{km} km uzoqlikda"
+    kmAway: "{km} km uzoqlikda",
+    recommendedStores: "Tavsiya etilgan do'konlar"
   },
   ru: {
     home: "Главная",
@@ -267,7 +268,8 @@ const i18n = {
     nearMe: "Рядом со мной",
     listView: "Список",
     mapView: "Карта",
-    kmAway: "в {km} км от вас"
+    kmAway: "в {km} км от вас",
+    recommendedStores: "Рекомендуемые магазины"
   }
 };
 
@@ -415,6 +417,9 @@ function translateStaticElements() {
 
   const aboutTitle = document.getElementById('aboutTitle');
   if (aboutTitle) aboutTitle.textContent = t('aboutCompany');
+
+  const lblRecommendedStores = document.getElementById('lblRecommendedStores');
+  if (lblRecommendedStores) lblRecommendedStores.textContent = t('recommendedStores');
 
   // Reviews forms & sections
   const lblReviewsTitle = document.getElementById('lblReviewsTitle');
