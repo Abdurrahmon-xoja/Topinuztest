@@ -57,6 +57,9 @@
 
         // Set up click handler via overlay
         setupOverlayEvents();
+
+        // Initialize grid layout editor if home page
+        initGridEditor();
     });
 
     // ─── Overlay events (element selection) ───
@@ -437,5 +440,353 @@
 
     // ─── Init ───
     renderChanges();
+
+    // ═══════════════════════════════════════════════
+    // Grid Layout Editor
+    // ═══════════════════════════════════════════════
+
+    const CATEGORY_NAMES = {
+        'lighting': 'Освещение',
+        'furniture': 'Мебель',
+        'walls': 'Стены',
+        'plants': 'Растения',
+        'art-decor': 'Декор',
+        'bathroom': 'Ванная',
+        'stone': 'Камень',
+        'real-estate': 'Экстерьер',
+        'floor': 'Пол',
+        'other': 'Другое',
+        'specialists': 'Специал.',
+    };
+
+    // 4 preset layouts — each defines grid areas + which slugs are "big"
+    const EDITOR_LAYOUTS = [
+        {
+            areas: [
+                ['lighting', 'furniture'],
+                ['walls', 'furniture'],
+                ['art-decor', 'plants'],
+                ['art-decor', 'bathroom'],
+                ['stone', 'floor'],
+                ['real-estate', 'floor'],
+                ['other', 'specialists']
+            ],
+            big: ['furniture', 'art-decor', 'floor']
+        },
+        {
+            areas: [
+                ['furniture', 'furniture'],
+                ['lighting', 'walls'],
+                ['plants', 'art-decor'],
+                ['bathroom', 'art-decor'],
+                ['floor', 'floor'],
+                ['stone', 'real-estate'],
+                ['other', 'specialists']
+            ],
+            big: ['furniture', 'art-decor', 'floor']
+        },
+        {
+            areas: [
+                ['lighting', 'lighting'],
+                ['furniture', 'walls'],
+                ['furniture', 'plants'],
+                ['art-decor', 'bathroom'],
+                ['stone', 'bathroom'],
+                ['real-estate', 'floor'],
+                ['other', 'specialists']
+            ],
+            big: ['lighting', 'furniture', 'bathroom']
+        },
+        {
+            areas: [
+                ['lighting', 'furniture'],
+                ['lighting', 'walls'],
+                ['art-decor', 'art-decor'],
+                ['plants', 'real-estate'],
+                ['bathroom', 'real-estate'],
+                ['stone', 'floor'],
+                ['other', 'specialists']
+            ],
+            big: ['lighting', 'art-decor', 'real-estate']
+        }
+    ];
+
+    let _editorLayoutIdx = 0;
+    let _currentEditorLayout = null;
+
+    function initGridEditor() {
+        const gridPanel = document.getElementById('gridLayoutPanel');
+        if (!gridPanel) return;
+
+        // Check if iframe is showing home page
+        const isHome = !iframe.contentWindow.location.pathname || 
+                       iframe.contentWindow.location.pathname === '/' || 
+                       iframe.contentWindow.location.pathname === '/index.html';
+        
+        if (!isHome) {
+            gridPanel.style.display = 'none';
+            return;
+        }
+
+        gridPanel.style.display = 'block';
+
+        // Read current layout index from iframe's localStorage
+        try {
+            _editorLayoutIdx = parseInt(iframe.contentWindow.localStorage.getItem('topin_grid_layout') || '0', 10);
+            if (_editorLayoutIdx >= EDITOR_LAYOUTS.length) _editorLayoutIdx = 0;
+        } catch(e) { _editorLayoutIdx = 0; }
+
+        _currentEditorLayout = JSON.parse(JSON.stringify(EDITOR_LAYOUTS[_editorLayoutIdx]));
+        renderMiniGrid();
+        updateLayoutLabel();
+    }
+
+    function updateLayoutLabel() {
+        const label = document.getElementById('gridLayoutLabel');
+        if (label) label.textContent = 'Вариант ' + (_editorLayoutIdx + 1);
+    }
+
+    function renderMiniGrid() {
+        const editor = document.getElementById('gridEditor');
+        if (!editor || !_currentEditorLayout) return;
+        
+        const layout = _currentEditorLayout;
+        const rendered = new Set(); // track which slugs already rendered
+
+        editor.innerHTML = '';
+
+        for (let r = 0; r < layout.areas.length; r++) {
+            for (let c = 0; c < 2; c++) {
+                const slug = layout.areas[r][c];
+                if (rendered.has(slug)) continue;
+                rendered.add(slug);
+
+                // Determine type
+                const isTall = r + 1 < layout.areas.length && 
+                    ((layout.areas[r + 1][c] === slug) || 
+                     (c === 0 && layout.areas[r][1] !== slug && r + 1 < layout.areas.length && layout.areas[r + 1][0] === slug) ||
+                     (c === 1 && layout.areas[r][0] !== slug && r + 1 < layout.areas.length && layout.areas[r + 1][1] === slug));
+                const isWide = layout.areas[r][0] === slug && layout.areas[r][1] === slug;
+
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.draggable = true;
+                cell.dataset.slug = slug;
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+
+                if (isTall) cell.classList.add('big');
+                if (isWide) cell.classList.add('wide');
+
+                const name = CATEGORY_NAMES[slug] || slug;
+                const badge = isTall ? '↕' : (isWide ? '↔' : '');
+                cell.innerHTML = `${name}${badge ? '<span class="cell-badge">' + badge + '</span>' : ''}`;
+
+                // Drag events
+                cell.addEventListener('dragstart', onCellDragStart);
+                cell.addEventListener('dragend', onCellDragEnd);
+                cell.addEventListener('dragover', onCellDragOver);
+                cell.addEventListener('dragleave', onCellDragLeave);
+                cell.addEventListener('drop', onCellDrop);
+
+                // Double-click to toggle big/wide
+                cell.addEventListener('dblclick', () => toggleCellSize(slug));
+
+                editor.appendChild(cell);
+            }
+        }
+    }
+
+    let _dragSlug = null;
+
+    function onCellDragStart(e) {
+        _dragSlug = e.target.dataset.slug;
+        e.target.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function onCellDragEnd(e) {
+        e.target.classList.remove('dragging');
+        document.querySelectorAll('.grid-cell.drag-over').forEach(c => c.classList.remove('drag-over'));
+    }
+
+    function onCellDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        e.target.closest('.grid-cell')?.classList.add('drag-over');
+    }
+
+    function onCellDragLeave(e) {
+        e.target.closest('.grid-cell')?.classList.remove('drag-over');
+    }
+
+    function onCellDrop(e) {
+        e.preventDefault();
+        const targetCell = e.target.closest('.grid-cell');
+        if (!targetCell || !_dragSlug) return;
+        targetCell.classList.remove('drag-over');
+
+        const targetSlug = targetCell.dataset.slug;
+        if (_dragSlug === targetSlug) return;
+
+        // Swap all occurrences in the areas grid
+        const areas = _currentEditorLayout.areas;
+        for (let r = 0; r < areas.length; r++) {
+            for (let c = 0; c < 2; c++) {
+                if (areas[r][c] === _dragSlug) areas[r][c] = '__TEMP__';
+            }
+        }
+        for (let r = 0; r < areas.length; r++) {
+            for (let c = 0; c < 2; c++) {
+                if (areas[r][c] === targetSlug) areas[r][c] = _dragSlug;
+            }
+        }
+        for (let r = 0; r < areas.length; r++) {
+            for (let c = 0; c < 2; c++) {
+                if (areas[r][c] === '__TEMP__') areas[r][c] = targetSlug;
+            }
+        }
+
+        // Update big list
+        const big = _currentEditorLayout.big;
+        const dragWasBig = big.includes(_dragSlug);
+        const targetWasBig = big.includes(targetSlug);
+        if (dragWasBig && !targetWasBig) {
+            big[big.indexOf(_dragSlug)] = targetSlug;
+        } else if (!dragWasBig && targetWasBig) {
+            big[big.indexOf(targetSlug)] = _dragSlug;
+        }
+
+        _dragSlug = null;
+        renderMiniGrid();
+    }
+
+    function toggleCellSize(slug) {
+        const big = _currentEditorLayout.big;
+        if (big.includes(slug)) {
+            // Remove from big
+            _currentEditorLayout.big = big.filter(s => s !== slug);
+            // Make it normal in areas (replace 2-row span with single)
+            normalizeSlug(slug);
+        } else {
+            // Check we're not exceeding 3 big cards
+            if (big.length >= 3) {
+                // Remove the first big card
+                normalizeSlug(big[0]);
+                big.shift();
+            }
+            big.push(slug);
+            // Make it span 2 rows
+            makeTall(slug);
+        }
+        renderMiniGrid();
+    }
+
+    function normalizeSlug(slug) {
+        // Remove duplicate rows for this slug
+        const areas = _currentEditorLayout.areas;
+        for (let r = areas.length - 1; r >= 1; r--) {
+            if (areas[r][0] === slug && areas[r - 1][0] === slug) {
+                // Replace the duplicate with a placeholder or shift
+                areas[r][0] = '_empty';
+            }
+            if (areas[r][1] === slug && areas[r - 1][1] === slug) {
+                areas[r][1] = '_empty';
+            }
+            if (areas[r][0] === slug && areas[r][1] === slug && 
+                areas[r - 1][0] === slug && areas[r - 1][1] === slug) {
+                areas.splice(r, 1);
+            }
+        }
+    }
+
+    function makeTall(slug) {
+        const areas = _currentEditorLayout.areas;
+        // Find the row where slug exists
+        for (let r = 0; r < areas.length; r++) {
+            for (let c = 0; c < 2; c++) {
+                if (areas[r][c] === slug) {
+                    // If next row, same col is different, insert
+                    if (r + 1 < areas.length && areas[r + 1][c] !== slug) {
+                        // Duplicate slug into next row
+                        const nextSlug = areas[r + 1][c];
+                        areas[r + 1][c] = slug;
+                        // The displaced slug needs to go somewhere — we won't rearrange for now
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    // ─── Apply layout to iframe ───
+    function applyEditorLayout() {
+        if (!iframeDoc || !_currentEditorLayout) return;
+
+        const areas = _currentEditorLayout.areas;
+        const areasStr = areas.map(row => '"' + row.join(' ') + '"').join(' ');
+
+        // Apply to iframe
+        const grid = iframeDoc.getElementById('homeGrid');
+        if (grid) {
+            grid.style.gridTemplateAreas = areasStr;
+            // Update big classes
+            grid.querySelectorAll('.home-card').forEach(card => {
+                const match = card.className.match(/home-card--([a-z-]+)/);
+                if (!match) return;
+                const slug = match[1];
+                if (slug === 'dark' || slug === 'big' || slug === 'hidden') return;
+                if (_currentEditorLayout.big.includes(slug)) {
+                    card.classList.add('home-card--big');
+                } else {
+                    card.classList.remove('home-card--big');
+                }
+            });
+        }
+
+        // Save to iframe's localStorage
+        try {
+            // Find the matching preset or save as custom
+            const layoutData = {
+                areas: areasStr,
+                big: _currentEditorLayout.big
+            };
+
+            // Update the GRID_LAYOUTS in iframe context
+            const iframeWin = iframe.contentWindow;
+            if (iframeWin.GRID_LAYOUTS) {
+                iframeWin.GRID_LAYOUTS[_editorLayoutIdx] = {
+                    areas: areasStr,
+                    big: [..._currentEditorLayout.big]
+                };
+            }
+            iframeWin.localStorage.setItem('topin_grid_layout', String(_editorLayoutIdx));
+        } catch(e) { console.error(e); }
+    }
+
+    // ─── Button handlers ───
+    document.getElementById('gridApplyBtn')?.addEventListener('click', () => {
+        applyEditorLayout();
+        const btn = document.getElementById('gridApplyBtn');
+        btn.textContent = '✓ Применено!';
+        btn.style.background = '#22c55e';
+        setTimeout(() => { btn.textContent = 'Применить'; btn.style.background = ''; }, 1500);
+    });
+
+    document.getElementById('gridPrevLayout')?.addEventListener('click', () => {
+        _editorLayoutIdx = (_editorLayoutIdx - 1 + EDITOR_LAYOUTS.length) % EDITOR_LAYOUTS.length;
+        _currentEditorLayout = JSON.parse(JSON.stringify(EDITOR_LAYOUTS[_editorLayoutIdx]));
+        renderMiniGrid();
+        updateLayoutLabel();
+        applyEditorLayout();
+    });
+
+    document.getElementById('gridNextLayout')?.addEventListener('click', () => {
+        _editorLayoutIdx = (_editorLayoutIdx + 1) % EDITOR_LAYOUTS.length;
+        _currentEditorLayout = JSON.parse(JSON.stringify(EDITOR_LAYOUTS[_editorLayoutIdx]));
+        renderMiniGrid();
+        updateLayoutLabel();
+        applyEditorLayout();
+    });
 
 })();
