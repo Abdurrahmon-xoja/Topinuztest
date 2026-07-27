@@ -162,13 +162,7 @@ async function buildCategoryTabs(activeMainSlug) {
       btn.classList.add('active');
       _activeSubCategory = btn.dataset.id; // use ID for filtering backend dynamically
       
-      const isAll = btn.dataset.slug === 'all' || btn.dataset.id === 'all';
-      const titleEl = document.getElementById('pageTitle');
-      if (titleEl) {
-        titleEl.textContent = isAll 
-          ? (_activeMainCategory === 'all' ? t('allShops') : getCatName(_activeMainCategory)) 
-          : btn.dataset.name;
-      }
+      // Title always stays as the main category name
       
       const searchVal = document.getElementById('shopSearch')?.value || '';
       // We pass the actual Main DB Category ID instead of slug to backend
@@ -310,11 +304,7 @@ function renderShops(shops) {
           <div class="market-name">${escHtml(shopName)}</div>
           <div class="market-desc">${desc}</div>
         </div>
-        <div class="market-chevron">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </div>
+
       </div>`;
     }
   }).join('');
@@ -399,15 +389,10 @@ async function handleLangChangeMarket() {
 
   await buildCategoryTabs(_activeMainCategory);
 
-  // Update title based on selected subcategory
-  const activeBtn = document.querySelector('#catTabs .cat-pill.active');
+  // Title always shows main category name
   const titleEl = document.getElementById('pageTitle');
   if (titleEl) {
-    if (activeBtn && _activeSubCategory !== 'all') {
-      titleEl.textContent = activeBtn.dataset.name;
-    } else {
-      titleEl.textContent = _activeMainCategory === 'all' ? t('allShops') : getCatName(_activeMainCategory);
-    }
+    titleEl.textContent = _activeMainCategory === 'all' ? t('allShops') : getCatName(_activeMainCategory);
   }
 
   const shopsToRender = _nearMeFilterActive ? getSortedShops(_allShops) : _allShops;
