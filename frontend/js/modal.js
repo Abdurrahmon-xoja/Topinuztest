@@ -374,6 +374,32 @@ function openShopModal(shopId) {
 
         // Fetch and render the store's products inside the bottom sheet
         _loadModalProducts(shop.id, shop.slug, shopName, shop.currency || 'UZS');
+
+        // Auto-scroll to products after 5 seconds
+        if (window._modalAutoScrollTimer) clearTimeout(window._modalAutoScrollTimer);
+        if (window._modalScrollHandler) {
+            modalBody.removeEventListener('scroll', window._modalScrollHandler);
+        }
+        // Cancel auto-scroll if user scrolls manually
+        window._modalScrollHandler = () => {
+            if (window._modalAutoScrollTimer) {
+                clearTimeout(window._modalAutoScrollTimer);
+                window._modalAutoScrollTimer = null;
+            }
+            modalBody.removeEventListener('scroll', window._modalScrollHandler);
+        };
+        modalBody.addEventListener('scroll', window._modalScrollHandler, { passive: true });
+
+        window._modalAutoScrollTimer = setTimeout(() => {
+            const productsSection = document.getElementById('modalProductsSection');
+            if (productsSection && modalBody) {
+                const targetScroll = productsSection.offsetTop - 20;
+                modalBody.scrollTo({ top: targetScroll, behavior: 'smooth' });
+            }
+            if (window._modalScrollHandler) {
+                modalBody.removeEventListener('scroll', window._modalScrollHandler);
+            }
+        }, 5000);
     }
 }
 
@@ -448,6 +474,10 @@ async function _loadModalProducts(shopId, shopSlug, shopName, shopCurrency) {
 
 function closeShopModal(immediate = false) {
     window._currentOpenShopId = null;
+    if (window._modalAutoScrollTimer) {
+        clearTimeout(window._modalAutoScrollTimer);
+        window._modalAutoScrollTimer = null;
+    }
     _stopCarousel();
     const overlay = document.getElementById('shopModal');
     const sheet = document.getElementById('modalSheet');
