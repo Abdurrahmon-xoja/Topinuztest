@@ -5,6 +5,8 @@ const productController = require('../controllers/productController');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 const { upload } = require('../middlewares/uploadMiddleware');
 
+router.get('/featured', shopController.getFeaturedShops);
+router.put('/featured/order', authMiddleware, shopController.updateFeaturedOrder);
 router.get('/', shopController.getAllShops);
 router.get('/my-location', shopController.getUserLocationFromIp);
 router.get('/by-slug/:slug', shopController.getShopBySlug);

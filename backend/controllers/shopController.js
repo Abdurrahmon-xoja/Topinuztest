@@ -485,3 +485,36 @@ exports.getUserLocationFromIp = async (req, res) => {
         res.json({ success: true, data: { latitude: 41.311081, longitude: 69.240562, isFallback: true, message: err.message } });
     }
 };
+
+exports.getFeaturedShops = async (req, res) => {
+    try {
+        const shops = await Shop.findAll({
+            where: { isActive: true, featuredOrder: { [Op.not]: null } },
+            include: [{ model: Category, attributes: ['id', 'name', 'slug', 'name_ru'] }],
+            order: [['featuredOrder', 'ASC']],
+            limit: 15
+        });
+        res.json({ success: true, data: shops });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.updateFeaturedOrder = async (req, res) => {
+    try {
+        const { orders } = req.body; // [{ shopId: 1, order: 1 }, { shopId: 2, order: 2 }, ...]
+        if (!Array.isArray(orders)) return res.status(400).json({ success: false, message: 'orders must be an array' });
+
+        // Reset all
+        await Shop.update({ featuredOrder: null }, { where: {} });
+
+        // Set new orders
+        for (const item of orders) {
+            await Shop.update({ featuredOrder: item.order }, { where: { id: item.shopId } });
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};

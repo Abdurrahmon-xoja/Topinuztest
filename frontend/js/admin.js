@@ -31,6 +31,7 @@ async function adminLoadShops() {
   }
 
   renderAdminCategories();
+  loadFeaturedShopsAdmin();
 }
 
 function renderAdminCategories() {
@@ -147,3 +148,160 @@ window.impersonateShop = async (shopId) => {
     }
 };
 
+// ─── Featured Shops Management ───
+let _featuredShopIds = [];
+
+async function loadFeaturedShopsAdmin() {
+    const listEl = document.getElementById('featuredShopsList');
+    const selectEl = document.getElementById('addFeaturedSelect');
+    if (!listEl || !selectEl) return;
+
+    // Get current featured
+    try {
+        const res = await fetch(`${API}/api/shops/featured`);
+        if (res.ok) {
+            const json = await res.json();
+            const featured = json.data || [];
+            _featuredShopIds = featured.map(s => s.id);
+        }
+    } catch(e) {}
+
+    renderFeaturedList();
+    populateFeaturedSelect();
+}
+
+function populateFeaturedSelect() {
+    const selectEl = document.getElementById('addFeaturedSelect');
+    if (!selectEl) return;
+
+    selectEl.innerHTML = '<option value="">+ Добавить магазин...</option>';
+    _adminShops
+        .filter(s => !_featuredShopIds.includes(s.id))
+        .forEach(shop => {
+            const opt = document.createElement('option');
+            opt.value = shop.id;
+            opt.textContent = shop.name_ru || shop.name;
+            selectEl.appendChild(opt);
+        });
+}
+
+function renderFeaturedList() {
+    const listEl = document.getElementById('featuredShopsList');
+    if (!listEl) return;
+
+    if (_featuredShopIds.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center;color:var(--text3);padding:16px;font-size:13px;">Нет рекомендуемых магазинов</div>';
+        return;
+    }
+
+    listEl.innerHTML = _featuredShopIds.map((shopId, idx) => {
+        const shop = _adminShops.find(s => s.id === shopId);
+        if (!shop) return '';
+        const name = shop.name_ru || shop.name;
+        const logo = shop.logoUrl 
+            ? `<img src="${shop.logoUrl}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"/>`
+            : `<div style="width:32px;height:32px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;">🏪</div>`;
+        
+        return `<div class="featured-item" draggable="true" data-idx="${idx}" data-shop-id="${shopId}" 
+                    style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border-radius:10px;border:1px solid var(--border);cursor:grab;">
+            <span style="color:var(--text3);font-size:12px;font-weight:700;min-width:20px;">${idx + 1}</span>
+            ${logo}
+            <span style="flex:1;font-size:14px;font-weight:500;color:var(--text);">${name}</span>
+            <button onclick="removeFeaturedShop(${shopId})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:4px 8px;">✕</button>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </div>`;
+    }).join('');
+
+    // Setup drag-and-drop
+    setupFeaturedDragDrop();
+}
+
+function setupFeaturedDragDrop() {
+    const items = document.querySelectorAll('.featured-item');
+    let dragIdx = null;
+
+    items.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            dragIdx = parseInt(item.dataset.idx);
+            item.style.opacity = '0.4';
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        item.addEventListener('dragend', () => {
+            item.style.opacity = '1';
+            items.forEach(i => i.style.borderTop = '');
+        });
+
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            item.style.borderTop = '2px solid var(--accent)';
+        });
+
+        item.addEventListener('dragleave', () => {
+            item.style.borderTop = '';
+        });
+
+        item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            item.style.borderTop = '';
+            const dropIdx = parseInt(item.dataset.idx);
+            if (dragIdx === null || dragIdx === dropIdx) return;
+            
+            // Reorder
+            const moved = _featuredShopIds.splice(dragIdx, 1)[0];
+            _featuredShopIds.splice(dropIdx, 0, moved);
+            renderFeaturedList();
+        });
+    });
+}
+
+window.addFeaturedShop = function() {
+    const selectEl = document.getElementById('addFeaturedSelect');
+    const shopId = parseInt(selectEl.value);
+    if (!shopId) return;
+    if (_featuredShopIds.length >= 15) {
+        showToast('Максимум 15 рекомендуемых магазинов', 'error');
+        return;
+    }
+    if (!_featuredShopIds.includes(shopId)) {
+        _featuredShopIds.push(shopId);
+        renderFeaturedList();
+        populateFeaturedSelect();
+    }
+};
+
+window.removeFeaturedShop = function(shopId) {
+    _featuredShopIds = _featuredShopIds.filter(id => id !== shopId);
+    renderFeaturedList();
+    populateFeaturedSelect();
+};
+
+window.saveFeaturedOrder = async function() {
+    const btn = document.getElementById('saveFeaturedBtn');
+    btn.textContent = 'Сохранение...';
+    btn.disabled = true;
+
+    try {
+        const orders = _featuredShopIds.map((shopId, idx) => ({ shopId, order: idx + 1 }));
+        const res = await fetch(`${API}/api/shops/featured/order`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('houz_token')}`
+            },
+            body: JSON.stringify({ orders })
+        });
+        
+        if (res.ok) {
+            showToast('Порядок рекомендуемых магазинов сохранён!', 'success');
+        } else {
+            showToast('Ошибка сохранения', 'error');
+        }
+    } catch(e) {
+        showToast('Ошибка сети: ' + e.message, 'error');
+    }
+
+    btn.textContent = 'Сохранить порядок';
+    btn.disabled = false;
+};

@@ -55,18 +55,31 @@ async function loadFeaturedStores() {
     if (!scrollContainer) return;
 
     try {
-        const res = await fetch('/api/shops');
-        if (!res.ok) throw new Error();
-        const json = await res.json();
-        const shops = json.data || [];
+        // Try featured endpoint first, fall back to all shops
+        let shops = [];
+        try {
+            const res = await fetch('/api/shops/featured');
+            if (res.ok) {
+                const json = await res.json();
+                shops = json.data || [];
+            }
+        } catch(e) {}
+
+        // Fallback: if no featured shops, get first 15 from all
+        if (shops.length === 0) {
+            const res = await fetch('/api/shops');
+            if (res.ok) {
+                const json = await res.json();
+                shops = (json.data || []).slice(0, 15);
+            }
+        }
 
         if (shops.length === 0) {
             scrollContainer.innerHTML = '<p style="color:var(--text3);">Магазинов пока нет</p>';
             return;
         }
 
-        // Show up to 8 stores
-        scrollContainer.innerHTML = shops.slice(0, 8).map(shop => {
+        scrollContainer.innerHTML = shops.slice(0, 15).map(shop => {
             const shopName = getLocalizedText(shop, 'name_ru', 'name');
             const logoHtml = shop.logoUrl
                 ? `<img src="${cloudinaryOptimize(shop.logoUrl)}" alt="${escHtml(shopName)}" class="featured-store-logo">`

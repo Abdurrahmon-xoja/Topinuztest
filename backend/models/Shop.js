@@ -103,6 +103,11 @@ module.exports = (sequelize, DataTypes) => {
         vendorPassword: {
             type: DataTypes.STRING,
             allowNull: true
+        },
+        featuredOrder: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: null
         }
     });
 };
