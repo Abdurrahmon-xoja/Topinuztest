@@ -644,6 +644,11 @@ button:focus-visible {
 .footer-layout-btn:active {
     transform: scale(0.93);
 }
+@media (min-width: 768px) {
+    .footer-layout-btn {
+        display: none;
+    }
+}
 
 .footer-info-panel {
     position: fixed;
