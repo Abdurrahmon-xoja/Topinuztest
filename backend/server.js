@@ -355,7 +355,7 @@ app.use(express.static(path.join(__dirname, '../frontend'), {
             res.setHeader('Cache-Control', 'no-cache');
         } else if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
             // CSS/JS are referenced with ?v= versions — safe to cache long
-            res.setHeader('Cache-Control', 'public, max-age=604800');
+            res.setHeader('Cache-Control', 'public, max-age=3600');
         }
     }
 }));
