@@ -1034,12 +1034,13 @@ button:focus-visible {
     user-select: none;
 }
 
-.cat-pill:hover {
-    background: var(--bg2);
-}
-
-[data-theme="dark"] .cat-pill:hover {
-    background: var(--white-box);
+@media (hover: hover) {
+    .cat-pill:hover {
+        background: var(--bg2);
+    }
+    [data-theme="dark"] .cat-pill:hover {
+        background: var(--white-box);
+    }
 }
 
 .cat-pill.active {
