@@ -219,6 +219,18 @@ let _activeLayoutIdx = parseInt(localStorage.getItem('topin_grid_layout') || '0'
 if (_activeLayoutIdx >= GRID_LAYOUTS.length) _activeLayoutIdx = 0;
 
 function applyGridLayout(grid, idx) {
+    // Only apply JS layout overrides on mobile — desktop has its own fixed CSS layout
+    if (window.innerWidth >= 768) {
+        grid.style.gridTemplateAreas = '';
+        grid.style.gridTemplateColumns = '';
+        grid.style.gridAutoRows = '';
+        // Remove all big classes on desktop — CSS handles sizing
+        grid.querySelectorAll('.home-card').forEach(card => {
+            card.classList.remove('home-card--big');
+        });
+        return;
+    }
+
     const layout = GRID_LAYOUTS[idx];
     grid.style.gridTemplateAreas = layout.areas;
     
@@ -238,10 +250,19 @@ function applyGridLayout(grid, idx) {
     });
 }
 
+// Re-apply on resize so desktop/mobile switch works
+window.addEventListener('resize', () => {
+    const grid = document.getElementById('homeGrid');
+    if (grid) applyGridLayout(grid, _activeLayoutIdx);
+});
+
 function cycleLayout() {
     const grid = document.getElementById('homeGrid');
     if (!grid) return;
     
+    // Only cycle on mobile
+    if (window.innerWidth >= 768) return;
+
     // Fade out
     grid.style.opacity = '0';
     grid.style.transform = 'scale(0.97)';
