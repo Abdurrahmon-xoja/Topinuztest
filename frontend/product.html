@@ -659,8 +659,12 @@
                 }
             } else if (isAndroid) {
                 if (hasGlb) {
+                    // Scene Viewer needs an absolute URL — glbUrl may be relative (/uploads/...)
+                    const glbAbsolute = product.glbUrl.startsWith('http') 
+                        ? product.glbUrl 
+                        : window.location.origin + product.glbUrl;
                     const fallbackUrl = window.location.href;
-                    const intentUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(product.glbUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`;
+                    const intentUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(glbAbsolute)}&mode=ar_only&title=${encodeURIComponent(product.name || '')}#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`;
                     window.location.href = intentUrl;
                 } else {
                     showToast(currentLang === 'ru' ? '3D модель недоступна' : '3D model mavjud emas', 'error');

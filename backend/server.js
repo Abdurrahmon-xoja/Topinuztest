@@ -356,6 +356,13 @@ app.use(express.static(path.join(__dirname, '../frontend'), {
         } else if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
             // CSS/JS are referenced with ?v= versions — safe to cache long
             res.setHeader('Cache-Control', 'public, max-age=3600');
+        } else if (filePath.endsWith('.glb')) {
+            // Correct MIME type for GLB + allow Scene Viewer cross-origin access
+            res.setHeader('Content-Type', 'model/gltf-binary');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+        } else if (filePath.endsWith('.usdz')) {
+            res.setHeader('Content-Type', 'model/vnd.usdz+zip');
+            res.setHeader('Access-Control-Allow-Origin', '*');
         }
     }
 }));
