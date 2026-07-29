@@ -213,8 +213,8 @@
         const productSlug = pathSegments.pop() || pathSegments.pop(); // last segment
         const storeSlug = pathSegments[pathSegments.indexOf('stores') + 1];
 
-        // Device detection flags
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        // Device detection flags (iPadOS identifies as Macintosh with touch)
+        const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
         const isAndroid = /Android/i.test(navigator.userAgent);
 
         function removeImageCrop(url) {
@@ -645,13 +645,20 @@
 
             if (isIOS) {
                 if (hasUsdz) {
+                    // iOS AR Quick Look needs absolute URL and anchor in the DOM
+                    const usdzAbsolute = product.usdzUrl.startsWith('http')
+                        ? product.usdzUrl
+                        : window.location.origin + product.usdzUrl;
                     const anchor = document.createElement('a');
                     anchor.setAttribute('rel', 'ar');
-                    anchor.setAttribute('href', product.usdzUrl);
+                    anchor.setAttribute('href', usdzAbsolute);
+                    anchor.style.display = 'none';
                     const img = document.createElement('img');
-                    img.src = product.imageUrl;
+                    img.src = product.imageUrl || '';
                     anchor.appendChild(img);
+                    document.body.appendChild(anchor);
                     anchor.click();
+                    setTimeout(() => anchor.remove(), 1000);
                 } else if (hasGlb) {
                     open3DViewer();
                 } else {
