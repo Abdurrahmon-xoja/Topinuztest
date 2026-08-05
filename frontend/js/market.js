@@ -42,28 +42,39 @@ async function initShopsPage() {
     fetchAndRenderShops(_activeMainCategory),
   ]);
 
-  // Floating mobile search → live-filter shops
+  // Live shop search. Two inputs exist — the floating bar on mobile and the
+  // inline row on desktop — and only one is visible at a time, so they stay in
+  // sync and either can drive the filter.
   const floatingInput = document.getElementById('floatingSearchInput');
   const floatingBar = document.getElementById('floatingSearchBar');
   const clearBtn = document.getElementById('clearFloatingSearchBtn');
-  if (floatingInput) {
-    let searchTid;
-    floatingInput.addEventListener('input', () => {
-      const val = floatingInput.value.trim();
-      if (clearBtn) clearBtn.style.display = val ? 'block' : 'none';
-      clearTimeout(searchTid);
-      searchTid = setTimeout(() => {
-        fetchAndRenderShops(_activeMainCategory, _activeSubCategory, val);
-      }, 300);
-    });
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        floatingInput.value = '';
-        clearBtn.style.display = 'none';
-        fetchAndRenderShops(_activeMainCategory, _activeSubCategory, '');
-      });
-    }
+  const desktopInput = document.getElementById('shopsSearchInput');
+  const desktopClearBtn = document.getElementById('clearShopsSearchBtn');
 
+  const searchInputs = [
+    { input: floatingInput, clear: clearBtn },
+    { input: desktopInput, clear: desktopClearBtn }
+  ].filter(pair => pair.input);
+
+  let searchTid;
+  const applySearch = (val) => {
+    // Mirror the value so switching breakpoints does not lose the query.
+    searchInputs.forEach(pair => {
+      if (pair.input.value !== val) pair.input.value = val;
+      if (pair.clear) pair.clear.style.display = val ? 'block' : 'none';
+    });
+    clearTimeout(searchTid);
+    searchTid = setTimeout(() => {
+      fetchAndRenderShops(_activeMainCategory, _activeSubCategory, val);
+    }, 300);
+  };
+
+  searchInputs.forEach(({ input, clear }) => {
+    input.addEventListener('input', () => applySearch(input.value.trim()));
+    if (clear) clear.addEventListener('click', () => applySearch(''));
+  });
+
+  if (floatingInput) {
     if (floatingBar) {
       const positionAboveKeyboard = () => {
         if (document.activeElement === floatingInput) {

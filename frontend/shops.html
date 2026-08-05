@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/topin.css?v=6.2">
+    <link rel="stylesheet" href="css/topin.css?v=6.4">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
 
@@ -37,6 +37,20 @@
         </div>
 
         <div id="homeView">
+            <!-- Desktop search. Mobile uses the floating bar at the bottom of the page. -->
+            <div class="shops-search-row">
+                <div class="shops-search-wrap">
+                    <span class="shops-search-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" id="shopsSearchInput" placeholder="" data-i18n-placeholder="searchShopsPlaceholder" aria-label="Search">
+                    <button class="clear-search-btn" id="clearShopsSearchBtn" style="display: none;" aria-label="Clear search">✕</button>
+                </div>
+            </div>
+
             <!-- Subcategory chips -->
             <div class="cat-tabs-scroll">
                 <div class="markets-categories" id="catTabs">
@@ -221,11 +235,11 @@
         </div>
     </div>
 
-    <script src="js/config.js?v=6.2"></script>
-    <script src="js/utils.js?v=6.2"></script>
-    <script src="js/market.js?v=6.2"></script>
-    <script src="js/home.js?v=6.2"></script>
-    <script src="js/modal.js?v=6.2"></script>
+    <script src="js/config.js?v=6.4"></script>
+    <script src="js/utils.js?v=6.4"></script>
+    <script src="js/market.js?v=6.4"></script>
+    <script src="js/home.js?v=6.4"></script>
+    <script src="js/modal.js?v=6.4"></script>
 </body>
 
 </html>
