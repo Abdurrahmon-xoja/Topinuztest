@@ -484,20 +484,33 @@ function _initDropZoneUI() {
     const fileInput = document.getElementById('fLogoFile');
     if (!dropZone || !fileInput) return;
 
-    const prevent = e => { e.preventDefault(); e.stopPropagation(); };
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => dropZone.addEventListener(evt, prevent));
+    // This runs again after every upload and every time the shop form opens,
+    // but only the inner HTML is replaced — #logoDropZone itself survives. So
+    // binding unconditionally stacked one more 'drop' handler per call, and a
+    // dropped file then opened the cropper once per past call. Each element is
+    // flagged so its listeners are attached exactly once, whether it survived
+    // or was just recreated.
+    if (!dropZone.dataset.dndBound) {
+        dropZone.dataset.dndBound = '1';
 
-    ['dragenter', 'dragover'].forEach(evt => dropZone.addEventListener(evt, () => dropZone.classList.add('dragover')));
-    ['dragleave', 'drop'].forEach(evt => dropZone.addEventListener(evt, () => dropZone.classList.remove('dragover')));
+        const prevent = e => { e.preventDefault(); e.stopPropagation(); };
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => dropZone.addEventListener(evt, prevent));
 
-    dropZone.addEventListener('drop', e => {
-        const file = e.dataTransfer.files[0];
-        if (file) _handleLogoUpload(file);
-    });
+        ['dragenter', 'dragover'].forEach(evt => dropZone.addEventListener(evt, () => dropZone.classList.add('dragover')));
+        ['dragleave', 'drop'].forEach(evt => dropZone.addEventListener(evt, () => dropZone.classList.remove('dragover')));
 
-    fileInput.addEventListener('change', e => {
-        if (e.target.files[0]) _handleLogoUpload(e.target.files[0]);
-    });
+        dropZone.addEventListener('drop', e => {
+            const file = e.dataTransfer.files[0];
+            if (file) _handleLogoUpload(file);
+        });
+    }
+
+    if (!fileInput.dataset.changeBound) {
+        fileInput.dataset.changeBound = '1';
+        fileInput.addEventListener('change', e => {
+            if (e.target.files[0]) _handleLogoUpload(e.target.files[0]);
+        });
+    }
 }
 
 window._handleLogoUpload = async (file) => {
