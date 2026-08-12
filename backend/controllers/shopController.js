@@ -247,6 +247,34 @@ exports.deleteShop = async (req, res) => {
     }
 };
 
+// Swap an existing gallery image's file in place, keeping its id and order.
+// The admin's "re-crop" used to DELETE then POST, which loses the photo for
+// good if the upload half fails. It could not simply be reordered, because
+// addShopImage rejects a 4th image — during a replace the shop is still at its
+// limit. Updating the row's url avoids both problems: the count never changes
+// and there is no window where the image is missing.
+exports.replaceShopImage = async (req, res) => {
+    try {
+        const image = await ShopImage.findOne({
+            where: { id: req.params.imageId, ShopId: req.params.id }
+        });
+        if (!image) return res.status(404).json({ success: false, message: 'Image not found' });
+        if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+
+        const processedBuffer = await sharp(req.file.buffer)
+            .resize(1000, 1000, { fit: 'cover', position: 'centre' })
+            .jpeg({ quality: 85 })
+            .toBuffer();
+
+        const fileUrl = await uploadBuffer(processedBuffer, 'houz_shops_gallery', req.file.originalname, 'image');
+        // Only overwrite the url once the upload has actually succeeded.
+        await image.update({ url: fileUrl });
+        res.json({ success: true, data: image });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 exports.addShopImage = async (req, res) => {
     try {
         const shop = await Shop.findByPk(req.params.id);

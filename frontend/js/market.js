@@ -127,12 +127,15 @@ async function buildCategoryTabs(activeMainSlug) {
   // Filter subcategories for this specific main category slug
   const mainCategoryIdObj = window._adminCategories ? window._adminCategories.find(c => c.slug === activeMainSlug) : null;
   
+  // No fallback when the slug matches no category: the old one read a
+  // subCategoriesData global that now exists only in the unloaded app.js.bak,
+  // so it threw a ReferenceError here instead of degrading. This function is
+  // awaited in a Promise.all (initShopsPage), so that throw became an unhandled
+  // rejection and the category tabs never rendered at all. An empty list is
+  // already handled below — the tab strip just hides.
   let subCats = [];
   if (mainCategoryIdObj) {
       subCats = _liveSubCategories.filter(sc => String(sc.CategoryId) === String(mainCategoryIdObj.id));
-  } else {
-      // Fallback to static if backend isn't loaded completely
-      subCats = subCategoriesData[activeMainSlug] || [];
   }
 
   if (subCats.length === 0) {

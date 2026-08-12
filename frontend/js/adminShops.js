@@ -114,27 +114,24 @@ window._cropExistingGalleryImage = async (imageId) => {
 
   try {
     showToast('Обновление фото…', 'info');
-    // Delete old, upload new
-    const delRes = await fetch(`${API}/api/shops/${_editingShopId}/images/${imageId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}` }
-    });
-    if (handle401(delRes)) return;
-
-    const upRes = await fetch(`${API}/api/shops/${_editingShopId}/images`, {
-      method: 'POST',
+    // One atomic replace. This used to DELETE and then POST, so a failed
+    // upload destroyed the original with nothing to restore — and it could not
+    // be done the other way round, because the shop is already at its 3-image
+    // limit mid-replace. The row keeps its id and order, so the displayed
+    // order no longer drifts from the stored one either.
+    const res = await fetch(`${API}/api/shops/${_editingShopId}/images/${imageId}`, {
+      method: 'PUT',
       headers: { 'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}` },
       body: formData
     });
-    if (handle401(upRes)) return;
-    if (!upRes.ok) throw new Error(await upRes.text());
-    const json = await upRes.json();
+    if (handle401(res)) return;
+    if (!res.ok) throw new Error(await res.text());
+    const json = await res.json();
     if (!json.success) throw new Error(json.message);
 
-    // Replace in local array at same position
     const idx = _galleryImages.findIndex(g => g.id === imageId);
     if (idx !== -1) {
-      _galleryImages[idx] = { ...json.data, order: img.order };
+      _galleryImages[idx] = json.data;
     } else {
       _galleryImages.push(json.data);
     }

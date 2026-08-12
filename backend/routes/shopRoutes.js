@@ -26,6 +26,7 @@ router.delete('/reviews/:reviewId', authMiddleware, adminOnly, shopController.de
 router.get('/:shopId/products', productController.getAllProducts);
 
 router.post('/:id/images', authMiddleware, adminOnly, upload.single('image'), shopController.addShopImage);
+router.put('/:id/images/:imageId', authMiddleware, adminOnly, upload.single('image'), shopController.replaceShopImage);
 router.delete('/:id/images/:imageId', authMiddleware, adminOnly, shopController.deleteShopImage);
 router.put('/:id/images/reorder', authMiddleware, adminOnly, shopController.reorderShopImages);
 

@@ -68,22 +68,41 @@ window.openImageCropper = function(fileOrUrl, mode = 'logo') {
 window.cropperApply = async function() {
     if (!_cropperInstance || !_cropperResolve) return;
 
-    const canvas = _cropperInstance.getCroppedCanvas({
-        maxWidth: _cropperMode === 'logo' ? 800 : 1600,
-        maxHeight: _cropperMode === 'logo' ? 800 : 1600,
-        imageSmoothingEnabled: true,
-        imageSmoothingQuality: 'high',
-    });
+    // getCroppedCanvas returns null for a zero-area selection or an image that
+    // failed to decode. Calling toBlob on that threw, and because the throw
+    // escaped before _cropperResolve ran, the promise awaited by
+    // _handleLogoUpload / _handleGalleryUpload never settled — the crop window
+    // stayed open with the form stuck behind it. Every path must now resolve.
+    try {
+        const canvas = _cropperInstance.getCroppedCanvas({
+            maxWidth: _cropperMode === 'logo' ? 800 : 1600,
+            maxHeight: _cropperMode === 'logo' ? 800 : 1600,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
 
-    canvas.toBlob((blob) => {
-        if (blob) {
-            const croppedFile = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
-            _cropperResolve(croppedFile);
-        } else {
+        if (!canvas) {
+            showToast(t('uploadError'), 'error');
             _cropperResolve(null);
+            closeCropper();
+            return;
         }
+
+        canvas.toBlob((blob) => {
+            if (blob) {
+                const croppedFile = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
+                _cropperResolve(croppedFile);
+            } else {
+                showToast(t('uploadError'), 'error');
+                _cropperResolve(null);
+            }
+            closeCropper();
+        }, 'image/jpeg', 0.92);
+    } catch (e) {
+        showToast(t('uploadError'), 'error');
+        _cropperResolve(null);
         closeCropper();
-    }, 'image/jpeg', 0.92);
+    }
 };
 
 window.cropperCancel = function() {
