@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const subCategoryController = require('../controllers/subCategoryController');
-const { authMiddleware } = require('../middlewares/authMiddleware');
+const { authMiddleware, adminOnly } = require('../middlewares/authMiddleware');
 
 router.get('/', subCategoryController.getAllSubCategories);
-router.post('/', authMiddleware, subCategoryController.createSubCategory);
-router.put('/reorder', authMiddleware, subCategoryController.reorderSubcategories);
-router.put('/:id', authMiddleware, subCategoryController.updateSubCategory);
-router.delete('/:id', authMiddleware, subCategoryController.deleteSubCategory);
+router.post('/', authMiddleware, adminOnly, subCategoryController.createSubCategory);
+router.put('/reorder', authMiddleware, adminOnly, subCategoryController.reorderSubcategories);
+router.put('/:id', authMiddleware, adminOnly, subCategoryController.updateSubCategory);
+router.delete('/:id', authMiddleware, adminOnly, subCategoryController.deleteSubCategory);
 
 module.exports = router;

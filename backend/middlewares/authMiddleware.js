@@ -17,7 +17,21 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
+// authMiddleware only proves the token is valid, not who it belongs to. Vendor
+// tokens carry role 'vendor' (authController.js:29), so without this check any
+// vendor could create, edit or delete any shop, category or subcategory —
+// including other vendors'. Routes that act on an arbitrary :id, or on the
+// shared taxonomy, must sit behind this. A vendor's own shop is edited through
+// /api/shops/profile, which stays on authMiddleware alone.
+const adminOnly = (req, res, next) => {
+    if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Admin access required' });
+    }
+    next();
+};
+
 module.exports = {
     authMiddleware,
+    adminOnly,
     JWT_SECRET
 };
