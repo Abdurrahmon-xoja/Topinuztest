@@ -456,6 +456,7 @@
         'real-estate': 'Экстерьер',
         'floor': 'Пол',
         'other': 'Другое',
+        'doors-windows': 'Двери/окна',
         'specialists': 'Специал.',
     };
 
@@ -469,9 +470,10 @@
                 ['art-decor', 'bathroom'],
                 ['stone', 'floor'],
                 ['real-estate', 'floor'],
+                ['doors-windows', 'specialists'],
                 ['other', 'specialists']
             ],
-            big: ['furniture', 'art-decor', 'floor']
+            big: ['furniture', 'art-decor', 'floor', 'specialists']
         },
         {
             areas: [
@@ -481,9 +483,10 @@
                 ['bathroom', 'art-decor'],
                 ['floor', 'floor'],
                 ['stone', 'real-estate'],
+                ['doors-windows', 'doors-windows'],
                 ['other', 'specialists']
             ],
-            big: ['furniture', 'art-decor', 'floor']
+            big: ['furniture', 'art-decor', 'floor', 'doors-windows']
         },
         {
             areas: [
@@ -493,9 +496,10 @@
                 ['art-decor', 'bathroom'],
                 ['stone', 'bathroom'],
                 ['real-estate', 'floor'],
+                ['doors-windows', 'doors-windows'],
                 ['other', 'specialists']
             ],
-            big: ['lighting', 'furniture', 'bathroom']
+            big: ['lighting', 'furniture', 'bathroom', 'doors-windows']
         },
         {
             areas: [
@@ -505,9 +509,10 @@
                 ['plants', 'real-estate'],
                 ['bathroom', 'real-estate'],
                 ['stone', 'floor'],
+                ['doors-windows', 'doors-windows'],
                 ['other', 'specialists']
             ],
-            big: ['lighting', 'art-decor', 'real-estate']
+            big: ['lighting', 'art-decor', 'real-estate', 'doors-windows']
         }
     ];
 

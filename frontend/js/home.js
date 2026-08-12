@@ -192,26 +192,30 @@ function renderProductsGridHtml(products) {
 }
 
 // ═══════ Grid Layout Variants ═══════
+// Each layout is a 2-column template that must account for exactly one cell per
+// category, plus one extra for every entry in `big` (each spans two cells). With
+// 12 categories and 4 big cards that is 16 cells — 8 rows. A name left out, or a
+// `big` list of the wrong length, silently drops a card from the grid.
 const GRID_LAYOUTS = [
     {
-        // Layout A: tall furniture, tall art-decor, tall floor
-        areas: '"lighting furniture" "walls furniture" "art-decor plants" "art-decor bathroom" "stone floor" "real-estate floor" "other specialists"',
-        big: ['furniture', 'art-decor', 'floor']
+        // Layout A: tall furniture, tall art-decor, tall floor, tall specialists
+        areas: '"lighting furniture" "walls furniture" "art-decor plants" "art-decor bathroom" "stone floor" "real-estate floor" "doors-windows specialists" "other specialists"',
+        big: ['furniture', 'art-decor', 'floor', 'specialists']
     },
     {
-        // Layout B: wide furniture, tall art-decor, wide floor
-        areas: '"furniture furniture" "lighting walls" "plants art-decor" "bathroom art-decor" "floor floor" "stone real-estate" "other specialists"',
-        big: ['furniture', 'art-decor', 'floor']
+        // Layout B: wide furniture, tall art-decor, wide floor, wide doors-windows
+        areas: '"furniture furniture" "lighting walls" "plants art-decor" "bathroom art-decor" "floor floor" "stone real-estate" "doors-windows doors-windows" "other specialists"',
+        big: ['furniture', 'art-decor', 'floor', 'doors-windows']
     },
     {
-        // Layout C: tall furniture, tall bathroom, wide lighting
-        areas: '"lighting lighting" "furniture walls" "furniture plants" "art-decor bathroom" "stone bathroom" "real-estate floor" "other specialists"',
-        big: ['lighting', 'furniture', 'bathroom']
+        // Layout C: wide lighting, tall furniture, tall bathroom, wide doors-windows
+        areas: '"lighting lighting" "furniture walls" "furniture plants" "art-decor bathroom" "stone bathroom" "real-estate floor" "doors-windows doors-windows" "other specialists"',
+        big: ['lighting', 'furniture', 'bathroom', 'doors-windows']
     },
     {
-        // Layout D: tall lighting, wide art-decor, tall real-estate
-        areas: '"lighting furniture" "lighting walls" "art-decor art-decor" "plants real-estate" "bathroom real-estate" "stone floor" "other specialists"',
-        big: ['lighting', 'art-decor', 'real-estate']
+        // Layout D: tall lighting, wide art-decor, tall real-estate, wide doors-windows
+        areas: '"lighting furniture" "lighting walls" "art-decor art-decor" "plants real-estate" "bathroom real-estate" "stone floor" "doors-windows doors-windows" "other specialists"',
+        big: ['lighting', 'art-decor', 'real-estate', 'doors-windows']
     }
 ];
 
@@ -294,10 +298,12 @@ async function loadCategoriesHome() {
     grid.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
   
     // Show skeleton loader first
-    grid.innerHTML = Array(11).fill().map(() => `
+    grid.innerHTML = Array(12).fill().map(() => `
       <div class="skeleton-home-card"></div>
     `).join('');
 
+    // doors-windows is deliberately absent: it has no photo yet, so its card
+    // renders as a plain tile showing only its label.
     const categoryImages = {
       'furniture':   'img/home/furniture.jpg',
       'lighting':    'img/home/lighting.jpg',
@@ -325,11 +331,13 @@ async function loadCategoriesHome() {
       { slug: 'stone',        image: categoryImages['stone'] },
       { slug: 'real-estate',  image: categoryImages['real-estate'] },
       { slug: 'floor',        image: categoryImages['floor'] },
+      { slug: 'doors-windows', image: categoryImages['doors-windows'] },
       { slug: 'other',        image: categoryImages['other'] },
       { slug: 'specialists',  image: categoryImages['specialists'] },
     ];
   
     await Promise.all(categories.map(cat => new Promise(resolve => {
+        if (!cat.image) return resolve();   // nothing to preload for a blank tile
         const img = new Image();
         img.onload = resolve;
         img.onerror = resolve;
@@ -340,10 +348,16 @@ async function loadCategoriesHome() {
       const catName = getCatName(cat.slug);
       const darkCls = darkCards.has(cat.slug) ? ' home-card--dark' : '';
 
+      // A category with no photo yet renders as a plain tile — emitting an
+      // <img> with an undefined src would show a broken-image glyph instead.
+      const bg = cat.image
+        ? `<img src="${cat.image}" alt="${escHtml(catName)}" class="home-card-bg" draggable="false" style="pointer-events:none;">`
+        : '';
+
       return `
         <a href="/shops?category=${encodeURIComponent(cat.slug)}&name=${encodeURIComponent(catName)}"
-           class="home-card home-card--${cat.slug}${darkCls} home-card-hidden">
-          <img src="${cat.image}" alt="${escHtml(catName)}" class="home-card-bg" draggable="false" style="pointer-events:none;">
+           class="home-card home-card--${cat.slug}${darkCls}${cat.image ? '' : ' home-card--no-image'} home-card-hidden">
+          ${bg}
           <div class="home-card-content">
             <span class="home-card-title">${escHtml(catName)}</span>
           </div>

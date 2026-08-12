@@ -297,6 +297,7 @@ button:focus-visible {
         "art-decor bathroom"
         "stone floor"
         "real-estate floor"
+        "doors-windows specialists"
         "other specialists";
 }
 
@@ -310,7 +311,7 @@ button:focus-visible {
         grid-template-areas:
             "lighting art-decor plants furniture"
             "walls art-decor bathroom furniture"
-            "floor stone other specialists"
+            "floor stone doors-windows specialists"
             "floor real-estate other specialists";
     }
 }
@@ -441,6 +442,18 @@ button:focus-visible {
 .home-card--bathroom    { grid-area: bathroom; }
 .home-card--specialists { grid-area: specialists; }
 .home-card--other       { grid-area: other; }
+.home-card--doors-windows { grid-area: doors-windows; }
+
+/* A category with no photo yet. The label sits on a plain surface instead of
+   over an image, so it needs its own background and normal text colour —
+   .home-card-title is written to read against a photo. */
+.home-card--no-image {
+    background: var(--surface);
+    border: 1px solid var(--border);
+}
+.home-card--no-image .home-card-title {
+    color: var(--text);
+}
 
 /* Big cards (tall or wide) — applied dynamically by JS */
 .home-card--big {

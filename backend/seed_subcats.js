@@ -50,6 +50,13 @@ const subCategoriesData = {
   "plants": [
     { slug: 'artificial-plants', name: 'Sun’iy o‘simliklar' }
   ],
+  "doors-windows": [
+    { slug: 'interior-doors', name: 'Ichki eshiklar', name_ru: 'Межкомнатные двери' },
+    { slug: 'entrance-doors', name: 'Kirish eshiklari', name_ru: 'Входные двери' },
+    { slug: 'windows', name: 'Derazalar', name_ru: 'Окна' },
+    { slug: 'balcony-glazing', name: 'Balkon oynalash', name_ru: 'Остекление балконов' },
+    { slug: 'door-window-hardware', name: 'Eshik va deraza furniturasi', name_ru: 'Дверная и оконная фурнитура' }
+  ],
   "bathroom": [
     { slug: 'plumbing', name: 'Santexnika' },
     { slug: 'shower', name: 'Dush' },

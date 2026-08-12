@@ -73,6 +73,7 @@ const i18n = {
       "plants": "O'simliklar",
       "bathroom": "Hammom",
       "other": "Boshqa",
+      "doors-windows": "Eshik va derazalar",
       "specialists": "Ustalar"
     },
     found: "Topildi",
@@ -212,6 +213,7 @@ const i18n = {
       "plants": "Растения",
       "bathroom": "Ванная",
       "other": "Другое",
+      "doors-windows": "Двери и окна",
       "specialists": "Специалисты"
     },
     found: "Найдено",

@@ -14,6 +14,7 @@ const categories = [
   {"name":"Real Estate","slug":"real-estate"},
   {"name":"Plants","slug":"plants"},
   {"name":"Bathroom","slug":"bathroom"},
+  {"name":"Doors & Windows","slug":"doors-windows"},
   {"name":"Other","slug":"other"}
 ];
 
