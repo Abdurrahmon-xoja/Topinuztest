@@ -70,7 +70,7 @@ const i18n = {
       "floor": "Pol qoplamalari",
       "stone": "Tosh materiallari",
       "real-estate": "Eksteryer",
-      "plants": "O'simliklar",
+      "plants": "O'simliklar va gullar",
       "bathroom": "Hammom",
       "other": "Boshqa",
       "specialists": "Ustalar"
@@ -209,7 +209,7 @@ const i18n = {
       "floor": "Напольные покрытия",
       "stone": "Каменные материалы",
       "real-estate": "Экстерьер",
-      "plants": "Растения",
+      "plants": "Растения и цветы",
       "bathroom": "Ванная",
       "other": "Другое",
       "specialists": "Специалисты"
