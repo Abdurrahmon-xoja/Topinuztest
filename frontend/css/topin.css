@@ -1397,6 +1397,29 @@ button:focus-visible {
     background: var(--surface);
 }
 
+/* The shop card is opened by tapping, so on touch these two are the first
+   thing a thumb goes for. At 38px they sit under the 44px minimum both Apple
+   and Android publish, and a 6px gap puts share and close within one thumb
+   width of each other — easy to hit the wrong one. Desktop keeps 38px, where
+   a cursor is precise and the larger circles would crowd the sheet. */
+@media (max-width: 767px) {
+    .modal-header {
+        top: 12px;
+        right: 12px;
+        gap: 10px;
+    }
+    .btn-modal-share,
+    .modal-close {
+        width: 44px;
+        height: 44px;
+    }
+    .btn-modal-share svg,
+    .modal-close svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
 .modal-body {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
