@@ -80,6 +80,8 @@ const i18n = {
     // New dynamic translation keys
     searchHeaderPlaceholder: "Do'konlar va tovarlarni qidirish...",
     searchShopsPlaceholder: "Do'konlarni qidirish...",
+    tour360: "360° sayohat",
+    tour360Open: "360° sayohatni ochish",
     catalogCategories: "Katalog kategoriyalari",
     searchResultsFor: "\"{query}\" uchun qidiruv natijalari",
     closeSearch: "✕ Qidiruvni yopish",
@@ -220,6 +222,8 @@ const i18n = {
     // New dynamic translation keys
     searchHeaderPlaceholder: "Поиск магазинов и товаров...",
     searchShopsPlaceholder: "Поиск магазинов...",
+    tour360: "360° тур",
+    tour360Open: "Открыть 360° тур",
     catalogCategories: "Категории каталога",
     searchResultsFor: "Результаты поиска для \"{query}\"",
     closeSearch: "✕ Закрыть поиск",

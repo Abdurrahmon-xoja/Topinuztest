@@ -279,34 +279,29 @@ function renderShops(shops) {
   grid.innerHTML = shops.map(shop => {
     const desc = escHtml((currentLang === 'ru' ? shop.description_ru : shop.description) || '');
     const shopName = getLocalizedText(shop, 'name_ru', 'name');
-    if (_shopsLayoutMode === 'grid') {
-      return `
-      <div class="market-card grid-card market-card-hidden"
-           onclick="openShopModal(${shop.id})" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter')openShopModal(${shop.id})">
-        <div class="market-logo-box">
-          ${logoFallback(shop.logoUrl, shopName)}
-        </div>
-        <div class="market-info">
-          <div class="market-name">${escHtml(shopName)}</div>
-          <div class="market-desc">${desc}</div>
-        </div>
-      </div>`;
-    } else {
-      return `
-      <div class="market-card list-card market-card-hidden"
-           onclick="openShopModal(${shop.id})" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter')openShopModal(${shop.id})">
-        <div class="market-logo-box">
-          ${logoFallback(shop.logoUrl, shopName)}
-        </div>
-        <div class="market-info">
-          <div class="market-name">${escHtml(shopName)}</div>
-          <div class="market-desc">${desc}</div>
-        </div>
+    // A shop you can walk through is a stronger draw than one you cannot, so
+    // it gets a badge on the card rather than only a link inside the modal.
+    const tourBadge = shop.tour360Url
+      ? `<span class="tour360-badge" title="${escHtml(t('tour360'))}">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+             <ellipse cx="12" cy="12" rx="10" ry="4.5"></ellipse>
+             <path d="M2 12a10 4.5 0 0 0 20 0"></path>
+             <circle cx="12" cy="12" r="2.5"></circle>
+           </svg>360°</span>`
+      : '';
 
+    return `
+      <div class="market-card ${_shopsLayoutMode === 'grid' ? 'grid-card' : 'list-card'} market-card-hidden"
+           onclick="openShopModal(${shop.id})" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter')openShopModal(${shop.id})">
+        <div class="market-logo-box">
+          ${logoFallback(shop.logoUrl, shopName)}
+        </div>
+        <div class="market-info">
+          <div class="market-name">${escHtml(shopName)}${tourBadge}</div>
+          <div class="market-desc">${desc}</div>
+        </div>
       </div>`;
-    }
   }).join('');
 
   requestAnimationFrame(() => {
