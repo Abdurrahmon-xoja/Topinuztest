@@ -14,14 +14,14 @@ async function seed() {
         { name: 'Furniture', slug: 'furniture', icon: '🛋️' },
         { name: 'Lighting', slug: 'lighting', icon: '💡' },
         { name: 'Art & Decor', slug: 'art-decor', icon: '🎨' },
-        { name: 'Walls', slug: 'walls', icon: '🧱' },
+        { name: 'Walls & Ceilings', slug: 'walls', icon: '🧱' },
         { name: 'Floor', slug: 'floor', icon: '🪵' },
-        { name: 'Stone', slug: 'stone', icon: '🪨' },
+        { name: 'Tiles & Stone', slug: 'stone', icon: '🪨' },
         { name: 'Exterior', slug: 'real-estate', icon: '🏘️' },
-        { name: 'Plants', slug: 'plants', icon: '🪴' },
-        { name: 'Bathroom', slug: 'bathroom', icon: '🛁' },
+        { name: 'Landscape & Plants', slug: 'plants', icon: '🪴' },
+        { name: 'Bathroom & Plumbing', slug: 'bathroom', icon: '🛁' },
         { name: 'Doors & Windows', slug: 'doors-windows', icon: '🚪' },
-        { name: 'Other', slug: 'other', icon: '📦' },
+        { name: 'Miscellaneous', slug: 'other', icon: '📦' },
         { name: 'Specialists', slug: 'specialists', icon: '🔧' }
     ];
 

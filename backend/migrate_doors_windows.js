@@ -24,12 +24,16 @@ const SUBCATEGORIES = [
     { slug: 'door-window-hardware', name: 'Eshik va deraza furniturasi', name_ru: 'Дверная и оконная фурнитура' }
 ];
 
-// Shop name -> the subcategory it belongs in.
+// Shop name -> which category it is in now, and the subcategory it belongs in.
+// The current category is part of the match on purpose: 29 shop names in this
+// catalogue are duplicated across categories, because cross-listing is done by
+// creating a second Shop row. Aluframe is one of them — it exists under both
+// 'other' and 'real-estate', and matching on name alone picks an arbitrary row.
 const MOVE_SHOPS = {
-    'DoorHan': 'entrance-doors',
-    'MAFF': 'interior-doors',
-    'Nobel Premium': 'door-window-hardware',
-    'Aluframe': 'windows'
+    'DoorHan':       { from: 'real-estate', tag: 'entrance-doors' },
+    'MAFF':          { from: 'floor',       tag: 'interior-doors' },
+    'Nobel Premium': { from: 'other',       tag: 'door-window-hardware' },
+    'Aluframe':      { from: 'other',       tag: 'windows' }
 };
 
 async function run() {
@@ -69,16 +73,21 @@ async function run() {
     }
 
     console.log('');
-    for (const [name, subSlug] of Object.entries(MOVE_SHOPS)) {
-        const shop = await Shop.findOne({ where: { name }, include: [{ model: Category }] });
-        if (!shop) { console.log(`  ! no shop named "${name}" — skipped`); continue; }
-        if (shop.CategoryId === category.id) { console.log(`  ${name}: already here`); continue; }
+    for (const [name, spec] of Object.entries(MOVE_SHOPS)) {
+        const fromCat = await Category.findOne({ where: { slug: spec.from } });
+        if (!fromCat) { console.log(`  ! no category "${spec.from}" — skipped ${name}`); continue; }
 
-        const from = shop.Category ? shop.Category.name : 'none';
-        console.log(`  ${name}: ${from} -> Doors & Windows / ${subSlug}`);
+        const shop = await Shop.findOne({ where: { name, CategoryId: fromCat.id } });
+        if (!shop) {
+            const done = await Shop.findOne({ where: { name, CategoryId: category.id } });
+            console.log(done ? `  ${name}: already moved` : `  ! ${name}: not found in ${spec.from}`);
+            continue;
+        }
+
+        console.log(`  ${name}: ${spec.from} -> Doors & Windows / ${spec.tag}`);
         if (!DRY) {
             await shop.update({ CategoryId: category.id });
-            const sub = bySlug[subSlug];
+            const sub = bySlug[spec.tag];
             if (sub) await shop.setSubCategories([sub.id]);
         }
     }

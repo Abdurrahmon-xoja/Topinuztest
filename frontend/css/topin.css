@@ -365,6 +365,11 @@ button:focus-visible {
 .home-card-content {
     position: absolute;
     left: 15px;
+    /* Bound the label by the card. Without a right edge an absolutely
+       positioned title just runs past it — which "Ландшафт и растения" did on a
+       171px tile. Big cards already solve this with max-width; this is the same
+       idea for the small ones, tied to the card instead of a fixed value. */
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
@@ -379,7 +384,8 @@ button:focus-visible {
     font-weight: 700;
     color: #000;
     line-height: normal;
-    white-space: nowrap;
+    /* Wraps only when it has to — a label that fits still sits on one line. */
+    white-space: normal;
     margin: 0;
 }
 
