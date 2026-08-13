@@ -1319,6 +1319,70 @@ button:focus-visible {
     }
 }
 
+/* ─── Shops page inline search (desktop only) ────────────── */
+/* Mobile keeps the floating bar above the keyboard; showing both would
+   duplicate the control, so this one starts hidden. */
+.shops-search-row {
+    display: none;
+}
+.shops-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 46px;
+    padding: 0 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    transition: border-color .15s ease;
+}
+.shops-search-wrap:focus-within {
+    border-color: var(--blue);
+}
+.shops-search-icon {
+    display: flex;
+    color: var(--text2);
+    flex-shrink: 0;
+}
+.shops-search-wrap:focus-within .shops-search-icon {
+    color: var(--blue);
+}
+.shops-search-wrap input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 500;
+}
+.shops-search-wrap input::placeholder {
+    color: var(--text2);
+}
+/* .clear-search-btn is coloured for the dark floating bar; on this surface
+   that reads as invisible, so re-colour it against the page text instead. */
+.shops-search-wrap .clear-search-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text2);
+    opacity: 1;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 4px;
+}
+.shops-search-wrap .clear-search-btn:hover {
+    color: var(--text);
+}
+
+@media (min-width: 768px) {
+    .shops-search-row {
+        display: block;
+        margin: 4px 0 12px;
+    }
+}
+
 /* ─── Shop modal (store info) ────────────────────────────── */
 .modal-overlay {
     position: fixed;
