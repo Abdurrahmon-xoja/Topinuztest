@@ -277,6 +277,14 @@ app.get('/stores/:storeSlug/products/:productSlug', async (req, res, next) => {
     }
 });
 
+// Browsers and crawlers request /favicon.ico by convention even when a page
+// declares its own icon. Without this the SPA catch-all below answers with
+// index.html and a 200, so the request looks successful while returning HTML
+// where an image was expected.
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/img/icon-192.png'));
+});
+
 // SEO: robots.txt
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
