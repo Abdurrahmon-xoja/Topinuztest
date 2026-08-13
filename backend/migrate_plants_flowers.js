@@ -59,15 +59,12 @@ async function run() {
 
     console.log(`${DRY ? '[dry run] ' : ''}Category #${category.id} "${category.name}"\n`);
 
-    // 1. Rename the category itself. Display names come from the frontend i18n
-    //    maps keyed by slug, so the slug must not change — every existing
-    //    /shops?category=plants link and the CSS grid-area depend on it.
-    if (category.name !== 'Plants & Flowers') {
-        console.log(`  rename: "${category.name}" -> "Plants & Flowers"`);
-        if (!DRY) await category.update({ name: 'Plants & Flowers' });
-    } else {
-        console.log('  rename: already applied');
-    }
+    // This script does NOT rename the category. It used to set "Plants &
+    // Flowers", but migrate_category_renames.js later set "Landscape & Plants"
+    // — so running this one afterwards silently reverted that. Category naming
+    // belongs to a single migration; this one only fixes the subcategories and
+    // the shop tagging.
+    console.log(`  name: "${category.name}" (left alone — owned by migrate_category_renames.js)`);
 
     // 2. Give the existing subcategory its missing Russian name.
     const artificial = await SubCategory.findOne({
@@ -110,6 +107,13 @@ async function run() {
             const shop = byName[name];
             if (!shop) { console.log(`  ! no shop named "${name}" — skipped`); continue; }
             assigned.add(name);
+
+            // Report only real changes, so a second run reads as the no-op it is.
+            const current = (await shop.getSubCategories()).map(s => s.id);
+            if (sub && current.length === 1 && current[0] === sub.id) {
+                console.log(`  ${name}: already ${slug}`);
+                continue;
+            }
             console.log(`  ${name} -> ${slug}`);
             if (!DRY && sub) await shop.setSubCategories([sub.id]);
         }
