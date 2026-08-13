@@ -1400,6 +1400,8 @@ button:focus-visible {
         display: block;
         margin: 4px 0 12px;
     }
+}
+
 /* ─── 360° tour ──────────────────────────────────────────── */
 /* Badge on a shop card. Sits inline after the name so it rides along with
    whichever layout is active rather than needing its own slot. */
