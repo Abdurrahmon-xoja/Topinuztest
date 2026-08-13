@@ -274,7 +274,19 @@ function openShopModal(shopId) {
       </div>`);
     }
 
-    document.getElementById('modalRows').innerHTML = rows.join('');
+    // The 360° tour leads the contact rows rather than sitting among them —
+    // it is the one link worth interrupting a scroll for.
+    const tourCta = shop.tour360Url
+      ? `<a class="tour360-cta" href="${escHtml(shop.tour360Url)}" target="_blank" rel="noopener noreferrer">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+             <ellipse cx="12" cy="12" rx="10" ry="4.5"></ellipse>
+             <path d="M2 12a10 4.5 0 0 0 20 0"></path>
+             <circle cx="12" cy="12" r="2.5"></circle>
+           </svg>${escHtml(t('tour360Open'))}
+         </a>`
+      : '';
+
+    document.getElementById('modalRows').innerHTML = tourCta + rows.join('');
 
     // Carousel
     _buildCarousel(shop.ShopImages || []);

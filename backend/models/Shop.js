@@ -108,6 +108,15 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: true,
             defaultValue: null
+        },
+        // Link to a 360° virtual tour (platform360.uz / uzbekistan360.uz).
+        // A first-class column rather than another customLinks entry, because
+        // the UI highlights it: a shop you can walk through is a stronger draw
+        // than a link, and it needs to be queryable to badge cards.
+        tour360Url: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null
         }
     });
 };

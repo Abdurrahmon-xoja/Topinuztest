@@ -160,6 +160,8 @@ window.openShopForm = function openShopForm(shop = null) {
   document.getElementById('fWebsite').value = shop?.website || '';
   document.getElementById('fInstagram').value = shop?.instagram || '';
   document.getElementById('fTelegram').value = shop?.telegram || '';
+  const tourInput = document.getElementById('fTour360');
+  if (tourInput) tourInput.value = shop?.tour360Url || '';
   document.getElementById('fLogoUrl').value = shop?.logoUrl || '';
   document.getElementById('fDescription').value = shop?.description || '';
   document.getElementById('fIsActive').checked = shop ? (shop.isActive !== false) : true;
@@ -374,6 +376,7 @@ window.saveShop = async function saveShop() {
     website:     document.getElementById('fWebsite').value.trim(),
     instagram:   document.getElementById('fInstagram').value.trim(),
     telegram:    document.getElementById('fTelegram').value.trim(),
+    tour360Url:  document.getElementById('fTour360')?.value.trim() || null,
     customLinks: JSON.stringify(customLinks),
     logoUrl:     document.getElementById('fLogoUrl').value.trim(),
     description: document.getElementById('fDescription').value.trim(),

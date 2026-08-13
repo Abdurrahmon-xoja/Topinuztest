@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "houz-backend",
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["backend/server.js"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "backend", "run", "start"],
       "port": 3000
     }
   ]

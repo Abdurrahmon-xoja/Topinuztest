@@ -8,13 +8,14 @@ const categories = [
   {"name":"Furniture","slug":"furniture"},
   {"name":"Lighting","slug":"lighting"},
   {"name":"Art & Decor","slug":"art-decor"},
-  {"name":"Walls","slug":"walls"},
+  {"name":"Walls & Ceilings","slug":"walls"},
   {"name":"Floor","slug":"floor"},
-  {"name":"Stone","slug":"stone"},
+  {"name":"Tiles & Stone","slug":"stone"},
   {"name":"Real Estate","slug":"real-estate"},
-  {"name":"Plants","slug":"plants"},
-  {"name":"Bathroom","slug":"bathroom"},
-  {"name":"Other","slug":"other"}
+  {"name":"Landscape & Plants","slug":"plants"},
+  {"name":"Bathroom & Plumbing","slug":"bathroom"},
+  {"name":"Doors & Windows","slug":"doors-windows"},
+  {"name":"Miscellaneous","slug":"other"}
 ];
 
 async function seed() {
