@@ -79,6 +79,7 @@ const i18n = {
     // New dynamic translation keys
     searchHeaderPlaceholder: "Do'konlar va tovarlarni qidirish...",
     searchShopsPlaceholder: "Do'konlarni qidirish...",
+    storeOnMap: "Xaritada ko'rish",
     catalogCategories: "Katalog kategoriyalari",
     searchResultsFor: "\"{query}\" uchun qidiruv natijalari",
     closeSearch: "✕ Qidiruvni yopish",
@@ -218,6 +219,7 @@ const i18n = {
     // New dynamic translation keys
     searchHeaderPlaceholder: "Поиск магазинов и товаров...",
     searchShopsPlaceholder: "Поиск магазинов...",
+    storeOnMap: "Посмотреть на карте",
     catalogCategories: "Категории каталога",
     searchResultsFor: "Результаты поиска для \"{query}\"",
     closeSearch: "✕ Закрыть поиск",

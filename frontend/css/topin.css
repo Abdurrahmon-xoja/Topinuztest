@@ -1938,6 +1938,52 @@ button:focus-visible {
     color: var(--text2);
     max-width: 620px;
 }
+.store-hero-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+    width: 100%;
+    max-width: 680px;
+}
+.store-link-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    /* min-width:0 lets a long address shrink so the span can ellipsis;
+       without it the flex item refuses to go below its content width. */
+    min-width: 0;
+    max-width: 100%;
+    padding: 8px 14px;
+    border-radius: 50px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color .15s ease, transform .15s ease;
+}
+.store-link-chip svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--text2);
+}
+.store-link-chip span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+@media (hover: hover) {
+    .store-link-chip:hover {
+        border-color: var(--blue);
+        transform: translateY(-1px);
+    }
+    .store-link-chip:hover svg { color: var(--blue); }
+}
 
 .store-hero-contacts {
     display: flex;
