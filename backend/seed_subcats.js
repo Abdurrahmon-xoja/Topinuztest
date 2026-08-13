@@ -48,7 +48,14 @@ const subCategoriesData = {
     { slug: 'facade-lights', name: 'Arxitektura yoritilishi' }
   ],
   "plants": [
-    { slug: 'artificial-plants', name: 'Sun’iy o‘simliklar' }
+    // The category holds two distinct trades: artificial-flower wholesalers
+    // (Cveti Tashkent, SUNIY GULLAR, Mega Flowers Uz …) and live-plant /
+    // greening studios (Fitomir, Green Style, Botanicals …). Only the first
+    // had a subcategory, so the second had nowhere to sit.
+    { slug: 'artificial-plants', name: 'Sun’iy o‘simliklar', name_ru: 'Искусственные растения' },
+    { slug: 'live-plants', name: 'Jonli o‘simliklar', name_ru: 'Живые растения' },
+    { slug: 'flowers', name: 'Gullar va guldastalar', name_ru: 'Цветы и букеты' },
+    { slug: 'phytodesign', name: 'Fitodizayn va ko‘kalamzorlashtirish', name_ru: 'Фитодизайн и озеленение' }
   ],
   "doors-windows": [
     { slug: 'interior-doors', name: 'Ichki eshiklar', name_ru: 'Межкомнатные двери' },
