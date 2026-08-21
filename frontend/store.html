@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#FFFFFF">
     <link rel="icon" type="image/png" href="/img/icon-192.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="/css/topin.css?v=6.5">
+    <link rel="stylesheet" href="/css/topin.css?v=9.4">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
     <style>
         .store-sticky-bar {
@@ -188,8 +188,8 @@
     <!-- Toast UI element -->
     <div class="toast" id="toast"></div>
 
-    <script src="/js/config.js?v=6.5"></script>
-    <script src="/js/utils.js?v=6.5"></script>
+    <script src="/js/config.js?v=9.4"></script>
+    <script src="/js/utils.js?v=9.4"></script>
     <script>
         let shop = null;
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
@@ -261,6 +261,18 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${svg}</svg>
                     <span>${escHtml(label)}</span>
                 </a>`;
+
+            // The 360° tour is one of the contact chips, same shape as Instagram
+            // and the rest — but blue, so it still reads as the strongest link
+            // in the row. It leads because it is the one worth clicking first.
+            if (shop.tour360Url) {
+                chips.push(
+                    `<a class="store-link-chip store-link-chip--tour" href="${escHtml(shop.tour360Url)}" target="_blank" rel="noopener noreferrer">
+                        <span class="tour360-mark">360°</span>
+                        <span>${escHtml(t('tour360Open'))}</span>
+                    </a>`
+                );
+            }
 
             const mapUrl = shop.locationLink || (shop.location ? `https://maps.google.com/?q=${encodeURIComponent(shop.location)}` : null);
             if (mapUrl) {
@@ -479,24 +491,28 @@
                 }).join('');
         }
 
-        let selectedRating = 5;
+        // Starts at 0 = no stars filled, so the widget asks for a rating
+        // instead of silently submitting a 5 nobody chose.
+        let selectedRating = 0;
+
+        // Hoisted out of setupStarSelector so the post-submit reset can repaint the
+        // stars without re-running setup, which would bind a second set of listeners.
+        function updateStarsVisuals(rating) {
+            document.querySelectorAll('#starSelector span').forEach(s => {
+                const val = parseInt(s.dataset.val);
+                if (val <= rating) {
+                    s.textContent = '★';
+                    s.classList.add('selected');
+                } else {
+                    s.textContent = '☆';
+                    s.classList.remove('selected');
+                }
+            });
+        }
 
         function setupStarSelector() {
             const stars = document.querySelectorAll('#starSelector span');
             if (stars.length === 0) return;
-
-            function updateStarsVisuals(rating) {
-                stars.forEach(s => {
-                    const val = parseInt(s.dataset.val);
-                    if (val <= rating) {
-                        s.textContent = '★';
-                        s.classList.add('selected');
-                    } else {
-                        s.textContent = '☆';
-                        s.classList.remove('selected');
-                    }
-                });
-            }
 
             updateStarsVisuals(selectedRating);
 
@@ -612,6 +628,11 @@
                 return;
             }
 
+            if (!selectedRating) {
+                showToast(t('pleaseRate'), 'error');
+                return;
+            }
+
             btnSubmit.disabled = true;
             btnSubmit.textContent = '...';
 
@@ -645,7 +666,8 @@
                 authorInput.value = '';
                 phoneInput.value = '';
                 commentInput.value = '';
-                selectedRating = 5;
+                selectedRating = 0;
+                updateStarsVisuals(0);
 
                 showToast(t('reviewSuccess'), 'success');
 

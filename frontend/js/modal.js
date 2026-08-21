@@ -277,13 +277,10 @@ function openShopModal(shopId) {
     // The 360° tour leads the contact rows rather than sitting among them —
     // it is the one link worth interrupting a scroll for.
     const tourCta = shop.tour360Url
-      ? `<a class="tour360-cta" href="${escHtml(shop.tour360Url)}" target="_blank" rel="noopener noreferrer">
-           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-             <ellipse cx="12" cy="12" rx="10" ry="4.5"></ellipse>
-             <path d="M2 12a10 4.5 0 0 0 20 0"></path>
-             <circle cx="12" cy="12" r="2.5"></circle>
-           </svg>${escHtml(t('tour360Open'))}
-         </a>`
+      ? `<div class="modal-row modal-row--tour" onclick="goExternal('${escHtml(shop.tour360Url)}')" style="cursor:pointer">
+           <span class="tour360-mark">360°</span>
+           <span class="modal-row-text">${escHtml(t('tour360Open'))}</span>
+         </div>`
       : '';
 
     document.getElementById('modalRows').innerHTML = tourCta + rows.join('');
@@ -367,19 +364,12 @@ function openShopModal(shopId) {
         _navigatingToStore = false;
 
         // Reset reviews form
-        selectedModalRating = 5;
+        selectedModalRating = 0;
         const authorInput = document.getElementById('modalReviewAuthor');
         const commentInput = document.getElementById('modalReviewComment');
         if (authorInput) authorInput.value = '';
         if (commentInput) commentInput.value = '';
-        const starSelector = document.getElementById('modalStarSelector');
-        if (starSelector) {
-            const stars = starSelector.querySelectorAll('span');
-            stars.forEach(s => {
-                s.textContent = parseInt(s.dataset.val) <= 5 ? '★' : '☆';
-                s.classList.add('selected');
-            });
-        }
+        updateModalStarsVisuals(0);
 
         // Load reviews list
         loadModalReviews(shop.id);
@@ -678,27 +668,31 @@ function initModalScrollRedirect() {
     }
 }
 
-let selectedModalRating = 5;
+// 0 = nothing picked yet, so the widget asks for a rating instead of submitting
+// a 5 the visitor never chose.
+let selectedModalRating = 0;
+
+// Hoisted so the open/submit resets repaint through this one path. Each of them
+// carried its own copy of this loop written as `val <= 5` — always true — which
+// is why every star rendered filled regardless of the rating.
+function updateModalStarsVisuals(rating) {
+    document.querySelectorAll('#modalStarSelector span').forEach(s => {
+        const val = parseInt(s.dataset.val);
+        if (val <= rating) {
+            s.textContent = '★';
+            s.classList.add('selected');
+        } else {
+            s.textContent = '☆';
+            s.classList.remove('selected');
+        }
+    });
+}
 
 function setupModalStarSelector() {
     const stars = document.querySelectorAll('#modalStarSelector span');
     if (stars.length === 0) return;
 
-    function updateStarsVisuals(rating) {
-        stars.forEach(s => {
-            const val = parseInt(s.dataset.val);
-            if (val <= rating) {
-                s.textContent = '★';
-                s.classList.add('selected');
-            } else {
-                s.textContent = '☆';
-                s.classList.remove('selected');
-            }
-        });
-    }
-
-    // Default
-    updateStarsVisuals(5);
+    updateModalStarsVisuals(selectedModalRating);
 
     stars.forEach(star => {
         star.addEventListener('mouseover', () => {
@@ -715,7 +709,7 @@ function setupModalStarSelector() {
 
         star.addEventListener('click', () => {
             selectedModalRating = parseInt(star.dataset.val);
-            updateStarsVisuals(selectedModalRating);
+            updateModalStarsVisuals(selectedModalRating);
         });
     });
 }
@@ -802,6 +796,11 @@ async function submitModalReview(event) {
         return;
     }
 
+    if (!selectedModalRating) {
+        showToast(t('pleaseRate'), 'error');
+        return;
+    }
+
     btnSubmit.disabled = true;
     btnSubmit.textContent = '...';
 
@@ -834,15 +833,8 @@ async function submitModalReview(event) {
         authorInput.value = '';
         phoneInput.value = '';
         commentInput.value = '';
-        selectedModalRating = 5;
-        const starSelector = document.getElementById('modalStarSelector');
-        if (starSelector) {
-            const stars = starSelector.querySelectorAll('span');
-            stars.forEach(s => {
-                s.textContent = parseInt(s.dataset.val) <= 5 ? '\u2605' : '\u2606';
-                s.classList.add('selected');
-            });
-        }
+        selectedModalRating = 0;
+        updateModalStarsVisuals(0);
 
         showToast(t('reviewSuccess'), 'success');
 

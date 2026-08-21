@@ -82,7 +82,7 @@ const i18n = {
     searchShopsPlaceholder: "Do'konlarni qidirish...",
     storeOnMap: "Xaritada ko'rish",
     tour360: "360° sayohat",
-    tour360Open: "360° sayohatni ochish",
+    tour360Open: "Virtual sayohatni ochish",
     catalogCategories: "Katalog kategoriyalari",
     searchResultsFor: "\"{query}\" uchun qidiruv natijalari",
     closeSearch: "✕ Qidiruvni yopish",
@@ -134,6 +134,7 @@ const i18n = {
     inputPhonePlaceholder: "+998 XX XXX XX XX",
     reviewDuplicatePhone: "Siz allaqachon ushbu do'kon uchun fikr qoldirdingiz",
     reviewInvalidPhone: "Noto'g'ri telefon raqam formati",
+    pleaseRate: "Iltimos, baho qo'ying",
     inputNamePlaceholder: "Ismingizni kiriting...",
     inputCommentPlaceholder: "Fikringizni yozing...",
     noReviewsYet: "Fikrlar hali yo'q. Birinchi bo'lib fikr qoldiring!",
@@ -144,6 +145,8 @@ const i18n = {
     recommendedStores: "Tavsiya etilgan do'konlar",
     allShops: "Barcha do'konlar",
     aboutCompany: "Kompaniya haqida",
+    aboutUs: "Biz haqimizda",
+    addYourStore: "Do'kon qanday qo'shiladi",
     privacyPolicy: "Maxfiylik siyosati"
   },
   ru: {
@@ -225,7 +228,7 @@ const i18n = {
     searchShopsPlaceholder: "Поиск магазинов...",
     storeOnMap: "Посмотреть на карте",
     tour360: "360° тур",
-    tour360Open: "Открыть 360° тур",
+    tour360Open: "Открыть виртуальный тур",
     catalogCategories: "Категории каталога",
     searchResultsFor: "Результаты поиска для \"{query}\"",
     closeSearch: "✕ Закрыть поиск",
@@ -279,6 +282,7 @@ const i18n = {
     inputPhonePlaceholder: "+998 XX XXX XX XX",
     reviewDuplicatePhone: "Вы уже оставляли отзыв для этого магазина",
     reviewInvalidPhone: "Неверный формат номера телефона",
+    pleaseRate: "Пожалуйста, поставьте оценку",
     inputNamePlaceholder: "Введите имя...",
     inputCommentPlaceholder: "Напишите ваш отзыв...",
     noReviewsYet: "Отзывов пока нет. Оставьте первый отзыв!",
@@ -289,6 +293,8 @@ const i18n = {
     recommendedStores: "Рекомендуемые магазины",
     allShops: "Все магазины",
     aboutCompany: "О компании",
+    aboutUs: "О нас",
+    addYourStore: "Как добавить свой магазин",
     privacyPolicy: "Политика конфиденциальности"
   }
 };

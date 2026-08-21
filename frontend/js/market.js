@@ -296,12 +296,7 @@ function renderShops(shops) {
     // A shop you can walk through is a stronger draw than one you cannot, so
     // it gets a badge on the card rather than only a link inside the modal.
     const tourBadge = shop.tour360Url
-      ? `<span class="tour360-badge" title="${escHtml(t('tour360'))}">
-           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-             <ellipse cx="12" cy="12" rx="10" ry="4.5"></ellipse>
-             <path d="M2 12a10 4.5 0 0 0 20 0"></path>
-             <circle cx="12" cy="12" r="2.5"></circle>
-           </svg>360°</span>`
+      ? `<span class="tour360-badge" title="${escHtml(t('tour360'))}">360°</span>`
       : '';
 
     return `

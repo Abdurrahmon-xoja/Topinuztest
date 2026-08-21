@@ -1,14 +1,19 @@
 // Sidebar
-function openSidebar() {
-    document.getElementById('sidebar')?.classList.add('open');
-    document.getElementById('sidebarOverlay')?.classList.add('open');
-    document.body.style.overflow = 'hidden';
-
-    // Apply i18n to sidebar data-i18n elements
+// Apply i18n to sidebar data-i18n elements. The language toggle now lives inside
+// the drawer, so this must also run on every language change — not just on open,
+// or the drawer's own labels stay in the previous language while you look at them.
+function translateSidebar() {
     document.querySelectorAll('#sidebar [data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (key && typeof t === 'function') el.textContent = t(key);
     });
+}
+
+function openSidebar() {
+    document.getElementById('sidebar')?.classList.add('open');
+    document.getElementById('sidebarOverlay')?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    translateSidebar();
 }
 function closeSidebar() {
     document.getElementById('sidebar')?.classList.remove('open');
@@ -196,26 +201,34 @@ function renderProductsGridHtml(products) {
 // category, plus one extra for every entry in `big` (each spans two cells). With
 // 12 categories and 4 big cards that is 16 cells — 8 rows. A name left out, or a
 // `big` list of the wrong length, silently drops a card from the grid.
+// Order follows how a renovation actually proceeds — surfaces you build with,
+// then the openings and fixtures, then furnishing, then outdoors and services.
+// All four variants keep that sequence and differ only in which cards are big,
+// so shuffling the layout never scrambles the meaning.
+//
+// Each is a 2-column template that must account for exactly one cell per
+// category plus one more for every entry in `big`. 12 categories + 4 big = 16
+// cells = 8 rows. A name left out silently drops that card from the grid.
 const GRID_LAYOUTS = [
     {
-        // Layout A: tall furniture, tall art-decor, tall floor, tall specialists
-        areas: '"lighting furniture" "walls furniture" "art-decor plants" "art-decor bathroom" "stone floor" "real-estate floor" "doors-windows specialists" "other specialists"',
-        big: ['furniture', 'art-decor', 'floor', 'specialists']
+        // Layout A: wide stone, tall bathroom, wide furniture, wide art-decor
+        areas: '"walls floor" "stone stone" "doors-windows bathroom" "lighting bathroom" "furniture furniture" "art-decor art-decor" "real-estate plants" "other specialists"',
+        big: ['stone', 'bathroom', 'furniture', 'art-decor']
     },
     {
-        // Layout B: wide furniture, tall art-decor, wide floor, wide doors-windows
-        areas: '"furniture furniture" "lighting walls" "plants art-decor" "bathroom art-decor" "floor floor" "stone real-estate" "doors-windows doors-windows" "other specialists"',
-        big: ['furniture', 'art-decor', 'floor', 'doors-windows']
+        // Layout B: wide walls, wide floor, wide bathroom, wide furniture
+        areas: '"walls walls" "floor floor" "stone doors-windows" "bathroom bathroom" "lighting art-decor" "furniture furniture" "real-estate plants" "other specialists"',
+        big: ['walls', 'floor', 'bathroom', 'furniture']
     },
     {
-        // Layout C: wide lighting, tall furniture, tall bathroom, wide doors-windows
-        areas: '"lighting lighting" "furniture walls" "furniture plants" "art-decor bathroom" "stone bathroom" "real-estate floor" "doors-windows doors-windows" "other specialists"',
-        big: ['lighting', 'furniture', 'bathroom', 'doors-windows']
+        // Layout C: wide stone, wide lighting, wide furniture, wide exterior
+        areas: '"walls floor" "stone stone" "doors-windows bathroom" "lighting lighting" "furniture furniture" "art-decor plants" "real-estate real-estate" "other specialists"',
+        big: ['stone', 'lighting', 'furniture', 'real-estate']
     },
     {
-        // Layout D: tall lighting, wide art-decor, tall real-estate, wide doors-windows
-        areas: '"lighting furniture" "lighting walls" "art-decor art-decor" "plants real-estate" "bathroom real-estate" "stone floor" "doors-windows doors-windows" "other specialists"',
-        big: ['lighting', 'art-decor', 'real-estate', 'doors-windows']
+        // Layout D: wide floor, wide bathroom, wide art-decor, wide furniture
+        areas: '"walls stone" "floor floor" "doors-windows lighting" "bathroom bathroom" "art-decor art-decor" "furniture furniture" "real-estate plants" "other specialists"',
+        big: ['floor', 'bathroom', 'art-decor', 'furniture']
     }
 ];
 
@@ -260,35 +273,6 @@ window.addEventListener('resize', () => {
     if (grid) applyGridLayout(grid, _activeLayoutIdx);
 });
 
-function cycleLayout() {
-    const grid = document.getElementById('homeGrid');
-    if (!grid) return;
-    
-    // Only cycle on mobile
-    if (window.innerWidth >= 768) return;
-
-    // Fade out
-    grid.style.opacity = '0';
-    grid.style.transform = 'scale(0.97)';
-    
-    setTimeout(() => {
-        _activeLayoutIdx = (_activeLayoutIdx + 1) % GRID_LAYOUTS.length;
-        localStorage.setItem('topin_grid_layout', _activeLayoutIdx);
-        applyGridLayout(grid, _activeLayoutIdx);
-        
-        // Fade in
-        requestAnimationFrame(() => {
-            grid.style.opacity = '1';
-            grid.style.transform = 'scale(1)';
-        });
-    }, 200);
-}
-
-// Wire up the layout cycle button
-(function() {
-    const btn = document.getElementById('layoutCycleBtn');
-    if (btn) btn.addEventListener('click', cycleLayout);
-})();
 
 async function loadCategoriesHome() {
     const grid = document.getElementById('homeGrid');
@@ -302,38 +286,43 @@ async function loadCategoriesHome() {
       <div class="skeleton-home-card"></div>
     `).join('');
 
-    // doors-windows is deliberately absent: it has no photo yet, so its card
-    // renders as a plain tile showing only its label.
+    // Tile images are served with max-age=86400, so a swapped file keeps
+    // showing the old one for a day. Bump this when you replace any of them.
+    const IMG_V = '?v=5';
     const categoryImages = {
-      'furniture':   'img/home/furniture.jpg',
-      'lighting':    'img/home/lighting.jpg',
-      'art-decor':   'img/home/art-decor.jpg',
-      'walls':       'img/home/walls.jpg',
-      'floor':       'img/home/floor.jpg',
-      'stone':       'img/home/stone.jpg',
-      'real-estate': 'img/home/real-estate.jpg',
-      'plants':      'img/home/plants.jpg',
-      'bathroom':    'img/home/bathroom.jpg',
-      'other':       'img/home/other.jpg',
-      'specialists': 'img/home/specialists.jpg',
+      'furniture':     'img/home/furniture.jpg' + IMG_V,
+      'lighting':      'img/home/lighting.jpg' + IMG_V,
+      'art-decor':     'img/home/art-decor.jpg' + IMG_V,
+      'walls':         'img/home/walls.jpg' + IMG_V,
+      'floor':         'img/home/floor.jpg' + IMG_V,
+      'stone':         'img/home/stone.jpg' + IMG_V,
+      'doors-windows': 'img/home/doors-windows.jpg' + IMG_V,
+      'real-estate':   'img/home/real-estate.jpg' + IMG_V,
+      'plants':        'img/home/plants.jpg' + IMG_V,
+      'bathroom':      'img/home/bathroom.jpg' + IMG_V,
+      'other':         'img/home/other.jpg' + IMG_V,
+      'specialists':   'img/home/specialists.jpg' + IMG_V,
     };
 
     // Cards whose photo is dark → light label + light chip (per Figma)
-    const darkCards = new Set(['furniture', 'floor']);
+    const darkCards = new Set(['furniture', 'floor', 'specialists']);
 
+    // Same renovation-journey order as GRID_LAYOUTS and the desktop CSS:
+    // surfaces -> openings and fixtures -> furnishing -> outdoors -> the rest.
+    // This is also the DOM order, so it is what a screen reader reads out.
     const categories = [
-      { slug: 'lighting',     image: categoryImages['lighting'] },
-      { slug: 'furniture',    image: categoryImages['furniture'] },
-      { slug: 'walls',        image: categoryImages['walls'] },
-      { slug: 'plants',       image: categoryImages['plants'] },
-      { slug: 'art-decor',    image: categoryImages['art-decor'] },
-      { slug: 'bathroom',     image: categoryImages['bathroom'] },
-      { slug: 'stone',        image: categoryImages['stone'] },
-      { slug: 'real-estate',  image: categoryImages['real-estate'] },
-      { slug: 'floor',        image: categoryImages['floor'] },
+      { slug: 'walls',         image: categoryImages['walls'] },
+      { slug: 'floor',         image: categoryImages['floor'] },
+      { slug: 'stone',         image: categoryImages['stone'] },
       { slug: 'doors-windows', image: categoryImages['doors-windows'] },
-      { slug: 'other',        image: categoryImages['other'] },
-      { slug: 'specialists',  image: categoryImages['specialists'] },
+      { slug: 'bathroom',      image: categoryImages['bathroom'] },
+      { slug: 'lighting',      image: categoryImages['lighting'] },
+      { slug: 'furniture',     image: categoryImages['furniture'] },
+      { slug: 'art-decor',     image: categoryImages['art-decor'] },
+      { slug: 'real-estate',   image: categoryImages['real-estate'] },
+      { slug: 'plants',        image: categoryImages['plants'] },
+      { slug: 'other',         image: categoryImages['other'] },
+      { slug: 'specialists',   image: categoryImages['specialists'] },
     ];
   
     await Promise.all(categories.map(cat => new Promise(resolve => {
@@ -625,6 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('langchange', () => {
+    translateSidebar();
     const path = window.location.pathname;
     const page = path.split('/').pop();
     if (page === 'index.html' || page === '' || page === '/' || page === 'index') {

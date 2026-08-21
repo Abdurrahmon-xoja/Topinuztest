@@ -4,9 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <meta name="description"
-        content="Topin — Do'konlar ro'yxati. Kategoriya bo'yicha filtrlash va do'kon ma'lumotlarini ko'rish.">
-    <title>Topin</title>
+    <title>Do'konlar — Topin</title>
+    <!-- SEO -->
+    <meta name="description" content="Toshkentdagi ta'mir va uy jihozlari do'konlari ro'yxati. Kategoriya bo'yicha filtrlang, manzil, telefon va ish vaqtini ko'ring.">
+    <link rel="canonical" href="https://topin.uz/shops">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Topin">
+    <meta property="og:locale" content="uz_UZ">
+    <meta property="og:title" content="Do'konlar — Topin">
+    <meta property="og:description" content="Toshkentdagi ta'mir va uy jihozlari do'konlari ro'yxati. Kategoriya bo'yicha filtrlang, manzil, telefon va ish vaqtini ko'ring.">
+    <meta property="og:url" content="https://topin.uz/shops">
+    <meta property="og:image" content="https://topin.uz/img/og_logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Do'konlar — Topin">
+    <meta name="twitter:description" content="Toshkentdagi ta'mir va uy jihozlari do'konlari ro'yxati. Kategoriya bo'yicha filtrlang, manzil, telefon va ish vaqtini ko'ring.">
+    <meta name="twitter:image" content="https://topin.uz/img/og_logo.png">
+    <!-- /SEO -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,7 +27,7 @@
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="icon" type="image/png" href="/img/icon-192.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/topin.css?v=6.5">
+    <link rel="stylesheet" href="css/topin.css?v=9.4">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
 
@@ -71,23 +84,6 @@
         </div>
     </main>
 
-    <!-- Floating footer controls (desktop) -->
-    <footer class="site-footer hide-mobile">
-        <div class="footer-controls">
-            <button class="lang-toggle-btn" id="langToggleBtn" aria-label="Toggle language">
-                <span class="lang-text" id="langText">UZ</span>
-            </button>
-            <button class="theme-switch" id="themeSwitchBtn" onclick="toggleTheme()" aria-label="Toggle theme">
-                <span class="theme-switch-icon theme-switch-sun">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
-                </span>
-                <span class="theme-switch-thumb"></span>
-                <span class="theme-switch-icon theme-switch-moon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </span>
-            </button>
-        </div>
-    </footer>
 
     <!-- Shop Detail Modal -->
     <div class="modal-overlay" id="shopModal" style="display:none;" role="dialog" aria-modal="true">
@@ -236,11 +232,11 @@
         </div>
     </div>
 
-    <script src="js/config.js?v=6.5"></script>
-    <script src="js/utils.js?v=6.5"></script>
-    <script src="js/market.js?v=6.5"></script>
-    <script src="js/home.js?v=6.5"></script>
-    <script src="js/modal.js?v=6.5"></script>
+    <script src="js/config.js?v=9.4"></script>
+    <script src="js/utils.js?v=9.4"></script>
+    <script src="js/market.js?v=9.4"></script>
+    <script src="js/home.js?v=9.4"></script>
+    <script src="js/modal.js?v=9.4"></script>
 </body>
 
 </html>

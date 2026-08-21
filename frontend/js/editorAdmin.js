@@ -464,55 +464,35 @@
     const EDITOR_LAYOUTS = [
         {
             areas: [
-                ['lighting', 'furniture'],
-                ['walls', 'furniture'],
-                ['art-decor', 'plants'],
-                ['art-decor', 'bathroom'],
-                ['stone', 'floor'],
-                ['real-estate', 'floor'],
-                ['doors-windows', 'specialists'],
-                ['other', 'specialists']
+                ['walls', 'floor'], ['stone', 'stone'], ['doors-windows', 'bathroom'],
+                ['lighting', 'bathroom'], ['furniture', 'furniture'], ['art-decor', 'art-decor'],
+                ['real-estate', 'plants'], ['other', 'specialists']
             ],
-            big: ['furniture', 'art-decor', 'floor', 'specialists']
+            big: ['stone', 'bathroom', 'furniture', 'art-decor']
         },
         {
             areas: [
-                ['furniture', 'furniture'],
-                ['lighting', 'walls'],
-                ['plants', 'art-decor'],
-                ['bathroom', 'art-decor'],
-                ['floor', 'floor'],
-                ['stone', 'real-estate'],
-                ['doors-windows', 'doors-windows'],
-                ['other', 'specialists']
+                ['walls', 'walls'], ['floor', 'floor'], ['stone', 'doors-windows'],
+                ['bathroom', 'bathroom'], ['lighting', 'art-decor'], ['furniture', 'furniture'],
+                ['real-estate', 'plants'], ['other', 'specialists']
             ],
-            big: ['furniture', 'art-decor', 'floor', 'doors-windows']
+            big: ['walls', 'floor', 'bathroom', 'furniture']
         },
         {
             areas: [
-                ['lighting', 'lighting'],
-                ['furniture', 'walls'],
-                ['furniture', 'plants'],
-                ['art-decor', 'bathroom'],
-                ['stone', 'bathroom'],
-                ['real-estate', 'floor'],
-                ['doors-windows', 'doors-windows'],
-                ['other', 'specialists']
+                ['walls', 'floor'], ['stone', 'stone'], ['doors-windows', 'bathroom'],
+                ['lighting', 'lighting'], ['furniture', 'furniture'], ['art-decor', 'plants'],
+                ['real-estate', 'real-estate'], ['other', 'specialists']
             ],
-            big: ['lighting', 'furniture', 'bathroom', 'doors-windows']
+            big: ['stone', 'lighting', 'furniture', 'real-estate']
         },
         {
             areas: [
-                ['lighting', 'furniture'],
-                ['lighting', 'walls'],
-                ['art-decor', 'art-decor'],
-                ['plants', 'real-estate'],
-                ['bathroom', 'real-estate'],
-                ['stone', 'floor'],
-                ['doors-windows', 'doors-windows'],
-                ['other', 'specialists']
+                ['walls', 'stone'], ['floor', 'floor'], ['doors-windows', 'lighting'],
+                ['bathroom', 'bathroom'], ['art-decor', 'art-decor'], ['furniture', 'furniture'],
+                ['real-estate', 'plants'], ['other', 'specialists']
             ],
-            big: ['lighting', 'art-decor', 'real-estate', 'doors-windows']
+            big: ['floor', 'bathroom', 'art-decor', 'furniture']
         }
     ];
 

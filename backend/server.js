@@ -97,6 +97,15 @@ app.get('/shops', async (req, res, next) => {
             <meta name="twitter:image" content="${safeImage}">
                 `;
 
+                // Remove the page's static og:/twitter: defaults and canonical first.
+                // They sit earlier in the head than the tags appended below, and
+                // scrapers take the first match — so without this the shop-specific
+                // tags stay shadowed by the generic ones baked into shops.html.
+                html = html.replace(/[ \t]*<meta (?:property="og:|name="twitter:)[^>]*>\n?/g, '');
+                html = html.replace(
+                    /[ \t]*<link rel="canonical"[^>]*>\n?/g,
+                    `    <link rel="canonical" href="https://topin.uz/stores/${shop.slug}">\n`);
+
                 // Inject into <head>
                 html = html.replace('</head>', `${ogTags}\n</head>`);
                 html = html.replace(/<title>.*<\/title>/, `<title>${safeTitle} | Topin</title>`);
@@ -167,6 +176,7 @@ app.get('/stores/:storeSlug', async (req, res, next) => {
         const url = `https://topin.uz/stores/${storeSlug}`;
 
         const ogTags = `
+    <link rel="canonical" href="${url}">
     <!-- Dynamic Open Graph Data -->
     <meta property="og:title" content="${safeTitle}">
     <meta property="og:description" content="${safeDesc}">
@@ -236,6 +246,7 @@ app.get('/stores/:storeSlug/products/:productSlug', async (req, res, next) => {
         const url = `https://topin.uz/stores/${storeSlug}/products/${productSlug}`;
 
         const ogTags = `
+    <link rel="canonical" href="${url}">
     <!-- Dynamic Open Graph Data -->
     <meta property="og:title" content="${safeTitle}">
     <meta property="og:description" content="${safeDesc}">
@@ -351,6 +362,14 @@ app.get('/editor', (req, res) => {
 
 app.get('/privacy', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/privacy.html'));
+});
+
+app.get('/about', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/about.html'));
+});
+
+app.get('/join', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/join.html'));
 });
 
 app.use(express.static(path.join(__dirname, '../frontend'), {

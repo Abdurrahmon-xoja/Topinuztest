@@ -272,7 +272,7 @@ button:focus-visible {
     width: 100%;
     display: flex;
     flex-direction: column;
-    padding-bottom: 84px;
+    padding-bottom: 24px;
 }
 
 .header-right-actions {
@@ -290,14 +290,17 @@ button:focus-visible {
     gap: 4px;
     grid-template-columns: repeat(2, 1fr);
     grid-auto-rows: 90px;
+    /* Mirrors GRID_LAYOUTS[0] in home.js — the default before JS applies a
+       saved variant. Renovation order: surfaces, openings and fixtures,
+       furnishing, then outdoors and the rest. */
     grid-template-areas:
-        "lighting furniture"
-        "walls furniture"
-        "art-decor plants"
-        "art-decor bathroom"
-        "stone floor"
-        "real-estate floor"
-        "doors-windows specialists"
+        "walls floor"
+        "stone stone"
+        "doors-windows bathroom"
+        "lighting bathroom"
+        "furniture furniture"
+        "art-decor art-decor"
+        "real-estate plants"
         "other specialists";
 }
 
@@ -308,11 +311,15 @@ button:focus-visible {
         gap: 10px;
         grid-template-columns: repeat(4, 1fr);
         grid-auto-rows: 130px;
+        /* Reads left-to-right, top-to-bottom in the same renovation order.
+           Row 1 surfaces, row 2 openings and fixtures, row 3 furnishing,
+           row 4 outdoors and the rest. Specialists holds 1 shop and Doors &
+           Windows 4, so neither takes a double-width slot. */
         grid-template-areas:
-            "lighting art-decor plants furniture"
-            "walls art-decor bathroom furniture"
-            "floor stone doors-windows specialists"
-            "floor real-estate other specialists";
+            "walls floor stone stone"
+            "doors-windows bathroom bathroom lighting"
+            "furniture furniture art-decor art-decor"
+            "real-estate plants other specialists";
     }
 }
 
@@ -642,31 +649,6 @@ button:focus-visible {
 
 [data-theme="dark"] .footer-info-btn:hover {
     background: var(--white-box);
-}
-
-/* Layout cycle button */
-.footer-layout-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: var(--surface);
-    color: var(--text);
-    box-shadow: var(--shadow-sm);
-    transition: background 0.2s, transform 0.15s;
-    flex-shrink: 0;
-    border: none;
-    cursor: pointer;
-}
-.footer-layout-btn:active {
-    transform: scale(0.93);
-}
-@media (min-width: 768px) {
-    .footer-layout-btn {
-        display: none;
-    }
 }
 
 .footer-info-panel {
@@ -1420,34 +1402,24 @@ button:focus-visible {
     vertical-align: middle;
     white-space: nowrap;
 }
-.tour360-badge svg {
-    width: 12px;
-    height: 12px;
+/* "360°" is the mark on the CTA — set on a light plate so it reads as a badge
+   rather than as the first word of the sentence beside it. */
+.tour360-mark {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.22);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    line-height: 1.4;
 }
 
-/* The call to action inside the shop sheet. */
-.tour360-cta {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    width: 100%;
-    height: 48px;
-    margin-bottom: 12px;
-    border-radius: 50px;
-    background: var(--blue);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 600;
-    text-decoration: none;
-}
-.tour360-cta svg {
-    width: 19px;
-    height: 19px;
-}
-@media (hover: hover) {
-    .tour360-cta:hover { filter: brightness(1.08); }
-}
+/* The blue tour-chip modifier lives further down, immediately after the
+   .store-link-chip and .modal-row rules it overrides — placed here it would be
+   defeated by them on source order, since both are single-class selectors. */
+
 
 /* ─── Shop modal (store info) ────────────────────────────── */
 .modal-overlay {
@@ -1505,7 +1477,7 @@ button:focus-visible {
     z-index: 20;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
 }
 
 .btn-modal-share,
@@ -1513,8 +1485,8 @@ button:focus-visible {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     background: var(--bg);
     color: var(--text);
@@ -1522,31 +1494,35 @@ button:focus-visible {
     transition: background 0.2s;
 }
 
+.btn-modal-share svg,
+.modal-close svg {
+    width: 24px;
+    height: 24px;
+}
+
 .btn-modal-share:hover,
 .modal-close:hover {
     background: var(--surface);
 }
 
-/* The shop card is opened by tapping, so on touch these two are the first
-   thing a thumb goes for. At 38px they sit under the 44px minimum both Apple
-   and Android publish, and a 6px gap puts share and close within one thumb
-   width of each other — easy to hit the wrong one. Desktop keeps 38px, where
-   a cursor is precise and the larger circles would crowd the sheet. */
+/* The shop card is opened by tapping, so on touch these two are the first thing
+   a thumb goes for — they get a further step up over the 46px base, and a wider
+   gap so share and close are not within one thumb width of each other. */
 @media (max-width: 767px) {
     .modal-header {
         top: 12px;
         right: 12px;
-        gap: 10px;
+        gap: 12px;
     }
     .btn-modal-share,
     .modal-close {
-        width: 44px;
-        height: 44px;
+        width: 54px;
+        height: 54px;
     }
     .btn-modal-share svg,
     .modal-close svg {
-        width: 22px;
-        height: 22px;
+        width: 28px;
+        height: 28px;
     }
 }
 
@@ -2130,6 +2106,34 @@ button:focus-visible {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+/* The tour keeps the same chip shape as Instagram and the rest, in both the
+   storefront hero and the shop sheet, but stays blue so it still reads as the
+   strongest link in the row. This must sit after .store-link-chip and
+   .modal-row — all three are single-class selectors, so source order decides. */
+.store-link-chip--tour,
+.modal-row--tour {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
+}
+.store-link-chip--tour span,
+.modal-row--tour .modal-row-text {
+    color: #fff;
+}
+.store-link-chip--tour .tour360-mark,
+.modal-row--tour .tour360-mark {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+}
+@media (hover: hover) {
+    .store-link-chip--tour:hover,
+    .modal-row--tour:hover {
+        filter: brightness(1.08);
+        border-color: var(--blue);
+    }
+}
+
 @media (hover: hover) {
     .store-link-chip:hover {
         border-color: var(--blue);
@@ -2867,7 +2871,10 @@ model-viewer {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s, transform 0.25s;
-    z-index: 1200;
+    /* Above every overlay in the app — .modal-overlay is z-index 1000000 !important,
+       so at the old 1200 the toast fired but rendered behind the shop modal that
+       raised it, and nobody ever saw the confirmation. */
+    z-index: 1000001;
     max-width: calc(100vw - 40px);
     text-align: center;
 }
@@ -3209,6 +3216,14 @@ model-viewer {
     border-top: 1px solid var(--border);
     padding-bottom: 24px;
 }
+/* Language + theme controls, relocated from the floating footer. */
+.sidebar-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
 .sidebar-privacy-link {
     display: block;
     font-size: 14px;
@@ -3260,9 +3275,20 @@ model-viewer {
 .privacy-content p {
     margin-bottom: 8px;
 }
-.privacy-content ul {
+.privacy-content ul,
+.privacy-content ol {
     padding-left: 20px;
     margin-bottom: 12px;
+}
+/* Full-width call-to-action on /join, reusing .btn-dark-pill. */
+.join-cta {
+    display: flex;
+    margin: 20px 0 16px;
+}
+/* .privacy-content a (0,1,1) outranks .btn-dark-pill (0,1,0) and would paint the
+   button's label link-blue on the dark pill — about 3.4:1. Restate it higher. */
+.join-cta .btn-dark-pill {
+    color: var(--dark-text);
 }
 .privacy-content li {
     margin-bottom: 4px;
