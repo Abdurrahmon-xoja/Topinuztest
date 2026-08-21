@@ -303,7 +303,8 @@ app.get('/robots.txt', (req, res) => {
 Allow: /
 Disallow: /dashboard
 Disallow: /admin
-Disallow: /login.html
+Disallow: /login
+Disallow: /editor
 Disallow: /api/
 Sitemap: https://topin.uz/sitemap.xml`);
 });
@@ -321,7 +322,10 @@ app.get('/sitemap.xml', async (req, res) => {
 
         let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
         xml += `  <url><loc>https://topin.uz/</loc><priority>1.0</priority><changefreq>daily</changefreq></url>\n`;
-        xml += `  <url><loc>https://topin.uz/shops.html</loc><priority>0.8</priority><changefreq>daily</changefreq></url>\n`;
+        xml += `  <url><loc>https://topin.uz/shops</loc><priority>0.9</priority><changefreq>daily</changefreq></url>\n`;
+        xml += `  <url><loc>https://topin.uz/about</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>\n`;
+        xml += `  <url><loc>https://topin.uz/join</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>\n`;
+        xml += `  <url><loc>https://topin.uz/privacy</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>\n`;
 
         shops.forEach(shop => {
             const lastmod = shop.updatedAt ? shop.updatedAt.toISOString().split('T')[0] : '';
