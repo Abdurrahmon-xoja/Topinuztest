@@ -555,6 +555,32 @@
             color: #fff;
         }
 
+        .impersonation-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: rgba(10, 132, 255, 0.12);
+            border: 1px solid var(--accent);
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .impersonation-bar button {
+            margin-left: auto;
+            padding: 8px 14px;
+            border-radius: 50px;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
         /* Shop-defined product group manager */
         .group-mgr-head { margin-bottom: 12px; }
         .group-mgr-add {
@@ -634,6 +660,13 @@
 
     <!-- Main Workspace -->
     <div class="main-content">
+        <!-- Shown only when an admin has impersonated this shop. Without a way
+             back, the admin's own token stays replaced and every admin write
+             fails with 403 long after they have left this page. -->
+        <div class="impersonation-bar" id="impersonationBar" style="display:none;">
+            <span id="impersonationText">Вы вошли в магазин как администратор.</span>
+            <button type="button" onclick="returnToAdmin()">← Вернуться в админку</button>
+        </div>
         <!-- View 1: Analytics -->
         <div id="analyticsView">
             <div class="dashboard-header">
@@ -1086,6 +1119,8 @@
 
     <script src="js/config.js?v=10.2"></script>
     <script src="js/utils.js?v=10.2"></script>
+    <!-- for isImpersonating / exitImpersonation / handle401 -->
+    <script src="js/auth.js?v=10.2"></script>
     <script>
         // Token auth check on load
         const token = localStorage.getItem(TOKEN_KEY);
@@ -1096,6 +1131,10 @@
         let vendorShop = null;
         let vendorProducts = [];
         let productGalleryImages = [];
+
+        function returnToAdmin() {
+            if (exitImpersonation()) window.location.href = '/admin';
+        }
 
         async function initDashboard() {
             // Decrypt / Fetch profile for this vendor
@@ -1115,6 +1154,13 @@
                 localStorage.removeItem(TOKEN_KEY);
                 window.location.href = '/login';
                 return;
+            }
+
+            const impBar = document.getElementById('impersonationBar');
+            if (impBar && typeof isImpersonating === 'function' && isImpersonating()) {
+                document.getElementById('impersonationText').textContent =
+                    `Вы вошли в магазин «${vendorShop.name}» как администратор.`;
+                impBar.style.display = 'flex';
             }
 
             // Init Profile forms

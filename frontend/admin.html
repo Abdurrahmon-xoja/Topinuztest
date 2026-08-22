@@ -627,10 +627,9 @@
     <script>
         // Auth guard + page init (inline to keep admin boot reliable)
         document.addEventListener('DOMContentLoaded', () => {
-            if (!localStorage.getItem('houz_token')) {
-                window.location.href = '/login';
-                return;
-            }
+            // Checks the role, not merely that a token exists. A vendor token
+            // here renders a panel that looks fine and 403s on every write.
+            if (!adminGuard()) return;
             adminLoadShops();
         });
     </script>
