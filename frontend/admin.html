@@ -12,8 +12,8 @@
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="icon" type="image/png" href="/img/icon-192.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/style.css?v=10.2">
-    <link rel="stylesheet" href="css/topin.css?v=10.2">
+    <link rel="stylesheet" href="css/style.css?v=10.3">
+    <link rel="stylesheet" href="css/topin.css?v=10.3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script>
         (function() {
@@ -617,19 +617,26 @@
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-    <script src="js/config.js?v=10.2"></script>
-    <script src="js/utils.js?v=10.2"></script>
-    <script src="js/auth.js?v=10.2"></script>
-    <script src="js/adminCropper.js?v=10.2"></script>
-    <script src="js/adminShops.js?v=10.2"></script>
-    <script src="js/adminFilters.js?v=10.2"></script>
-    <script src="js/admin.js?v=10.2"></script>
+    <script src="js/config.js?v=10.3"></script>
+    <script src="js/utils.js?v=10.3"></script>
+    <script src="js/auth.js?v=10.3"></script>
+    <script src="js/adminCropper.js?v=10.3"></script>
+    <script src="js/adminShops.js?v=10.3"></script>
+    <script src="js/adminFilters.js?v=10.3"></script>
+    <script src="js/admin.js?v=10.3"></script>
     <script>
         // Auth guard + page init (inline to keep admin boot reliable)
         document.addEventListener('DOMContentLoaded', () => {
-            // Checks the role, not merely that a token exists. A vendor token
-            // here renders a panel that looks fine and 403s on every write.
-            if (!adminGuard()) return;
+            // Guarded by typeof: admin.html is served fresh on every request
+            // while auth.js is cached under ?v=, so a browser holding a stale
+            // auth.js would otherwise throw here and render nothing at all.
+            // Fall back to the old token-only check rather than dying.
+            if (typeof adminGuard === 'function') {
+                if (!adminGuard()) return;
+            } else if (!localStorage.getItem('houz_token')) {
+                window.location.href = '/login';
+                return;
+            }
             adminLoadShops();
         });
     </script>
