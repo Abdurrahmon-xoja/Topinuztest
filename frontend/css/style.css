@@ -3049,8 +3049,11 @@ html:not([data-theme="dark"]) .theme-icon-moon { opacity: 1; }
 }
 
 .gallery-img-item img {
-    width: 90px;
-    height: 90px;
+    /* 16:10, matching .shop-carousel — a 90x90 square thumb showed a third,
+       fictional crop of an image the carousel renders wide. */
+    width: 176px;
+    aspect-ratio: 16 / 10;
+    height: auto;
     object-fit: cover;
     border-radius: var(--radius-sm);
     display: block;

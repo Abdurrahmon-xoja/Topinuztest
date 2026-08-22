@@ -116,8 +116,10 @@ async function initShopsPage() {
   document.getElementById('shopModal')?.addEventListener('click', (e) => {
     if (e.target === document.getElementById('shopModal')) closeShopModal();
   });
-  document.getElementById('modalClose')?.addEventListener('click', closeShopModal);
-  document.getElementById('modalCloseBtn')?.addEventListener('click', closeShopModal);
+  // Wrapped, not passed by reference: closeShopModal(immediate) would otherwise
+  // receive the MouseEvent as `immediate`, take the truthy branch and skip the
+  // slide-out animation that Escape, swipe and backdrop-click all get.
+  document.getElementById('modalClose')?.addEventListener('click', () => closeShopModal());
 }
 
 async function buildCategoryTabs(activeMainSlug) {

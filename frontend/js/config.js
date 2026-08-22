@@ -353,6 +353,13 @@ function translateStaticElements() {
     if (key) el.placeholder = t(key);
   });
 
+  // Translate all data-i18n-aria elements (icon-only buttons, whose only label
+  // is the aria-label a screen reader reads out)
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    const key = el.getAttribute('data-i18n-aria');
+    if (key) el.setAttribute('aria-label', t(key));
+  });
+
   // index.html specific elements
   const catalogTitle = document.querySelector('.categories-section .section-title');
   if (catalogTitle) catalogTitle.textContent = t('catalogCategories');

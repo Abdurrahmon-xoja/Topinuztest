@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#FFFFFF">
     <link rel="icon" type="image/png" href="/img/icon-192.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="/css/topin.css?v=10.0">
+    <link rel="stylesheet" href="/css/topin.css?v=10.1">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
     <style>
         .store-sticky-bar {
@@ -188,8 +188,8 @@
     <!-- Toast UI element -->
     <div class="toast" id="toast"></div>
 
-    <script src="/js/config.js?v=10.0"></script>
-    <script src="/js/utils.js?v=10.0"></script>
+    <script src="/js/config.js?v=10.1"></script>
+    <script src="/js/utils.js?v=10.1"></script>
     <script>
         let shop = null;
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
@@ -417,20 +417,42 @@
 
         let _allProducts = [];
         let _activeSubcat = 'all';
+        // 'group'  — pills come from the shop's own sections (ShopProductGroup)
+        // 'subcat' — pills come from the shared platform taxonomy (SubCategory)
+        let _pillMode = 'subcat';
 
         function renderSubcatPills() {
-            const subs = new Map();
-            _allProducts.forEach(p => {
-                if (p.SubCategory) subs.set(p.SubCategory.id, p.SubCategory);
-            });
-            if (subs.size < 2) return;
+            const label = (s) => (currentLang === 'ru' ? (s.name_ru || s.name) : s.name);
 
-            const subName = (s) => (currentLang === 'ru' ? (s.name_ru || s.name) : s.name);
-            const sorted = [...subs.values()].sort((a, b) => (a.order || 0) - (b.order || 0));
+            // A shop that has defined its own sections gets those, in the order
+            // the owner arranged them. Only sections that actually hold a
+            // product are shown, so an empty one never becomes a dead pill.
+            const usedGroupIds = new Set(
+                _allProducts.map(p => p.ShopProductGroupId).filter(id => id)
+            );
+            const groups = (shop.ShopProductGroups || [])
+                .filter(g => usedGroupIds.has(g.id))
+                .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+            let items;
+            if (groups.length >= 2) {
+                _pillMode = 'group';
+                items = groups;
+            } else {
+                // Fall back to the global subcategories the products carry.
+                _pillMode = 'subcat';
+                const subs = new Map();
+                _allProducts.forEach(p => {
+                    if (p.SubCategory) subs.set(p.SubCategory.id, p.SubCategory);
+                });
+                if (subs.size < 2) return;
+                items = [...subs.values()].sort((a, b) => (a.order || 0) - (b.order || 0));
+            }
+
             const pillsEl = document.getElementById('subcatPills');
             pillsEl.innerHTML =
                 `<button class="cat-pill active" data-sub="all">${t('hammasi')}</button>` +
-                sorted.map(s => `<button class="cat-pill" data-sub="${s.id}">${escHtml(subName(s))}</button>`).join('');
+                items.map(s => `<button class="cat-pill" data-sub="${s.id}">${escHtml(label(s))}</button>`).join('');
             document.getElementById('subcatTabs').style.display = '';
 
             pillsEl.querySelectorAll('.cat-pill').forEach(btn => {
@@ -447,7 +469,9 @@
             const shopName = getLocalizedText(shop, 'name_ru', 'name');
             const products = _activeSubcat === 'all'
                 ? _allProducts
-                : _allProducts.filter(p => p.SubCategoryId === _activeSubcat);
+                : _allProducts.filter(p => _pillMode === 'group'
+                    ? p.ShopProductGroupId === _activeSubcat
+                    : p.SubCategoryId === _activeSubcat);
 
             const countEl = document.getElementById('productCount');
             countEl.innerHTML = currentLang === 'ru'

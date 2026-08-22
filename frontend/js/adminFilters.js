@@ -71,7 +71,7 @@ window.renderAdminFilters = () => {
             : `<span style="color:var(--text3)">пусто</span>`;
         const ruWarn = sc.name_ru
             ? ''
-            : ` <span style="color:var(--red);font-size:11px">(нет RU)</span>`;
+            : ` <span class="admin-fs-xs" style="color:var(--red)">(нет RU)</span>`;
 
         return `
         <div class="filter-row" draggable="true" data-id="${sc.id}" data-idx="${index}"
@@ -80,7 +80,7 @@ window.renderAdminFilters = () => {
                     border-radius:8px; cursor:grab; transition:0.15s;">
             <div style="display:flex; align-items:center; gap:12px; min-width:0;">
                 <span title="Перетащите, чтобы изменить порядок"
-                      style="color:var(--text3); font-size:16px; line-height:1; cursor:grab;">⠿</span>
+                      class="admin-fs-lg" style="color:var(--text3); line-height:1; cursor:grab;">⠿</span>
                 <div style="display:flex; flex-direction:column; gap:3px;">
                     <button class="btn-icon" onclick="moveFilter(${sc.id}, -1)" aria-label="Выше"
                         ${index === 0 ? 'disabled style="opacity:0.3"' : ''}>⬆️</button>
@@ -89,13 +89,13 @@ window.renderAdminFilters = () => {
                 </div>
                 <div style="display:flex; flex-direction:column; min-width:0;">
                     <span style="font-weight:500">${escHtml(sc.name_ru || sc.name)}${ruWarn}</span>
-                    <span style="font-size:11px; color:var(--text3)">
+                    <span class="admin-fs-xs" style="color:var(--text3)">
                         ${escHtml(sc.name)} • ${escHtml(sc.slug)} • ${countLabel}
                     </span>
                 </div>
             </div>
             <div style="display:flex; gap:8px; flex-shrink:0">
-                <button class="btn-edit" onclick="openFilterForm(${sc.id})" style="font-size:13px;padding:6px 12px">${t('edit')}</button>
+                <button class="btn-edit" onclick="openFilterForm(${sc.id})" style="padding:6px 12px">${t('edit')}</button>
                 <button class="btn-delete" onclick="deleteFilter(${sc.id})">${t('delete')}</button>
             </div>
         </div>`;

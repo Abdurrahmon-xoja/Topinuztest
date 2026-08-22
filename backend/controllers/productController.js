@@ -1,4 +1,4 @@
-const { Product, Shop, Category, SubCategory, Review, User, sequelize } = require('../models');
+const { Product, Shop, Category, SubCategory, ShopProductGroup, Review, User, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const sharp = require('sharp');
 const crypto = require('crypto');
@@ -9,8 +9,21 @@ const { recalculateProductRating } = require('../utils/ratingHelper');
 const productIncludes = [
     { model: Shop, attributes: ['id', 'name', 'name_ru', 'slug', 'logoUrl', 'phone', 'telegram', 'instagram'] },
     { model: Category, attributes: ['id', 'name', 'slug'] },
-    { model: SubCategory, attributes: ['id', 'name', 'name_ru', 'slug', 'order'] }
+    { model: SubCategory, attributes: ['id', 'name', 'name_ru', 'slug', 'order'] },
+    { model: ShopProductGroup, attributes: ['id', 'name', 'name_ru', 'slug', 'order'] }
 ];
+
+// A product may only be filed under a group belonging to its own shop.
+// Returns null when the id is absent, blank or not owned, so callers can
+// normalise it to "no group" rather than trusting the request.
+const resolveOwnedGroupId = async (rawId, shopId) => {
+    if (rawId === undefined) return undefined;
+    if (rawId === null || rawId === '' ) return null;
+    const id = parseInt(rawId, 10);
+    if (!Number.isInteger(id)) return null;
+    const group = await ShopProductGroup.findOne({ where: { id, ShopId: shopId }, attributes: ['id'] });
+    return group ? group.id : null;
+};
 
 // GET /api/products or /api/shops/:shopId/products
 exports.getAllProducts = async (req, res) => {
@@ -127,6 +140,9 @@ exports.createProduct = async (req, res) => {
             req.body.slug = slugify(req.body.slug);
         }
 
+        const groupId = await resolveOwnedGroupId(req.body.ShopProductGroupId, req.body.ShopId);
+        if (groupId !== undefined) req.body.ShopProductGroupId = groupId;
+
         const product = await Product.create(req.body);
         await recalculateProductRating(product.id);
         const updatedProduct = await Product.findByPk(product.id, { include: productIncludes });
@@ -154,6 +170,9 @@ exports.updateProduct = async (req, res) => {
         } else if (req.body.name && !product.slug) {
             req.body.slug = slugify(req.body.name);
         }
+
+        const groupId = await resolveOwnedGroupId(req.body.ShopProductGroupId, product.ShopId);
+        if (groupId !== undefined) req.body.ShopProductGroupId = groupId;
 
         await product.update(req.body);
         await recalculateProductRating(product.id);

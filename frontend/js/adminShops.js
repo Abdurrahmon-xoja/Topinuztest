@@ -26,6 +26,43 @@ function _renderGalleryImages() {
   `).join('');
 
   addBtn.style.display = _galleryImages.length >= 3 ? 'none' : '';
+  _renderGalleryPreview();
+}
+
+let _galleryPreviewTimer = null;
+
+// Shows the gallery exactly as .shop-carousel renders it: 16:10, cover-cropped,
+// cycling through the photos in their saved order. Both crops now agree, so
+// what shows here is the final framing, not an approximation.
+function _renderGalleryPreview() {
+  const el = document.getElementById('galleryPreviewCarousel');
+  if (!el) return;
+
+  clearInterval(_galleryPreviewTimer);
+  _galleryPreviewTimer = null;
+
+  if (!_galleryImages.length) {
+    el.innerHTML = '<span class="preview-carousel-empty">Фото пока нет — в карточке карусель не показывается</span>';
+    return;
+  }
+
+  let idx = 0;
+  const paint = () => {
+    const img = _galleryImages[idx];
+    const dots = _galleryImages.length > 1
+      ? `<div class="preview-carousel-dots">${_galleryImages
+          .map((_, i) => `<span class="${i === idx ? 'active' : ''}"></span>`).join('')}</div>`
+      : '';
+    el.innerHTML = `<img src="${escHtml(cloudinaryOptimize(img.url, 800))}" alt="Превью">${dots}`;
+  };
+  paint();
+
+  if (_galleryImages.length > 1) {
+    _galleryPreviewTimer = setInterval(() => {
+      idx = (idx + 1) % _galleryImages.length;
+      paint();
+    }, 2500);
+  }
 }
 
 window._handleGalleryUpload = async (file) => {
@@ -239,6 +276,8 @@ window.openShopForm = function openShopForm(shop = null) {
       }
       _initDropZoneUI();
   }
+  _initLogoPreviewBindings();
+  _refreshLogoPreview();
 
   // Gallery images
   _editingShopId = shop?.id || null;
@@ -292,6 +331,10 @@ window.closeShopForm = function closeShopForm() {
   const overlay = document.getElementById('shopFormOverlay');
   if (overlay) overlay.style.display = 'none';
   document.body.style.overflow = '';
+  // Otherwise the preview keeps cycling against a hidden form forever, and a
+  // second one starts on the next open.
+  clearInterval(_galleryPreviewTimer);
+  _galleryPreviewTimer = null;
 }
 
 window.addCustomLinkRow = (label = '', url = '') => {
@@ -304,11 +347,11 @@ window.addCustomLinkRow = (label = '', url = '') => {
   
   row.innerHTML = `
     <div class="form-row" style="margin: 0;">
-        <label style="font-size: 11px;">${t('linkLabel')}</label>
+        <label class="admin-fs-xs">${t('linkLabel')}</label>
         <input type="text" class="cl-label" placeholder="YouTube" value="${escHtml(label)}">
     </div>
     <div class="form-row" style="margin: 0;">
-        <label style="font-size: 11px;">${t('linkUrl')}</label>
+        <label class="admin-fs-xs">${t('linkUrl')}</label>
         <input type="url" class="cl-url" placeholder="https://..." value="${escHtml(url)}">
     </div>
     <button type="button" class="btn-cancel" onclick="this.parentElement.remove()" style="padding: 10px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;" title="Удалить">
@@ -513,6 +556,34 @@ function _initDropZoneUI() {
     }
 }
 
+// Renders the catalogue preview beside the logo drop zone. Uses the same
+// logoFallback() the public shops screen uses, so an empty logo previews as the
+// same letter/emoji placeholder a customer would see — and a non-square upload
+// shows its circular crop here rather than after publishing.
+window._refreshLogoPreview = function _refreshLogoPreview() {
+    const box = document.getElementById('logoPreviewBox');
+    if (!box) return;
+
+    const val = (id) => document.getElementById(id)?.value.trim() || '';
+    // Admin runs in Russian, and the catalogue prefers the _ru fields there.
+    const name = val('fNameRu') || val('fName') || 'Название магазина';
+    const desc = val('fDescriptionRu') || val('fDescription') || 'Описание магазина появится здесь';
+
+    box.innerHTML = logoFallback(val('fLogoUrl'), name);
+    document.getElementById('logoPreviewName').textContent = name;
+    document.getElementById('logoPreviewDesc').textContent = desc;
+};
+
+// Keep the preview in step with the fields it mirrors.
+window._initLogoPreviewBindings = function _initLogoPreviewBindings() {
+    ['fName', 'fNameRu', 'fDescription', 'fDescriptionRu'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || el.dataset.previewBound) return;
+        el.dataset.previewBound = '1';
+        el.addEventListener('input', _refreshLogoPreview);
+    });
+};
+
 window._handleLogoUpload = async (file) => {
     if (!file.type.startsWith('image/')) {
         showToast(t('onlyImages'), 'error');
@@ -556,8 +627,10 @@ window._handleLogoUpload = async (file) => {
         document.getElementById('fLogoUrl').value = imgUrl; 
 
         dropZone.innerHTML = `<img src="${imgUrl}" alt="Preview">
+                              <button type="button" class="logo-crop-btn" onclick="_cropExistingLogo()" title="Обрезать логотип">✂</button>
                               <input type="file" id="fLogoFile" accept="image/png, image/jpeg, image/svg+xml">`;
         _initDropZoneUI(); 
+        _refreshLogoPreview();
         showToast(t('logoUploaded'), 'success');
     } catch (err) {
         showToast(t('uploadFailed') + err.message, 'error');
@@ -598,6 +671,7 @@ window._cropExistingLogo = async () => {
                               <button type="button" class="logo-crop-btn" onclick="_cropExistingLogo()" title="Обрезать логотип">✂</button>
                               <input type="file" id="fLogoFile" accept="image/png, image/jpeg, image/svg+xml">`;
         _initDropZoneUI();
+        _refreshLogoPreview();
         showToast('Логотип обрезан ✂', 'success');
     } catch (err) {
         showToast('Ошибка: ' + err.message, 'error');

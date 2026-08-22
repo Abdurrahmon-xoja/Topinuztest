@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#0FA986">
     <link rel="icon" type="image/png" href="/img/icon-192.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/topin.css?v=10.0">
+    <link rel="stylesheet" href="css/topin.css?v=10.1">
     <script>
         (function() {
             const saved = localStorage.getItem('houz_theme');
@@ -42,10 +42,14 @@
             height: 100vh;
             background: var(--surface);
             border-right: 1px solid var(--border);
-            padding: 30px 20px;
+            padding: 20px 20px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            /* flex-start, not space-between: space-between pushed the three nav
+               buttons down toward the middle of a 100vh column. The bottom
+               group stays pinned on its own via margin-top:auto on the theme
+               row, so nothing else moves. */
+            justify-content: flex-start;
             box-sizing: border-box;
             z-index: 50;
         }
@@ -61,10 +65,11 @@
         .sidebar-menu {
             display: flex;
             flex-direction: column;
+            flex: 1;
             gap: 10px;
             list-style: none;
             padding: 0;
-            margin: 0;
+            margin: 20px 0 0;
         }
         .menu-item-btn {
             width: 100%;
@@ -503,6 +508,105 @@
             .support-info-btn { right: 16px; bottom: 16px; }
             .support-info-panel { right: 16px; left: 16px; width: auto; bottom: 76px; }
         }
+
+        /* Category / subcategory picker in the shop profile. Same look as the
+           admin panel's .sub-pill so both sides of the same setting read alike. */
+        .vendor-cat-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .vendor-cat-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 50px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text2);
+        }
+        .vendor-subcat-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .vendor-subcat-pills .sub-pill {
+            padding: 6px 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .vendor-subcat-pills .sub-pill:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+        .vendor-subcat-pills .sub-pill.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        /* Shop-defined product group manager */
+        .group-mgr-head { margin-bottom: 12px; }
+        .group-mgr-add {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .group-mgr-add input { flex: 1; }
+        .group-mgr-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .group-mgr-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+        .group-mgr-row .group-name {
+            flex: 1;
+            min-width: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .group-mgr-row .group-count {
+            font-size: 12px;
+            color: var(--text3);
+            white-space: nowrap;
+        }
+        .group-mgr-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text2);
+            font-size: 15px;
+            padding: 4px 6px;
+            border-radius: 6px;
+            line-height: 1;
+        }
+        .group-mgr-btn:hover { background: var(--border); color: var(--text); }
+        .group-mgr-btn.danger:hover { background: var(--red); color: #fff; }
+        .group-mgr-empty {
+            font-size: 13px;
+            color: var(--text3);
+            padding: 4px 0;
+        }
     </style>
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
@@ -728,6 +832,20 @@
                             <!-- Populated in JS -->
                         </div>
                     </div>
+
+                    <div class="form-group full-width-field">
+                        <label>Категория и подкатегории</label>
+                        <span class="field-hint">
+                            Категорию задаёт администратор Topin. Подкатегории выбираете вы —
+                            по ним покупатели находят магазин в каталоге.
+                        </span>
+                        <div class="vendor-cat-row">
+                            <span class="vendor-cat-chip" id="pCategoryChip">—</span>
+                        </div>
+                        <div class="vendor-subcat-pills" id="pSubCategories">
+                            <span class="field-hint">Загрузка…</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -738,7 +856,27 @@
                 <h1 class="dashboard-title">Управление товарами</h1>
                 <button class="btn-add" onclick="openProductModal()">＋ Добавить товар</button>
             </div>
-            
+
+            <!-- Shop-defined product groups. These show as filter pills on the
+                 shop's own page (topin.uz/stores/…) and nowhere else. -->
+            <div class="form-container" style="margin-bottom:20px;">
+                <div class="group-mgr-head">
+                    <div>
+                        <label style="margin:0;">Разделы магазина</label>
+                        <span class="field-hint">
+                            Ваши собственные разделы — покупатели переключают их на странице
+                            вашего магазина. В общем каталоге они не показываются.
+                        </span>
+                    </div>
+                </div>
+                <div class="group-mgr-add">
+                    <input type="text" id="newGroupName" class="form-control-dashboard"
+                           placeholder="Например: Кухонные столешницы" maxlength="60">
+                    <button class="btn-add" type="button" onclick="createProductGroup()">＋ Добавить раздел</button>
+                </div>
+                <div id="productGroupsList" class="group-mgr-list"></div>
+            </div>
+
             <div class="form-container">
                 <table class="dashboard-table">
                     <thead>
@@ -800,6 +938,13 @@
                         <option value="">Выберите категорию...</option>
                     </select>
                     <span class="field-hint">По ней покупатели находят товар через фильтры на сайте.</span>
+                </div>
+                <div class="form-group">
+                    <label>Раздел магазина</label>
+                    <select id="fProdGroup" class="form-control-dashboard">
+                        <option value="">Без раздела</option>
+                    </select>
+                    <span class="field-hint">Ваш собственный раздел на странице магазина. Необязательно.</span>
                 </div>
                 <div class="form-group">
                     <label>Наличие *</label>
@@ -939,8 +1084,8 @@
         })();
     </script>
 
-    <script src="js/config.js?v=10.0"></script>
-    <script src="js/utils.js?v=10.0"></script>
+    <script src="js/config.js?v=10.1"></script>
+    <script src="js/utils.js?v=10.1"></script>
     <script>
         // Token auth check on load
         const token = localStorage.getItem(TOKEN_KEY);
@@ -1002,8 +1147,11 @@
             await Promise.all([
                 loadProducts(),
                 loadSubcategoriesFilter(),
+                renderVendorSubcats(),
                 loadAnalytics()
             ]);
+            // After loadProducts, so the per-group product counts are accurate.
+            await loadProductGroups();
 
             // Auto-extract coordinates from pasted locationLink helper
             const locInput = document.getElementById('pLocationLink');
@@ -1050,6 +1198,9 @@
 
         async function loadSubcategoriesFilter() {
             const select = document.getElementById('fProdSubcat');
+            // Reset before filling: initDashboard() re-runs on every profile
+            // save, which otherwise appended a second copy of every option.
+            select.innerHTML = '<option value="">Выберите категорию...</option>';
             try {
                 const res = await fetch(`/api/subcategories?category=${vendorShop.CategoryId}&_=${Date.now()}`);
                 const json = await res.json();
@@ -1061,6 +1212,189 @@
                     select.appendChild(option);
                 });
             } catch(e) {}
+        }
+
+        // ── Shop category / subcategories ───────────────────────────
+        // The category itself is the admin's to set (it drives the catalogue
+        // listing), so it is shown read-only. Which subcategories inside it the
+        // shop lists under is the owner's call.
+        let _vendorSubcatIds = [];
+
+        async function renderVendorSubcats() {
+            const wrap = document.getElementById('pSubCategories');
+            const chip = document.getElementById('pCategoryChip');
+            if (!wrap || !chip) return;
+
+            const catSlug = vendorShop.Category?.slug;
+            chip.textContent = (catSlug && typeof getCatName === 'function' ? getCatName(catSlug) : null)
+                || vendorShop.Category?.name
+                || 'Категория не назначена';
+
+            _vendorSubcatIds = (vendorShop.SubCategories || []).map(sc => sc.id);
+
+            if (!vendorShop.CategoryId) {
+                wrap.innerHTML = '<span class="field-hint">Категория пока не назначена администратором.</span>';
+                return;
+            }
+
+            let subcats = [];
+            try {
+                const res = await fetch(`/api/subcategories?category=${vendorShop.CategoryId}&_=${Date.now()}`);
+                subcats = (await res.json()).data || [];
+            } catch (e) {
+                wrap.innerHTML = '<span class="field-hint">Не удалось загрузить подкатегории.</span>';
+                return;
+            }
+
+            if (!subcats.length) {
+                wrap.innerHTML = '<span class="field-hint">В этой категории пока нет подкатегорий.</span>';
+                return;
+            }
+
+            wrap.innerHTML = subcats.map(sc => {
+                const active = _vendorSubcatIds.includes(sc.id) ? ' active' : '';
+                return `<div class="sub-pill${active}" data-value="${sc.id}">${escHtml(sc.name_ru || sc.name)}</div>`;
+            }).join('');
+
+            wrap.querySelectorAll('.sub-pill').forEach(pill => {
+                pill.onclick = () => pill.classList.toggle('active');
+            });
+        }
+
+        function collectVendorSubcatIds() {
+            const wrap = document.getElementById('pSubCategories');
+            if (!wrap) return null;
+            const pills = wrap.querySelectorAll('.sub-pill');
+            if (!pills.length) return null;   // nothing rendered — don't clear server-side
+            return Array.from(pills)
+                .filter(p => p.classList.contains('active'))
+                .map(p => parseInt(p.dataset.value, 10));
+        }
+
+        // ── Shop-defined product groups ─────────────────────────────
+        // Private to this shop and rendered as filter pills on its storefront
+        // only; the global /shops screen never sees them.
+        let vendorGroups = [];
+
+        async function loadProductGroups() {
+            try {
+                const res = await fetch('/api/shops/profile/groups', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error();
+                vendorGroups = (await res.json()).data || [];
+            } catch (e) {
+                vendorGroups = [];
+            }
+            renderProductGroups();
+            renderProductGroupOptions();
+        }
+
+        function renderProductGroups() {
+            const list = document.getElementById('productGroupsList');
+            if (!list) return;
+
+            if (!vendorGroups.length) {
+                list.innerHTML = '<div class="group-mgr-empty">Разделов пока нет. Пока их меньше двух, страница магазина показывает товары одним списком.</div>';
+                return;
+            }
+
+            list.innerHTML = vendorGroups.map((g, i) => {
+                const used = vendorProducts.filter(pr => pr.ShopProductGroupId === g.id).length;
+                return `<div class="group-mgr-row">
+                    <button class="group-mgr-btn" type="button" title="Выше"
+                            onclick="moveProductGroup(${g.id}, -1)" ${i === 0 ? 'disabled' : ''}>↑</button>
+                    <button class="group-mgr-btn" type="button" title="Ниже"
+                            onclick="moveProductGroup(${g.id}, 1)" ${i === vendorGroups.length - 1 ? 'disabled' : ''}>↓</button>
+                    <span class="group-name">${escHtml(g.name_ru || g.name)}</span>
+                    <span class="group-count">${used} тов.</span>
+                    <button class="group-mgr-btn" type="button" title="Переименовать"
+                            onclick="renameProductGroup(${g.id})">✎</button>
+                    <button class="group-mgr-btn danger" type="button" title="Удалить"
+                            onclick="deleteProductGroup(${g.id})">✕</button>
+                </div>`;
+            }).join('');
+        }
+
+        function renderProductGroupOptions() {
+            const select = document.getElementById('fProdGroup');
+            if (!select) return;
+            const prev = select.value;
+            select.innerHTML = '<option value="">Без раздела</option>'
+                + vendorGroups.map(g => `<option value="${g.id}">${escHtml(g.name_ru || g.name)}</option>`).join('');
+            select.value = prev;
+        }
+
+        async function groupRequest(url, method, body) {
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: body ? JSON.stringify(body) : undefined
+            });
+            const json = await res.json().catch(() => ({}));
+            if (!res.ok || json.success === false) {
+                throw new Error(json.message || 'Ошибка запроса');
+            }
+            return json;
+        }
+
+        async function createProductGroup() {
+            const input = document.getElementById('newGroupName');
+            const name = input.value.trim();
+            if (!name) { showToast('Введите название раздела', 'error'); return; }
+            try {
+                await groupRequest('/api/shops/profile/groups', 'POST', { name, name_ru: name });
+                input.value = '';
+                await loadProductGroups();
+                showToast('Раздел добавлен', 'success');
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function renameProductGroup(id) {
+            const group = vendorGroups.find(g => g.id === id);
+            if (!group) return;
+            const name = prompt('Новое название раздела:', group.name_ru || group.name);
+            if (name === null) return;
+            if (!name.trim()) { showToast('Название не может быть пустым', 'error'); return; }
+            try {
+                await groupRequest(`/api/shops/profile/groups/${id}`, 'PUT', { name: name.trim(), name_ru: name.trim() });
+                await loadProductGroups();
+                showToast('Раздел переименован', 'success');
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function deleteProductGroup(id) {
+            const group = vendorGroups.find(g => g.id === id);
+            if (!group) return;
+            const used = vendorProducts.filter(pr => pr.ShopProductGroupId === id).length;
+            const warning = used
+                ? `Раздел «${group.name_ru || group.name}» удалить? ${used} товар(ов) останутся в магазине, но без раздела.`
+                : `Раздел «${group.name_ru || group.name}» удалить?`;
+            if (!confirm(warning)) return;
+            try {
+                await groupRequest(`/api/shops/profile/groups/${id}`, 'DELETE');
+                await Promise.all([loadProducts(), loadProductGroups()]);
+                showToast('Раздел удалён', 'success');
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function moveProductGroup(id, delta) {
+            const i = vendorGroups.findIndex(g => g.id === id);
+            const j = i + delta;
+            if (i < 0 || j < 0 || j >= vendorGroups.length) return;
+            const reordered = vendorGroups.slice();
+            [reordered[i], reordered[j]] = [reordered[j], reordered[i]];
+            vendorGroups = reordered;
+            renderProductGroups();
+            try {
+                await groupRequest('/api/shops/profile/groups/reorder', 'PUT', { order: reordered.map(g => g.id) });
+            } catch (e) {
+                showToast(e.message, 'error');
+                await loadProductGroups();
+            }
         }
 
         async function loadProducts() {
@@ -1142,6 +1476,9 @@
                 workingHours: JSON.stringify(workingHours)
             };
 
+            const subCategoryIds = collectVendorSubcatIds();
+            if (subCategoryIds) payload.subCategoryIds = subCategoryIds;
+
             try {
                 const res = await fetch(`/api/shops/profile`, {
                     method: 'PUT',
@@ -1201,6 +1538,7 @@
             document.getElementById('fProdPrice').value = prod?.price || '';
             document.getElementById('fProdSalePrice').value = prod?.salePrice || '';
             document.getElementById('fProdSubcat').value = prod?.SubCategoryId || '';
+            document.getElementById('fProdGroup').value = prod?.ShopProductGroupId || '';
             document.getElementById('fProdStock').value = prod?.stockStatus || 'In Stock';
             document.getElementById('fProdShortDesc').value = prod?.shortDescription || '';
             document.getElementById('fProdShortDescRu').value = prod?.shortDescription_ru || '';
@@ -1387,6 +1725,9 @@
                 price: parseFloat(price),
                 salePrice: document.getElementById('fProdSalePrice').value ? parseFloat(document.getElementById('fProdSalePrice').value) : null,
                 SubCategoryId: parseInt(subcat),
+                ShopProductGroupId: document.getElementById('fProdGroup').value
+                    ? parseInt(document.getElementById('fProdGroup').value)
+                    : null,
                 CategoryId: vendorShop.CategoryId,
                 ShopId: vendorShop.id,
                 stockStatus: document.getElementById('fProdStock').value,
@@ -1694,6 +2035,7 @@
                 price: document.getElementById('fProdPrice').value,
                 salePrice: document.getElementById('fProdSalePrice').value,
                 SubCategoryId: document.getElementById('fProdSubcat').value,
+                ShopProductGroupId: document.getElementById('fProdGroup').value || null,
                 stockStatus: document.getElementById('fProdStock').value,
                 shortDescription: document.getElementById('fProdShortDesc').value,
                 shortDescription_ru: document.getElementById('fProdShortDescRu').value,
@@ -1718,6 +2060,7 @@
                     document.getElementById('fProdPrice').value = draft.price || '';
                     document.getElementById('fProdSalePrice').value = draft.salePrice || '';
                     document.getElementById('fProdSubcat').value = draft.SubCategoryId || '';
+                    document.getElementById('fProdGroup').value = draft.ShopProductGroupId || '';
                     document.getElementById('fProdStock').value = draft.stockStatus || 'In Stock';
                     document.getElementById('fProdShortDesc').value = draft.shortDescription || '';
                     document.getElementById('fProdShortDescRu').value = draft.shortDescription_ru || '';
@@ -1741,7 +2084,7 @@
 
         // Add dirty listeners to form inputs
         function setupDraftChangeListeners() {
-            const inputs = ['fProdName', 'fProdNameRu', 'fProdSlug', 'fProdPrice', 'fProdSalePrice', 'fProdSubcat', 'fProdStock', 'fProdShortDesc', 'fProdShortDescRu', 'fProdDesc', 'fProdDescRu', 'fProdSeoTitle', 'fProdSeoDesc'];
+            const inputs = ['fProdName', 'fProdNameRu', 'fProdSlug', 'fProdPrice', 'fProdSalePrice', 'fProdSubcat', 'fProdGroup', 'fProdStock', 'fProdShortDesc', 'fProdShortDescRu', 'fProdDesc', 'fProdDescRu', 'fProdSeoTitle', 'fProdSeoDesc'];
             inputs.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener('input', markDraftDirty);
