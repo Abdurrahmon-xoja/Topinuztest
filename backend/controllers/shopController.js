@@ -5,6 +5,24 @@ const slugify = require('../utils/slugify');
 const { uploadBuffer } = require('../utils/uploader');
 const { recalculateShopRating } = require('../utils/ratingHelper');
 
+// Gallery photos are rendered by .shop-carousel at aspect-ratio 16/10
+// (frontend/css/topin.css), and the admin cropper now hands us exactly that
+// shape. Squaring them here to 1000x1000 cover re-cropped the image a second
+// time and discarded the left and right edges the admin had just framed.
+// Matching 16:10 makes this a plain downscale rather than a crop.
+const GALLERY_WIDTH = 1600;
+const GALLERY_HEIGHT = 1000;
+
+const processGalleryImage = (buffer) =>
+    sharp(buffer)
+        .resize(GALLERY_WIDTH, GALLERY_HEIGHT, {
+            fit: 'cover',
+            position: 'centre',
+            withoutEnlargement: true
+        })
+        .jpeg({ quality: 85 })
+        .toBuffer();
+
 const shopIncludes = [
     { model: SubCategory, through: { attributes: [] } },
     { model: Category, attributes: ['id', 'name', 'slug', 'icon'] },
@@ -265,10 +283,7 @@ exports.replaceShopImage = async (req, res) => {
         if (!image) return res.status(404).json({ success: false, message: 'Image not found' });
         if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
 
-        const processedBuffer = await sharp(req.file.buffer)
-            .resize(1000, 1000, { fit: 'cover', position: 'centre' })
-            .jpeg({ quality: 85 })
-            .toBuffer();
+        const processedBuffer = await processGalleryImage(req.file.buffer);
 
         const fileUrl = await uploadBuffer(processedBuffer, 'houz_shops_gallery', req.file.originalname, 'image');
         // Only overwrite the url once the upload has actually succeeded.
@@ -291,10 +306,7 @@ exports.addShopImage = async (req, res) => {
 
         if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
 
-        const processedBuffer = await sharp(req.file.buffer)
-            .resize(1000, 1000, { fit: 'cover', position: 'centre' })
-            .jpeg({ quality: 85 })
-            .toBuffer();
+        const processedBuffer = await processGalleryImage(req.file.buffer);
 
         try {
             const fileUrl = await uploadBuffer(processedBuffer, 'houz_shops_gallery', req.file.originalname, 'image');
