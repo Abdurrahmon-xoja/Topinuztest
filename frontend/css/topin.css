@@ -3013,6 +3013,9 @@ model-viewer {
 }
 
 .admin-body {
+    /* Same trap as .page-wrapper, one level down: that wrapper is a flex column,
+       so `margin: 0 auto` here cancels the stretch and this shrink-to-fits. */
+    width: 100%;
     max-width: 1280px;
     margin: 0 auto;
     padding: 32px 24px;

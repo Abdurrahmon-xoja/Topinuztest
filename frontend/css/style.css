@@ -127,6 +127,13 @@ select {
 
 /* ─── Page wrapper ───────────────────────────────────────── */
 .page-wrapper {
+    /* topin.css makes <body> a flex column for the public site's layout, and
+       admin.html loads it second, so this is a flex item. `margin: 0 auto` on a
+       flex item's cross axis cancels the default stretch, which left the wrapper
+       shrink-to-fit — 488px on a 1600px screen — and collapsed the category grid
+       to a single column. An explicit width restores the intended behaviour:
+       fill, cap at max-width, stay centred. */
+    width: 100%;
     max-width: 1440px;
     margin: 0 auto;
     min-height: 100vh;
