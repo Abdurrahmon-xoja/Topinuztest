@@ -12,8 +12,8 @@
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="icon" type="image/png" href="/img/icon-192.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/style.css?v=9.7">
-    <link rel="stylesheet" href="css/topin.css?v=9.7">
+    <link rel="stylesheet" href="css/style.css?v=9.8">
+    <link rel="stylesheet" href="css/topin.css?v=9.8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script>
         (function() {
@@ -134,7 +134,7 @@
                 </button>
                 <h1 class="admin-title">Фильтры: <span id="adminFiltersCategoryName"></span></h1>
             </div>
-            <button class="btn-add" onclick="addFilterPrompt()">
+            <button class="btn-add" onclick="openFilterForm()">
                 <span>＋</span> Добавить фильтр
             </button>
         </div>
@@ -343,6 +343,41 @@
         </div>
     </div>
 
+    <!-- Add / Edit Filter (subcategory) Modal -->
+    <div class="form-modal-overlay" id="filterFormOverlay" style="display:none">
+        <div class="form-modal" role="dialog" aria-modal="true" aria-labelledby="filterFormTitle">
+            <h2 class="form-modal-title" id="filterFormTitle">Добавить фильтр</h2>
+
+            <div class="form-row">
+                <label for="fFilterNameUz">Название (UZ) *</label>
+                <input type="text" id="fFilterNameUz" placeholder="Masalan: Keramogranit" autocomplete="off">
+            </div>
+
+            <div class="form-row">
+                <label for="fFilterNameRu">Название (RU)</label>
+                <input type="text" id="fFilterNameRu" placeholder="Например: Керамогранит" autocomplete="off">
+                <small id="fFilterRuHint" style="display:none; color:var(--gold); font-size:12px;">
+                    Без русского названия русскоязычные посетители увидят узбекский текст.
+                </small>
+            </div>
+
+            <div class="form-row">
+                <label for="fFilterSlug">Системный ключ (slug) *</label>
+                <input type="text" id="fFilterSlug" placeholder="porcelain-stoneware" autocomplete="off" spellcheck="false">
+                <small style="color:var(--text3); font-size:12px;">
+                    Только латиница, цифры и дефис. Используется в ссылках и в скриптах миграций.
+                </small>
+            </div>
+
+            <div id="fFilterError" style="display:none; color:var(--red); font-size:13px; margin-top:4px;"></div>
+
+            <div class="form-modal-btns">
+                <button class="btn-cancel" onclick="closeFilterForm()">Отмена</button>
+                <button class="btn-save" onclick="saveFilterForm()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Image Cropper Modal -->
     <div class="cropper-overlay" id="cropperOverlay" style="display:none;">
         <div class="cropper-modal-inner">
@@ -418,13 +453,13 @@
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-    <script src="js/config.js?v=9.7"></script>
-    <script src="js/utils.js?v=9.7"></script>
-    <script src="js/auth.js?v=9.7"></script>
-    <script src="js/adminCropper.js?v=9.7"></script>
-    <script src="js/adminShops.js?v=9.7"></script>
-    <script src="js/adminFilters.js?v=9.7"></script>
-    <script src="js/admin.js?v=9.7"></script>
+    <script src="js/config.js?v=9.8"></script>
+    <script src="js/utils.js?v=9.8"></script>
+    <script src="js/auth.js?v=9.8"></script>
+    <script src="js/adminCropper.js?v=9.8"></script>
+    <script src="js/adminShops.js?v=9.8"></script>
+    <script src="js/adminFilters.js?v=9.8"></script>
+    <script src="js/admin.js?v=9.8"></script>
     <script>
         // Auth guard + page init (inline to keep admin boot reliable)
         document.addEventListener('DOMContentLoaded', () => {
