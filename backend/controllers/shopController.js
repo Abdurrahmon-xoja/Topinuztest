@@ -85,12 +85,29 @@ function cacheGet(key) {
 function cacheSet(key, data) { _cache.set(key, { data, ts: Date.now() }); }
 function cacheClear() { _cache.clear(); }
 
+// Fisher-Yates over a copy. The copy matters: the array this runs on may be the
+// one held in the cache, and shuffling that in place would reorder every later
+// reader's view of it while they iterate.
+function shuffled(list) {
+    const out = list.slice();
+    for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
+}
+
 exports.getAllShops = async (req, res) => {
     try {
         const { category, subcategory, search } = req.query;
         const cacheKey = `${category}|${subcategory}|${search}`;
+        // Reshuffle on the way out. Shuffling before the cache write froze one
+        // order for the whole 60s window, so every visitor in that window — and
+        // every reload — saw the shops in the same sequence, which is the
+        // opposite of what the ordering is for. The query stays cached; only
+        // the order is recomputed, which is cheap.
         const cached = cacheGet(cacheKey);
-        if (cached) return res.json(cached);
+        if (cached) return res.json({ success: true, data: shuffled(cached.data) });
 
         let whereClause = { isActive: true };
         if (search) {
@@ -141,15 +158,9 @@ exports.getAllShops = async (req, res) => {
             return s;
         });
 
-        // Shuffle on server so clients don't need to
-        for (let i = plainShops.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [plainShops[i], plainShops[j]] = [plainShops[j], plainShops[i]];
-        }
-
         const result = { success: true, data: plainShops };
         if (!search) cacheSet(cacheKey, result); // don't cache search results
-        res.json(result);
+        res.json({ success: true, data: shuffled(plainShops) });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
