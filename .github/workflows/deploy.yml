@@ -1,0 +1,58 @@
+name: Deploy to production
+
+# Every push to main goes live. Nothing here reviews the change — that gate is
+# whatever happens before the push.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Two deploys must never interleave on one droplet. Queue instead of cancelling:
+# a cancelled deploy could leave the app stopped between restart and health check.
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Pull and restart on the droplet
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out the commit being deployed
+        uses: actions/checkout@v4
+
+      - name: Deploy over SSH
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOY_HOST:-}" ] || [ -z "${DEPLOY_SSH_KEY:-}" ]; then
+            echo "Missing DEPLOY_HOST or DEPLOY_SSH_KEY."
+            echo "Add them under Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Pin the host key rather than accepting whatever answers, so a
+          # redirected DNS entry cannot collect this key.
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+          # scripts/deploy.sh comes from the checkout above, so the deploy steps
+          # always match the commit being deployed.
+          ssh -i ~/.ssh/deploy_key \
+              -o StrictHostKeyChecking=yes \
+              -o ConnectTimeout=20 \
+              "root@$DEPLOY_HOST" 'bash -s' < scripts/deploy.sh
+
+      - name: Confirm the site is serving
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' https://topin.uz/shops || true)
+          echo "https://topin.uz/shops -> $code"
+          [ "$code" = "200" ] || exit 1
