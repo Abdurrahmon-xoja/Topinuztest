@@ -90,7 +90,9 @@ window.showAdminShopsView = (categoryId, categoryName) => {
     shopsView.style.display = 'block';
     
     document.getElementById('adminShopsTitle').textContent = categoryName || t('shops');
-    
+
+    loadCategoryTop(categoryId);
+
     const tbody = document.getElementById('adminTableBody');
     const filteredShops = _adminShops
         .filter(s => s.CategoryId === categoryId)
@@ -121,6 +123,115 @@ window.showAdminShopsView = (categoryId, categoryName) => {
     </tr>
   `).join('');
 }
+
+// ── Per-category top 5 ──────────────────────────────────────────
+// Distinct from the site-wide featured list above: these pin to the head of
+// /shops?category=… while everything below stays in the server's random order.
+const CATEGORY_TOP_LIMIT = 5;
+let _catTopShopIds = [];
+
+async function loadCategoryTop(categoryId) {
+    _catTopShopIds = [];
+    try {
+        const res = await fetch(`${API}/api/shops/category-featured/${categoryId}`);
+        if (res.ok) {
+            const json = await res.json();
+            _catTopShopIds = (json.data || []).map(s => s.id);
+        }
+    } catch (e) {}
+    renderCategoryTop();
+}
+
+function renderCategoryTop() {
+    const listEl = document.getElementById('catTopList');
+    const selectEl = document.getElementById('addCatTopSelect');
+    if (!listEl || !selectEl) return;
+
+    const inCategory = _adminShops.filter(s => s.CategoryId === _currentAdminCategoryId);
+
+    if (_catTopShopIds.length === 0) {
+        listEl.innerHTML = '<div class="admin-fs-md" style="color:var(--text3);padding:6px 0;">Пока никто не закреплён — вся категория показывается в случайном порядке.</div>';
+    } else {
+        listEl.innerHTML = _catTopShopIds.map((shopId, idx) => {
+            const shop = inCategory.find(s => s.id === shopId);
+            if (!shop) return '';
+            const name = shop.name_ru || shop.name;
+            return `<div class="cat-top-item">
+                <span class="rank">${idx + 1}</span>
+                <div class="admin-logo-thumb">${logoFallback(shop.logoUrl, name)}</div>
+                <span class="nm admin-fs-base">${escHtml(name)}</span>
+                <button type="button" title="Выше" onclick="moveCategoryTop(${shop.id}, -1)" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                <button type="button" title="Ниже" onclick="moveCategoryTop(${shop.id}, 1)" ${idx === _catTopShopIds.length - 1 ? 'disabled' : ''}>↓</button>
+                <button type="button" class="danger" title="Убрать" onclick="removeCategoryTop(${shop.id})">✕</button>
+            </div>`;
+        }).join('');
+    }
+
+    selectEl.innerHTML = '<option value="">+ Добавить магазин...</option>';
+    inCategory
+        .filter(s => !_catTopShopIds.includes(s.id))
+        .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+        .forEach(shop => {
+            const opt = document.createElement('option');
+            opt.value = shop.id;
+            opt.textContent = shop.name_ru || shop.name;
+            selectEl.appendChild(opt);
+        });
+    selectEl.disabled = _catTopShopIds.length >= CATEGORY_TOP_LIMIT;
+}
+
+window.addCategoryTopShop = function() {
+    const selectEl = document.getElementById('addCatTopSelect');
+    const shopId = parseInt(selectEl.value, 10);
+    if (!shopId) return;
+    if (_catTopShopIds.length >= CATEGORY_TOP_LIMIT) {
+        showToast(`Максимум ${CATEGORY_TOP_LIMIT} магазинов в категории`, 'error');
+        return;
+    }
+    if (!_catTopShopIds.includes(shopId)) {
+        _catTopShopIds.push(shopId);
+        renderCategoryTop();
+    }
+    selectEl.value = '';
+};
+
+window.removeCategoryTop = function(shopId) {
+    _catTopShopIds = _catTopShopIds.filter(id => id !== shopId);
+    renderCategoryTop();
+};
+
+window.moveCategoryTop = function(shopId, delta) {
+    const i = _catTopShopIds.indexOf(shopId);
+    const j = i + delta;
+    if (i < 0 || j < 0 || j >= _catTopShopIds.length) return;
+    [_catTopShopIds[i], _catTopShopIds[j]] = [_catTopShopIds[j], _catTopShopIds[i]];
+    renderCategoryTop();
+};
+
+window.saveCategoryTop = async function() {
+    const btn = document.getElementById('saveCatTopBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Сохранение…'; }
+    try {
+        const res = await fetch(`${API}/api/shops/category-featured/order`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}`
+            },
+            body: JSON.stringify({
+                categoryId: _currentAdminCategoryId,
+                orders: _catTopShopIds.map((shopId, idx) => ({ shopId, order: idx + 1 }))
+            })
+        });
+        if (handle401(res)) return;
+        if (!res.ok) throw new Error('save failed');
+        showToast('Топ-5 категории сохранён', 'success');
+    } catch (e) {
+        showToast('Не удалось сохранить топ-5', 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Сохранить'; }
+    }
+};
 
 window.impersonateShop = async (shopId) => {
     try {

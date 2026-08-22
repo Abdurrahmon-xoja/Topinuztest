@@ -109,6 +109,16 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null
         },
+        // Rank within this shop's own category, 1-5, for the pinned slots at the
+        // top of /shops?category=…. Separate from featuredOrder, which is the
+        // single site-wide list on the homepage — one column cannot hold both
+        // rankings. Unambiguous without a category reference because a shop
+        // belongs to exactly one category (Shops.CategoryId).
+        categoryFeaturedOrder: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: null
+        },
         // Link to a 360° virtual tour (platform360.uz / uzbekistan360.uz).
         // A first-class column rather than another customLinks entry, because
         // the UI highlights it: a shop you can walk through is a stronger draw

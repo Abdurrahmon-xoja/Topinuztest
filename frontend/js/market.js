@@ -228,7 +228,9 @@ async function fetchAndRenderShops(activeMainIdOrSlug = 'all', activeSubIdOrSlug
       _allShops = [];
   }
 
-  const shopsToRender = _nearMeFilterActive ? getSortedShops(_allShops) : _allShops;
+  const shopsToRender = _nearMeFilterActive
+    ? getSortedShops(_allShops)
+    : pinCategoryFeatured(_allShops, activeMainIdOrSlug);
   renderShops(shopsToRender);
   
   if (_currentViewMode === 'map') {
@@ -401,8 +403,33 @@ async function handleLangChangeMarket() {
     titleEl.textContent = _activeMainCategory === 'all' ? t('allShops') : getCatName(_activeMainCategory);
   }
 
-  const shopsToRender = _nearMeFilterActive ? getSortedShops(_allShops) : _allShops;
+  const shopsToRender = _nearMeFilterActive
+    ? getSortedShops(_allShops)
+    : pinCategoryFeatured(_allShops);
   renderShops(shopsToRender);
+}
+
+// Lifts a category's chosen top shops to the front, leaving everything below in
+// the order the server sent — which is reshuffled per request, so the promoted
+// slots stay put while the rest of the list keeps rotating.
+//
+// Only applies to a single category. Under "all" every category's picks would
+// qualify at once, which is 60 pinned shops and no longer a top five.
+// Deliberately skipped for the near-me sort too: a distance ordering that
+// silently keeps five distant shops on top would be lying.
+function pinCategoryFeatured(shopsList, category = _activeMainCategory) {
+  if (!category || category === 'all') return shopsList;
+
+  const pinned = [];
+  const rest = [];
+  for (const shop of shopsList) {
+    if (shop.categoryFeaturedOrder) pinned.push(shop);
+    else rest.push(shop);
+  }
+  if (!pinned.length) return shopsList;
+
+  pinned.sort((a, b) => a.categoryFeaturedOrder - b.categoryFeaturedOrder);
+  return pinned.concat(rest);
 }
 
 function getSortedShops(shopsList) {
@@ -509,7 +536,7 @@ function switchViewMode(mode) {
   
   if (!listBtn || !mapBtn || !listGrid || !mapDiv) return;
 
-  const shopsToRender = _nearMeFilterActive ? getSortedShops(_allShops) : _allShops;
+  const shopsToRender = _nearMeFilterActive ? getSortedShops(_allShops) : pinCategoryFeatured(_allShops);
 
   if (mode === 'map') {
     listBtn.classList.remove('active');
@@ -646,6 +673,6 @@ function toggleLayoutMode() {
   localStorage.setItem('topin_layout_mode', _shopsLayoutMode);
   _syncLayoutToggleIcon();
 
-  const shopsToRender = _nearMeFilterActive ? getSortedShops(_allShops) : _allShops;
+  const shopsToRender = _nearMeFilterActive ? getSortedShops(_allShops) : pinCategoryFeatured(_allShops);
   renderShops(shopsToRender);
 }

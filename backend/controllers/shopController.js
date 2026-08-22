@@ -585,6 +585,82 @@ exports.getFeaturedShops = async (req, res) => {
     }
 };
 
+const CATEGORY_FEATURED_LIMIT = 5;
+
+// The pinned shops for one category. Scoped deliberately: updateFeaturedOrder
+// resets every row because the site-wide list is global, but doing that here
+// would clear all twelve categories' picks every time one was saved.
+exports.getCategoryFeatured = async (req, res) => {
+    try {
+        const categoryId = parseInt(req.params.categoryId, 10);
+        if (!Number.isInteger(categoryId)) {
+            return res.status(400).json({ success: false, message: 'Invalid category id' });
+        }
+        const shops = await Shop.findAll({
+            where: { CategoryId: categoryId, categoryFeaturedOrder: { [Op.not]: null } },
+            attributes: ['id', 'name', 'name_ru', 'slug', 'logoUrl', 'categoryFeaturedOrder'],
+            order: [['categoryFeaturedOrder', 'ASC']],
+            limit: CATEGORY_FEATURED_LIMIT
+        });
+        res.json({ success: true, data: shops });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.updateCategoryFeaturedOrder = async (req, res) => {
+    try {
+        const { categoryId, orders } = req.body;
+        const catId = parseInt(categoryId, 10);
+        if (!Number.isInteger(catId)) {
+            return res.status(400).json({ success: false, message: 'categoryId is required' });
+        }
+        if (!Array.isArray(orders)) {
+            return res.status(400).json({ success: false, message: 'orders must be an array' });
+        }
+        if (orders.length > CATEGORY_FEATURED_LIMIT) {
+            return res.status(400).json({ success: false, message: `Maximum ${CATEGORY_FEATURED_LIMIT} shops per category` });
+        }
+
+        // Only shops that really belong to this category may be pinned in it —
+        // otherwise a shop would carry a rank for a category it is not listed
+        // under, and would surface in a screen it does not belong to.
+        const ids = orders.map(o => parseInt(o.shopId, 10)).filter(Number.isInteger);
+        const owned = await Shop.findAll({
+            where: { id: ids, CategoryId: catId },
+            attributes: ['id']
+        });
+        const ownedIds = new Set(owned.map(s => s.id));
+
+        // Reject rather than skip. This is a whole-list replacement, so quietly
+        // dropping an unrecognised id would clear the category's existing picks
+        // and save a shorter list than the caller asked for.
+        const foreign = ids.filter(id => !ownedIds.has(id));
+        if (foreign.length || ids.length !== orders.length) {
+            return res.status(400).json({
+                success: false,
+                message: 'Every shop must belong to this category',
+                invalidShopIds: foreign
+            });
+        }
+
+        await Shop.update(
+            { categoryFeaturedOrder: null },
+            { where: { CategoryId: catId } }
+        );
+
+        let rank = 1;
+        for (const id of ids) {
+            await Shop.update({ categoryFeaturedOrder: rank++ }, { where: { id } });
+        }
+
+        cacheClear();
+        res.json({ success: true, data: { categoryId: catId, pinned: rank - 1 } });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 exports.updateFeaturedOrder = async (req, res) => {
     try {
         const { orders } = req.body; // [{ shopId: 1, order: 1 }, { shopId: 2, order: 2 }, ...]

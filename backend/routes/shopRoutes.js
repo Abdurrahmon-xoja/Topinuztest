@@ -8,6 +8,11 @@ const { upload } = require('../middlewares/uploadMiddleware');
 
 router.get('/featured', shopController.getFeaturedShops);
 router.put('/featured/order', authMiddleware, adminOnly, shopController.updateFeaturedOrder);
+
+// Per-category pinned shops. Above '/:id' so 'category-featured' is not read
+// as a shop id.
+router.get('/category-featured/:categoryId', shopController.getCategoryFeatured);
+router.put('/category-featured/order', authMiddleware, adminOnly, shopController.updateCategoryFeaturedOrder);
 router.get('/', shopController.getAllShops);
 router.get('/my-location', shopController.getUserLocationFromIp);
 router.get('/by-slug/:slug', shopController.getShopBySlug);
