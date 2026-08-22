@@ -9,6 +9,7 @@ const Category = require('./Category')(sequelize, DataTypes);
 const SubCategory = require('./SubCategory')(sequelize, DataTypes);
 const Product = require('./Product')(sequelize, DataTypes);
 const ShopImage = require('./ShopImage')(sequelize, DataTypes);
+const ShopProductGroup = require('./ShopProductGroup')(sequelize, DataTypes);
 const AnalyticsEvent = require('./AnalyticsEvent')(sequelize, DataTypes);
 const Review = require('./Review')(sequelize, DataTypes);
 
@@ -36,6 +37,13 @@ Product.belongsTo(SubCategory);
 
 SubCategory.belongsToMany(Shop, { through: 'ShopSubCategories' });
 Shop.belongsToMany(SubCategory, { through: 'ShopSubCategories' });
+
+// Shop-defined product groups. Deleting the shop takes its groups with it;
+// deleting a group only unassigns the products (SET NULL), never removes them.
+Shop.hasMany(ShopProductGroup, { onDelete: 'CASCADE' });
+ShopProductGroup.belongsTo(Shop);
+ShopProductGroup.hasMany(Product, { onDelete: 'SET NULL' });
+Product.belongsTo(ShopProductGroup);
 
 Shop.hasMany(AnalyticsEvent, { onDelete: 'CASCADE' });
 AnalyticsEvent.belongsTo(Shop);
@@ -96,6 +104,7 @@ const initDb = async () => {
             try { await sequelize.query("ALTER TABLE Products ADD COLUMN seoDescription VARCHAR(255);"); } catch (e) {}
             try { await sequelize.query("ALTER TABLE Products ADD COLUMN isPublished TINYINT(1) DEFAULT 1;"); } catch (e) {}
             try { await sequelize.query("ALTER TABLE Products ADD COLUMN SubCategoryId INTEGER REFERENCES SubCategories (id) ON DELETE SET NULL ON UPDATE CASCADE;"); } catch (e) {}
+            try { await sequelize.query("ALTER TABLE Products ADD COLUMN ShopProductGroupId INTEGER REFERENCES ShopProductGroups (id) ON DELETE SET NULL ON UPDATE CASCADE;"); } catch (e) {}
 
             // User role and ShopId columns
             try { await sequelize.query("ALTER TABLE Users ADD COLUMN role VARCHAR(255) DEFAULT 'vendor';"); } catch (e) {}
@@ -216,6 +225,7 @@ module.exports = {
     User,
     Shop,
     ShopImage,
+    ShopProductGroup,
     Category,
     SubCategory,
     Product,

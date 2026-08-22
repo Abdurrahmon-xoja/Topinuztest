@@ -3,6 +3,16 @@ let _cropperInstance = null;
 let _cropperResolve = null;
 let _cropperMode = 'logo'; // 'logo' or 'gallery'
 
+// Each crop mode is locked to the shape the public site actually renders, so
+// the admin's selection is the final framing. A free-form gallery crop only
+// looked free: .shop-carousel is aspect-ratio 16/10 with object-fit:cover
+// (topin.css), so anything not already 16:10 got silently cropped a second
+// time after upload, and the admin never saw the result.
+const CROP_ASPECT = {
+    logo: 1,          // .market-logo-box / .modal-logo — circle, 1:1
+    gallery: 16 / 10  // .shop-carousel
+};
+
 /**
  * Opens the crop modal with the given image file.
  * Returns a Promise that resolves with the cropped File, or null if cancelled.
@@ -19,9 +29,9 @@ window.openImageCropper = function(fileOrUrl, mode = 'logo') {
 
         // Set aspect ratio info text
         if (aspectInfo) {
-            aspectInfo.textContent = mode === 'logo' 
-                ? 'Логотип (1:1 квадрат)' 
-                : 'Фото галереи (свободная обрезка)';
+            aspectInfo.textContent = mode === 'logo'
+                ? 'Логотип (1:1 квадрат) — показывается кружком'
+                : 'Фото галереи (16:10) — точно так покажется в карточке магазина';
         }
 
         const initCropper = (src) => {
@@ -35,7 +45,7 @@ window.openImageCropper = function(fileOrUrl, mode = 'logo') {
             }
 
             _cropperInstance = new Cropper(img, {
-                aspectRatio: mode === 'logo' ? 1 : NaN,
+                aspectRatio: CROP_ASPECT[mode] ?? NaN,
                 viewMode: 1,
                 dragMode: 'move',
                 autoCropArea: 0.85,

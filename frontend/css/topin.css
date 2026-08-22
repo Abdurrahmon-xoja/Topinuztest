@@ -1485,29 +1485,31 @@ button:focus-visible {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 46px;
-    height: 46px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: var(--bg);
+    /* var(--surface), not var(--bg): .modal-sheet is already var(--bg), so a
+       --bg circle on it is the same colour and reads as no button at all.
+       This matches .viewer-close-btn and .share-card-close. */
+    background: var(--surface);
     color: var(--text);
-    box-shadow: var(--shadow-sm);
     transition: background 0.2s;
 }
 
 .btn-modal-share svg,
 .modal-close svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
 }
 
 .btn-modal-share:hover,
 .modal-close:hover {
-    background: var(--surface);
+    background: var(--border2);
 }
 
 /* The shop card is opened by tapping, so on touch these two are the first thing
-   a thumb goes for — they get a further step up over the 46px base, and a wider
-   gap so share and close are not within one thumb width of each other. */
+   a thumb goes for: 44px is the minimum target size Apple and Android both
+   publish, and a wider gap keeps share and close more than one thumb apart. */
 @media (max-width: 767px) {
     .modal-header {
         top: 12px;
@@ -1516,13 +1518,13 @@ button:focus-visible {
     }
     .btn-modal-share,
     .modal-close {
-        width: 54px;
-        height: 54px;
+        width: 44px;
+        height: 44px;
     }
     .btn-modal-share svg,
     .modal-close svg {
-        width: 28px;
-        height: 28px;
+        width: 22px;
+        height: 22px;
     }
 }
 
@@ -1530,14 +1532,14 @@ button:focus-visible {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     /* Top padding is what keeps the carousel clear of the floating
-       .modal-header buttons: 12px offset + 54px button = 66px on mobile. */
-    padding: 78px 20px 20px;
+       .modal-header buttons: 12px offset + 44px button + 12px clearance. */
+    padding: 68px 20px 20px;
 }
 
 @media (min-width: 768px) {
     .modal-body {
-        /* 14px offset + 46px button = 60px. */
-        padding: 72px 24px 24px;
+        /* 14px offset + 40px button + 12px clearance. */
+        padding: 66px 24px 24px;
     }
 }
 
@@ -2892,7 +2894,11 @@ model-viewer {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.45);
-    z-index: 1100;
+    /* Must clear .modal-overlay's z-index: 1000000 !important — this sheet is a
+       body-level sibling of the shop modal, and at 1100 it opened *behind* the
+       backdrop, so on any browser without navigator.share the share button
+       looked like it did nothing. */
+    z-index: 1000001;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -3094,6 +3100,32 @@ model-viewer {
 }
 .admin-table tr:last-child td {
     border-bottom: none;
+}
+
+/* Shop logo thumbnail in the shops table and the featured-shops list. Mirrors
+   .market-logo-box on the public shops screen (circle + cover) so the admin
+   sees the same crop the customer will. */
+.th-logo,
+.td-logo {
+    width: 56px;
+    padding-right: 0;
+}
+.admin-logo-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--white-box);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.admin-logo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 /* ═══════ Sidebar ═══════ */
@@ -3302,4 +3334,57 @@ model-viewer {
 .privacy-content a {
     color: var(--blue);
     text-decoration: none;
+}
+
+/* ═══════ Admin type scale ═══════════════════════════════════
+   These utilities replace the inline style="font-size:…" attributes that used
+   to sit on admin markup. Inline styles beat media queries, so nothing below
+   1280px could be scaled while they were there.
+
+   admin.html loads style.css first and topin.css second, so this block — at the
+   end of topin.css — wins over both files' admin rules without !important.
+   ═══════════════════════════════════════════════════════════ */
+.admin-fs-xs   { font-size: 11px; }
+.admin-fs-sm   { font-size: 12px; }
+.admin-fs-md   { font-size: 13px; }
+.admin-fs-base { font-size: 14px; }
+.admin-fs-lg   { font-size: 16px; }
+.admin-fs-xl   { font-size: 18px; }
+
+/* On a large monitor the admin panel is read at arm's length across a wide
+   window, where the 12-14px base set for phones is genuinely small. +2-3px. */
+@media (min-width: 1280px) {
+    .admin-title            { font-size: 29px; }
+    .admin-cat-text h3      { font-size: 20px; }
+    .admin-cat-text p       { font-size: 16px; }
+    .admin-cat-icon         { font-size: 27px; }
+    .admin-table th         { font-size: 16px; }
+    .admin-table td         { font-size: 17px; }
+    .admin-logo             { font-size: 25px; }
+
+    .btn-add,
+    .btn-logout             { font-size: 16px; }
+    .btn-edit,
+    .btn-delete             { font-size: 15px; }
+    .btn-cancel,
+    .btn-save               { font-size: 17px; }
+
+    .form-modal-title       { font-size: 23px; }
+    .form-row label         { font-size: 15px; }
+    .form-row select        { font-size: 17px; }
+    .sub-pill               { font-size: 16px; }
+    .sub-pill-msg           { font-size: 16px; }
+    .toast                  { font-size: 16px; }
+    .cropper-title          { font-size: 21px; }
+    .cropper-aspect-info    { font-size: 16px; }
+
+    /* Last, so an element carrying both a component class and a utility (e.g.
+       the featured-shops h2 is .admin-title.admin-fs-xl) keeps the utility —
+       same specificity means source order decides. */
+    .admin-fs-xs   { font-size: 13px; }
+    .admin-fs-sm   { font-size: 15px; }
+    .admin-fs-md   { font-size: 16px; }
+    .admin-fs-base { font-size: 17px; }
+    .admin-fs-lg   { font-size: 19px; }
+    .admin-fs-xl   { font-size: 21px; }
 }

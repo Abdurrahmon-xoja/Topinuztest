@@ -1,4 +1,4 @@
-const { Shop, ShopImage, SubCategory, Category, User, Review, sequelize } = require('../models');
+const { Shop, ShopImage, SubCategory, Category, User, Review, ShopProductGroup, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const sharp = require('sharp');
 const slugify = require('../utils/slugify');
@@ -8,7 +8,11 @@ const { recalculateShopRating } = require('../utils/ratingHelper');
 const shopIncludes = [
     { model: SubCategory, through: { attributes: [] } },
     { model: Category, attributes: ['id', 'name', 'slug', 'icon'] },
-    { model: ShopImage, attributes: ['id', 'url', 'order'] }
+    { model: ShopImage, attributes: ['id', 'url', 'order'] },
+    // The shop's own product groups, so its storefront can render the pill bar
+    // in the owner's order. Not included in getAllShops — the shops listing has
+    // no use for them and it is a hot, cached query.
+    { model: ShopProductGroup, attributes: ['id', 'name', 'name_ru', 'slug', 'order'] }
 ];
 
 const bcrypt = require('bcryptjs');
@@ -366,7 +370,37 @@ exports.updateMyShopProfile = async (req, res) => {
             req.body.slug = slugify(req.body.name);
         }
 
-        await shop.update(req.body);
+        // Whitelist, because this route is reachable by any logged-in vendor for
+        // their own shop. A blind shop.update(req.body) let a vendor set
+        // isActive, featuredOrder, rating, vendorPassword or CategoryId on
+        // themselves — CategoryId in particular is the FK the shops listing
+        // filters on and the one the admin owns.
+        const VENDOR_EDITABLE = [
+            'name', 'name_ru', 'slug', 'description', 'description_ru',
+            'location', 'locationLink', 'latitude', 'longitude',
+            'website', 'instagram', 'telegram', 'phone',
+            'logoUrl', 'bannerUrl', 'workingHours', 'currency',
+            'tour360Url', 'customLinks', 'socialPlatform', 'socialUrl'
+        ];
+        const updates = {};
+        for (const field of VENDOR_EDITABLE) {
+            if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+                updates[field] = req.body[field];
+            }
+        }
+        await shop.update(updates);
+
+        // Subcategories a shop lists itself under. Restricted to the shop's own
+        // category so a vendor cannot file themselves under someone else's.
+        const subCats = req.body.SubCategories || req.body.subCategoryIds;
+        if (Array.isArray(subCats)) {
+            const allowed = await SubCategory.findAll({
+                where: { id: subCats, CategoryId: shop.CategoryId },
+                attributes: ['id']
+            });
+            await shop.setSubCategories(allowed.map(sc => sc.id));
+        }
+
         await recalculateShopRating(shop.id);
         cacheClear();
         const updatedShop = await Shop.findByPk(shop.id, { include: shopIncludes });

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const shopController = require('../controllers/shopController');
 const productController = require('../controllers/productController');
+const shopProductGroupController = require('../controllers/shopProductGroupController');
 const { authMiddleware, adminOnly } = require('../middlewares/authMiddleware');
 const { upload } = require('../middlewares/uploadMiddleware');
 
@@ -12,6 +13,16 @@ router.get('/my-location', shopController.getUserLocationFromIp);
 router.get('/by-slug/:slug', shopController.getShopBySlug);
 router.get('/profile', authMiddleware, shopController.getMyShopProfile);
 router.put('/profile', authMiddleware, shopController.updateMyShopProfile);
+
+// Shop-defined product groups. These must stay above the '/:id' routes below,
+// or Express matches 'profile' as an :id. Every handler scopes to the caller's
+// own shop, so no adminOnly and no shop id in the path.
+router.get('/profile/groups', authMiddleware, shopProductGroupController.getMyGroups);
+router.post('/profile/groups', authMiddleware, shopProductGroupController.createMyGroup);
+router.put('/profile/groups/reorder', authMiddleware, shopProductGroupController.reorderMyGroups);
+router.put('/profile/groups/:groupId', authMiddleware, shopProductGroupController.updateMyGroup);
+router.delete('/profile/groups/:groupId', authMiddleware, shopProductGroupController.deleteMyGroup);
+
 router.get('/:id', shopController.getShopById);
 router.post('/', authMiddleware, adminOnly, shopController.createShop);
 router.put('/:id', authMiddleware, adminOnly, shopController.updateShop);

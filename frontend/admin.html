@@ -12,8 +12,8 @@
     <meta name="apple-mobile-web-app-title" content="Topin">
     <link rel="icon" type="image/png" href="/img/icon-192.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/style.css?v=10.0">
-    <link rel="stylesheet" href="css/topin.css?v=10.0">
+    <link rel="stylesheet" href="css/style.css?v=10.1">
+    <link rel="stylesheet" href="css/topin.css?v=10.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script>
         (function() {
@@ -32,7 +32,7 @@
             <a href="/" class="admin-logo">Topin</a>
             <nav class="admin-nav">
                 <a href="/editor" class="btn-logout" style="background:#3b82f6;text-decoration:none;color:#fff;">🎨 Редактор</a>
-                <span style="font-size:14px; font-weight:600; color:var(--text2)" id="adminUser">Admin</span>
+                <span class="admin-fs-base" style="font-weight:600; color:var(--text2)" id="adminUser">Admin</span>
                 <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle theme">
                     <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                     <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -62,13 +62,13 @@
                 <!-- Featured Shops Management -->
                 <div style="margin-top: 32px;">
                     <div class="admin-toolbar">
-                        <h2 class="admin-title" style="font-size:18px;">⭐ Рекомендуемые магазины</h2>
+                        <h2 class="admin-title admin-fs-xl">⭐ Рекомендуемые магазины</h2>
                         <button class="btn-add" id="saveFeaturedBtn" onclick="saveFeaturedOrder()">Сохранить порядок</button>
                     </div>
-                    <p style="font-size:13px; color:var(--text3); margin-bottom:12px;">Перетаскивайте магазины для изменения порядка. Максимум 15.</p>
+                    <p class="admin-fs-md" style="color:var(--text3); margin-bottom:12px;">Перетаскивайте магазины для изменения порядка. Максимум 15.</p>
                     
                     <div style="display:flex; gap:8px; margin-bottom:16px; align-items:center;">
-                        <select id="addFeaturedSelect" style="flex:1; padding:10px 12px; border-radius:10px; background:var(--surface); color:var(--text); border:1px solid var(--border); font-size:14px;">
+                        <select id="addFeaturedSelect" class="admin-fs-base" style="flex:1; padding:10px 12px; border-radius:10px; background:var(--surface); color:var(--text); border:1px solid var(--border);">
                             <option value="">+ Добавить магазин...</option>
                         </select>
                         <button class="btn-add" onclick="addFeaturedShop()" style="white-space:nowrap;">Добавить</button>
@@ -101,6 +101,7 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
+                                <th class="th-logo">Лого</th>
                                 <th>Название</th>
                                 <th>Город</th>
                                 <th>Телефон</th>
@@ -156,26 +157,26 @@
                 .drop-zone {
                     width: 100%;
                     height: 120px;
-                    border: 2px dashed rgba(255, 255, 255, 0.3);
+                    border: 2px dashed var(--border2);
                     border-radius: 12px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    color: rgba(255, 255, 255, 0.6);
+                    color: var(--text2);
                     cursor: pointer;
                     transition: all 0.2s ease;
                     text-align: center;
                     position: relative;
                     overflow: hidden;
-                    background: rgba(0, 0, 0, 0.2);
+                    background: var(--surface2);
                 }
 
                 .drop-zone:hover,
                 .drop-zone.dragover {
                     border-color: var(--accent);
-                    background: rgba(255, 84, 62, 0.1);
-                    color: #fff;
+                    background: var(--surface);
+                    color: var(--text);
                 }
 
                 .drop-zone img {
@@ -183,6 +184,131 @@
                     max-height: 100%;
                     object-fit: contain;
                 }
+
+                /* ── Upload guidance ─────────────────────────────────────
+                   The drop zone previews with object-fit:contain, but the
+                   public shops screen renders the logo object-fit:cover in a
+                   66px circle. A logo that looks right on the left can be
+                   clipped on the right, so both are shown side by side. */
+                .upload-guide {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 14px;
+                }
+                @media (min-width: 900px) {
+                    .upload-guide { grid-template-columns: 1fr 260px; }
+                }
+                .upload-guide-specs {
+                    margin: 10px 0 0;
+                    padding-left: 18px;
+                    color: var(--text2);
+                    line-height: 1.6;
+                }
+                .upload-guide-specs b { color: var(--text); }
+                .upload-guide-hint {
+                    margin: 0 0 10px;
+                    color: var(--text2);
+                    line-height: 1.5;
+                }
+                .upload-guide-preview-label {
+                    color: var(--text3);
+                    margin-bottom: 8px;
+                    font-weight: 600;
+                }
+                /* Mirrors .market-card.list-card in topin.css */
+                .preview-market-card {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    padding: 15px;
+                    border-radius: 28px;
+                    background: var(--surface);
+                    pointer-events: none;
+                }
+                .preview-logo-box {
+                    width: 66px;
+                    height: 66px;
+                    border-radius: 50%;
+                    background: var(--white-box);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    flex-shrink: 0;
+                }
+                .preview-logo-box img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+                .preview-market-info {
+                    flex: 1;
+                    min-width: 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                }
+                .preview-market-name {
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: var(--text);
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .preview-market-desc {
+                    font-size: 14px;
+                    line-height: 1.35;
+                    color: var(--text2);
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+
+                /* Mirrors .shop-carousel in topin.css */
+                .preview-carousel {
+                    position: relative;
+                    width: 100%;
+                    aspect-ratio: 16 / 10;
+                    border-radius: 28px;
+                    overflow: hidden;
+                    background: var(--surface);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .preview-carousel img {
+                    position: absolute;
+                    inset: 0;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                }
+                .preview-carousel .preview-carousel-empty {
+                    font-size: 13px;
+                    color: var(--text3);
+                    text-align: center;
+                    padding: 0 16px;
+                }
+                .preview-carousel-dots {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: 12px;
+                    display: flex;
+                    justify-content: center;
+                    gap: 6px;
+                    z-index: 2;
+                }
+                .preview-carousel-dots span {
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.45);
+                }
+                .preview-carousel-dots span.active { background: #fff; }
 
                 .drop-zone input[type="file"] {
                     position: absolute;
@@ -287,16 +413,39 @@
                     style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 12px;"></div>
 
                 <div class="form-row" style="grid-column: 1 / -1;">
-                    <button type="button" class="btn-cancel" onclick="addCustomLinkRow()"
-                        style="width: max-content; font-size: 13px; padding: 6px 12px; background: transparent; border: 1px dashed var(--border); border-radius: 8px;">
+                    <button type="button" class="btn-cancel admin-fs-md" onclick="addCustomLinkRow()"
+                        style="width: max-content; padding: 6px 12px; background: transparent; border: 1px dashed var(--border); border-radius: 8px;">
                         + Добавить дополнительную ссылку
                     </button>
                 </div>
                 <div class="form-row" style="grid-column: 1 / -1; margin-bottom: 5px;">
-                    <label>Логотип (формат 1:1, макс 2МБ рекомендуется)</label>
-                    <div class="drop-zone" id="logoDropZone">
-                        <span id="logoDropText">📁 Перетащите логотип сюда или нажмите</span>
-                        <input type="file" id="fLogoFile" accept="image/png, image/jpeg, image/svg+xml">
+                    <label>Логотип (формат 1:1, до 5 МБ)</label>
+                    <div class="upload-guide">
+                        <div class="upload-guide-main">
+                            <div class="drop-zone" id="logoDropZone">
+                                <span id="logoDropText">📁 Перетащите логотип сюда или нажмите</span>
+                                <input type="file" id="fLogoFile" accept="image/png, image/jpeg, image/svg+xml">
+                            </div>
+                            <ul class="upload-guide-specs admin-fs-sm">
+                                <li>Квадрат 1:1, минимум 400×400 px</li>
+                                <li>PNG, JPG или SVG</li>
+                                <li>Логотип обрезается в <b>круг</b> — держите знак по центру с отступом</li>
+                                <li>Фон сплошной или прозрачный, без рамок</li>
+                            </ul>
+                        </div>
+                        <!-- Live preview: exactly how the catalogue will render this
+                             logo (circle + object-fit:cover), so a crop that would
+                             clip the mark is visible here and not after publishing. -->
+                        <div class="upload-guide-preview">
+                            <div class="upload-guide-preview-label admin-fs-sm">Как это будет выглядеть в каталоге</div>
+                            <div class="preview-market-card" id="logoPreviewCard">
+                                <div class="preview-logo-box" id="logoPreviewBox"></div>
+                                <div class="preview-market-info">
+                                    <div class="preview-market-name" id="logoPreviewName">Название магазина</div>
+                                    <div class="preview-market-desc" id="logoPreviewDesc">Описание магазина появится здесь</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <!-- Hidden input to store the uploaded URL -->
                     <input type="hidden" id="fLogoUrl">
@@ -310,8 +459,8 @@
                     <label for="fStoreEnabled" style="margin: 0; cursor: pointer; font-weight: 600;">Кабинет включен (генерация логина/пароля)</label>
                 </div>
                 <div class="form-row" id="vendorCredentialsSection" style="grid-column: 1 / -1; display: none; background: var(--surface2); padding: 12px; border-radius: 8px; margin-bottom: 10px;">
-                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text);">Данные для входа в кабинет:</div>
-                    <div style="display: flex; gap: 20px; font-size: 13px;">
+                    <div class="admin-fs-md" style="font-weight: 600; margin-bottom: 6px; color: var(--text);">Данные для входа в кабинет:</div>
+                    <div class="admin-fs-md" style="display: flex; gap: 20px;">
                         <div><strong>Логин:</strong> <span id="lblVendorUsername" style="user-select: all; color: var(--accent); font-family: monospace;"></span></div>
                         <div><strong>Пароль:</strong> <span id="lblVendorPassword" style="user-select: all; color: var(--accent); font-family: monospace;"></span></div>
                     </div>
@@ -327,9 +476,24 @@
                 </div>
 
                 <div class="form-row" id="gallerySection" style="grid-column: 1 / -1; display: none;">
-                    <label>Фото галерея (макс. 3 фото, квадратные)</label>
-                    <div id="galleryImagesList"></div>
-                    <label id="galleryAddBtn" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 8px 14px; background: transparent; border: 1px dashed var(--border2); border-radius: 8px; color: var(--text2);">
+                    <label>Фото галерея (макс. 3 фото)</label>
+                    <p class="upload-guide-hint admin-fs-sm">
+                        В карточке магазина фото показываются каруселью в формате <b>16:10</b>.
+                        Кадрирование при загрузке уже привязано к этому формату — что выберете,
+                        то и увидит покупатель.
+                    </p>
+                    <div class="upload-guide">
+                        <div class="upload-guide-main">
+                            <div id="galleryImagesList"></div>
+                        </div>
+                        <!-- Replica of .shop-carousel from topin.css: same 16:10 box,
+                             same 28px radius, same object-fit:cover. -->
+                        <div class="upload-guide-preview">
+                            <div class="upload-guide-preview-label admin-fs-sm">Как это будет выглядеть в карточке</div>
+                            <div class="preview-carousel" id="galleryPreviewCarousel"></div>
+                        </div>
+                    </div>
+                    <label id="galleryAddBtn" class="admin-fs-md" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: transparent; border: 1px dashed var(--border2); border-radius: 8px; color: var(--text2);">
                         + Добавить фото
                         <input type="file" id="galleryFileInput" accept="image/png,image/jpeg,image/webp" multiple style="display: none;">
                     </label>
@@ -356,7 +520,7 @@
             <div class="form-row">
                 <label for="fFilterNameRu">Название (RU)</label>
                 <input type="text" id="fFilterNameRu" placeholder="Например: Керамогранит" autocomplete="off">
-                <small id="fFilterRuHint" style="display:none; color:var(--gold); font-size:12px;">
+                <small id="fFilterRuHint" class="admin-fs-sm" style="display:none; color:var(--gold);">
                     Без русского названия русскоязычные посетители увидят узбекский текст.
                 </small>
             </div>
@@ -364,12 +528,12 @@
             <div class="form-row">
                 <label for="fFilterSlug">Системный ключ (slug) *</label>
                 <input type="text" id="fFilterSlug" placeholder="porcelain-stoneware" autocomplete="off" spellcheck="false">
-                <small style="color:var(--text3); font-size:12px;">
+                <small class="admin-fs-sm" style="color:var(--text3);">
                     Только латиница, цифры и дефис. Используется в ссылках и в скриптах миграций.
                 </small>
             </div>
 
-            <div id="fFilterError" style="display:none; color:var(--red); font-size:13px; margin-top:4px;"></div>
+            <div id="fFilterError" class="admin-fs-md" style="display:none; color:var(--red); margin-top:4px;"></div>
 
             <div class="form-modal-btns">
                 <button class="btn-cancel" onclick="closeFilterForm()">Отмена</button>
@@ -453,13 +617,13 @@
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-    <script src="js/config.js?v=10.0"></script>
-    <script src="js/utils.js?v=10.0"></script>
-    <script src="js/auth.js?v=10.0"></script>
-    <script src="js/adminCropper.js?v=10.0"></script>
-    <script src="js/adminShops.js?v=10.0"></script>
-    <script src="js/adminFilters.js?v=10.0"></script>
-    <script src="js/admin.js?v=10.0"></script>
+    <script src="js/config.js?v=10.1"></script>
+    <script src="js/utils.js?v=10.1"></script>
+    <script src="js/auth.js?v=10.1"></script>
+    <script src="js/adminCropper.js?v=10.1"></script>
+    <script src="js/adminShops.js?v=10.1"></script>
+    <script src="js/adminFilters.js?v=10.1"></script>
+    <script src="js/admin.js?v=10.1"></script>
     <script>
         // Auth guard + page init (inline to keep admin boot reliable)
         document.addEventListener('DOMContentLoaded', () => {

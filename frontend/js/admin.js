@@ -63,7 +63,7 @@ function renderAdminCategories() {
                 </div>
             </div>
             <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
-                 <button type="button" class="btn-edit" onclick="event.stopPropagation(); window.showFiltersView(${cat.id}, '${escHtml(nameRu)}')" style="font-size: 13px; padding: 6px 12px;">${t('manageFilters')}</button>
+                 <button type="button" class="btn-edit" onclick="event.stopPropagation(); window.showFiltersView(${cat.id}, '${escHtml(nameRu)}')" style="padding: 6px 12px;">${t('manageFilters')}</button>
             </div>
         </div>
         `;
@@ -97,12 +97,13 @@ window.showAdminShopsView = (categoryId, categoryName) => {
         .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 
     if (filteredShops.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px">${t('noShopsInCat')}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:40px">${t('noShopsInCat')}</td></tr>`;
         return;
     }
 
     tbody.innerHTML = filteredShops.map(shop => `
     <tr>
+      <td class="td-logo"><div class="admin-logo-thumb">${logoFallback(shop.logoUrl, shop.name_ru || shop.name)}</div></td>
       <td class="td-name">${escHtml(shop.name)}</td>
       <td class="td-location">${escHtml(shop.location || '–')}</td>
       <td class="td-phone">${shop.phone
@@ -190,7 +191,7 @@ function renderFeaturedList() {
     if (!listEl) return;
 
     if (_featuredShopIds.length === 0) {
-        listEl.innerHTML = '<div style="text-align:center;color:var(--text3);padding:16px;font-size:13px;">Нет рекомендуемых магазинов</div>';
+        listEl.innerHTML = '<div class="admin-fs-md" style="text-align:center;color:var(--text3);padding:16px;">Нет рекомендуемых магазинов</div>';
         return;
     }
 
@@ -198,16 +199,14 @@ function renderFeaturedList() {
         const shop = _adminShops.find(s => s.id === shopId);
         if (!shop) return '';
         const name = shop.name_ru || shop.name;
-        const logo = shop.logoUrl 
-            ? `<img src="${shop.logoUrl}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"/>`
-            : `<div style="width:32px;height:32px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;">🏪</div>`;
+        const logo = `<div class="admin-logo-thumb">${logoFallback(shop.logoUrl, name)}</div>`;
         
         return `<div class="featured-item" draggable="true" data-idx="${idx}" data-shop-id="${shopId}" 
                     style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border-radius:10px;border:1px solid var(--border);cursor:grab;">
-            <span style="color:var(--text3);font-size:12px;font-weight:700;min-width:20px;">${idx + 1}</span>
+            <span class="admin-fs-sm" style="color:var(--text3);font-weight:700;min-width:20px;">${idx + 1}</span>
             ${logo}
-            <span style="flex:1;font-size:14px;font-weight:500;color:var(--text);">${name}</span>
-            <button onclick="removeFeaturedShop(${shopId})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:4px 8px;">✕</button>
+            <span class="admin-fs-base" style="flex:1;font-weight:500;color:var(--text);">${name}</span>
+            <button onclick="removeFeaturedShop(${shopId})" class="admin-fs-lg" style="background:none;border:none;color:var(--red);cursor:pointer;padding:4px 8px;">✕</button>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </div>`;
     }).join('');

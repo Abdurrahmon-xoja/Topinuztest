@@ -2,8 +2,18 @@ const { SubCategory } = require('../models');
 
 exports.getAllSubCategories = async (req, res) => {
     try {
+        // ?category=<id> narrows the list to one category's subcategories.
+        // Callers already sent this (the vendor dashboard's product form does),
+        // but it was ignored, so every caller got all ~89 platform
+        // subcategories and had to filter client-side — or didn't, and offered
+        // other categories' subcategories by mistake.
+        const where = {};
+        const categoryId = parseInt(req.query.category, 10);
+        if (Number.isInteger(categoryId)) where.CategoryId = categoryId;
+
         // Sort by order ascending, then name
         const subCats = await SubCategory.findAll({
+            where,
             order: [
                 ['order', 'ASC'],
                 ['name', 'ASC']
