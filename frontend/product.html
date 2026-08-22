@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#FFFFFF">
     <link rel="icon" type="image/png" href="/img/icon-192.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="/css/topin.css?v=10.1">
+    <link rel="stylesheet" href="/css/topin.css?v=10.2">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('houz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));</script>
 </head>
 <body>
@@ -81,6 +81,22 @@
                         <span id="lblContactPhone">–</span>
                     </a>
 
+                    <!-- Desktop AR card. AR itself needs a phone (ARKit /
+                         Scene Viewer), so on desktop the useful action is
+                         handing the visitor this page on their phone — hence a
+                         QR rather than a button that cannot do what it says. -->
+                    <div class="pd-ar-card" id="pdArCard">
+                        <div class="pd-ar-qr" id="pdArQr"></div>
+                        <div class="pd-ar-copy">
+                            <div class="pd-ar-title" id="lblArOnPhone">Смотреть в AR на телефоне</div>
+                            <div class="pd-ar-hint" id="lblArScanHint">Отсканируйте QR-код камерой телефона</div>
+                            <button class="pd-ar-3d" id="btnView3D" onclick="open3DViewer()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                                <span id="lblView3D">Посмотреть 3D модель</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- AR 3D download pill -->
                     <div class="pd-cta-row">
                         <button class="btn-dark-pill" id="btnDownload3D" onclick="openDownloadModal()">
@@ -149,7 +165,7 @@
     </main>
 
     <!-- Mobile sticky AR bar -->
-    <div class="pd-sticky-bar" id="pdStickyBar" style="display:none;">
+    <div class="pd-sticky-bar" id="pdStickyBar">
         <button class="pd-sticky-download" id="btnStickyDownload" aria-label="Download 3D" onclick="openDownloadModal()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         </button>
@@ -202,8 +218,9 @@
     <!-- Toast elements -->
     <div class="toast" id="toast"></div>
 
-    <script src="/js/config.js?v=10.1"></script>
-    <script src="/js/utils.js?v=10.1"></script>
+    <script src="/js/config.js?v=10.2"></script>
+    <script src="/js/utils.js?v=10.2"></script>
+    <script src="/js/qrcode.js?v=10.2"></script>
     <script>
         let product = null;
         let shop = null;
@@ -356,10 +373,14 @@
             }
 
             if (stickyBar) {
-                stickyBar.style.display = has3D ? 'flex' : 'none';
+                // A class, not an inline display: CSS owns which breakpoint
+                // this is visible at, and an inline style would override it.
+                stickyBar.classList.toggle('is-available', has3D);
                 document.getElementById('lblViewAR').textContent = t('viewInRoom');
                 document.body.style.paddingBottom = (window.innerWidth < 768 && has3D) ? '90px' : '';
             }
+
+            renderArCard(has3D);
 
             // Telegram button label (always translate)
             document.getElementById('lblTelegramConnect').textContent = t('telegramConnect');
@@ -634,6 +655,56 @@
             document.getElementById('primaryImage').src = cloudinaryOptimize(removeImageCrop(url), 800);
             document.querySelectorAll('.thumb-item').forEach(thumb => thumb.classList.remove('active'));
             if (el) el.classList.add('active');
+        }
+
+        // The desktop counterpart to the sticky AR bar: a QR of this page, so a
+        // visitor on a laptop can carry it to the phone that can actually run
+        // AR. The 3D viewer button is separate because model-viewer does work
+        // on desktop.
+        function renderArCard(has3D) {
+            const card = document.getElementById('pdArCard');
+            if (!card) return;
+
+            card.classList.toggle('is-available', has3D);
+            if (!has3D) return;
+
+            document.getElementById('lblArOnPhone').textContent = t('arOnPhone');
+            document.getElementById('lblArScanHint').textContent = t('arScanHint');
+            document.getElementById('lblView3D').textContent = t('view3d');
+
+            // model-viewer needs a GLB; a USDZ-only product has nothing to show
+            // in the browser, so hide the button rather than open an empty box.
+            const btn3d = document.getElementById('btnView3D');
+            if (btn3d) btn3d.style.display = product.glbUrl ? 'inline-flex' : 'none';
+
+            const holder = document.getElementById('pdArQr');
+            if (holder && !holder.dataset.rendered) {
+                try {
+                    holder.innerHTML = qrSvg(window.location.href);
+                    holder.dataset.rendered = '1';
+                } catch (e) {
+                    // Never let a QR failure take the card down with it.
+                    holder.style.display = 'none';
+                }
+            }
+
+        }
+
+        // Renders the matrix as one SVG path — far fewer nodes than a rect per
+        // module, and it scales cleanly at any size.
+        function qrSvg(text) {
+            const m = qrMatrix(text);
+            const n = m.length;
+            const quiet = 2;
+            const dim = n + quiet * 2;
+            let d = '';
+            for (let r = 0; r < n; r++) {
+                for (let c = 0; c < n; c++) {
+                    if (m[r][c]) d += `M${c + quiet} ${r + quiet}h1v1h-1z`;
+                }
+            }
+            return `<svg viewBox="0 0 ${dim} ${dim}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="QR">`
+                 + `<path fill="#000" d="${d}"/></svg>`;
         }
 
         function triggerARFlow() {
