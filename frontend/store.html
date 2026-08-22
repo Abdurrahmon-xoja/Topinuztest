@@ -434,8 +434,16 @@
                 .filter(g => usedGroupIds.has(g.id))
                 .sort((a, b) => (a.order || 0) - (b.order || 0));
 
+            // One section is enough to be worth showing, as long as it splits
+            // the catalogue — "Все / GRANIT" over 87 products is a real filter.
+            // The only useless case is a single section holding every product,
+            // where both pills would list exactly the same thing.
+            const groupedCount = _allProducts.filter(p => p.ShopProductGroupId).length;
+            const groupsSplitCatalogue = groups.length >= 2
+                || (groups.length === 1 && groupedCount < _allProducts.length);
+
             let items;
-            if (groups.length >= 2) {
+            if (groupsSplitCatalogue) {
                 _pillMode = 'group';
                 items = groups;
             } else {
